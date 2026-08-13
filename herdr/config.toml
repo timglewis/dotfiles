@@ -1,0 +1,20 @@
+onboarding = false
+
+[keys]
+prefix = "ctrl+s"
+
+# Floating lazygit over the current workspace; closes on exit, layout untouched.
+[[keys.command]]
+key = "prefix+alt+g"
+type = "popup"
+command = "lazygit"
+width = "80%"
+height = "80%"
+
+# Pick a .vscode/launch.json config and run it in a throwaway pane.
+# Plain letter rather than an alt chord so it works regardless of terminal.
+# The pane inherits the source cwd, so lj finds the nearest launch.json.
+[[keys.command]]
+key = "prefix+d"
+type = "pane"
+command = "lj --hold"

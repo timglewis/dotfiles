@@ -98,6 +98,9 @@ return {
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
+    -- .NET debugging (netcoredbg); configurations come from .vscode/launch.json
+    require('custom.dap-coreclr').setup()
+
     -- Install golang specific config
     require('dap-go').setup {
       delve = {
