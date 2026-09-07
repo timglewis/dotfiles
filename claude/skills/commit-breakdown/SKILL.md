@@ -19,6 +19,10 @@ Reads the ticket's investigation document and produces a sequenced commit plan a
 and independently coherent — each one leaving the codebase in a working state, telling a clear
 story when read in sequence.
 
+Scope is **one ticket, one branch**. If the investigation covers work that needs more than one
+ticket, that split belongs to the `work-breakdown` skill — run that first, then come back here for
+whichever ticket is being picked up.
+
 ## Locating the thread
 
 Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named `YYYY-MM-DD - (KEY) <title>` for keyed threads. Find one by globbing `Threads/*(TACO-XXXX)*/`; its index note is always `index.md` and its session log is always `sessions.md`.

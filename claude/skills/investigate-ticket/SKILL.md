@@ -11,7 +11,9 @@ description: >
   current state of the code, exactly what changes are needed, high-risk areas, and well-linked file
   paths. It pauses to ask clarifying questions as ambiguities surface — never ploughing ahead on
   assumptions — and rewrites the document in-place to stay current as decisions are made. Always
-  produces a file named investigation.md inside the thread folder.
+  produces a file named investigation.md inside the thread folder. Works equally on an unkeyed
+  thread — a spike, an alert investigation, research — where there is no Jira ticket to fetch;
+  trigger phrases there are "investigate this spike", "look into why X", "research X".
 ---
 
 # Investigate Ticket Skill
@@ -23,11 +25,16 @@ navigable, and honest about what's uncertain.
 
 ## Locating the thread
 
-Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named `YYYY-MM-DD - (KEY) <title>` for keyed threads. Find one by globbing `Threads/*(TACO-XXXX)*/`; its index note is always `index.md` and its session log is always `sessions.md`.
+Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named `YYYY-MM-DD - (KEY) <title>` for keyed threads and `YYYY-MM-DD - <title>` for unkeyed ones. With a key, find the folder by globbing `Threads/*(TACO-XXXX)*/`. Without one, match on the title — glob `Threads/*<distinctive words>*/` and confirm the match with the user if more than one folder is plausible. Its index note is always `index.md` and its session log is always `sessions.md`.
+
+If no thread folder exists yet, say so and offer to run `start-thread` first rather than writing `investigation.md` into a folder you invented.
 
 ## Inputs
 
-- A Jira ticket key: `TACO-XXXX` (supplied by the user, or inferred from the vault folder if already in context)
+- **Either** a Jira ticket key (`TACO-XXXX`, supplied by the user or inferred from the vault folder
+  or branch name) **or** an unkeyed thread — a spike, an alert investigation, research. Both are
+  first-class: a keyed ticket is investigated to work out the approach to delivering it, an unkeyed
+  thread to work out whether there is anything to deliver at all.
 - The current working directory — **this is the repo to investigate, and the only one**
 - The vault at `/mnt/c/Users/timle/Obsidian/keyframe/`
 
@@ -47,7 +54,8 @@ than a single-repo one they can extend.
 
 Run these together at the start:
 
-- **Fetch the Jira ticket** via `mcp__claude_ai_Atlassian_Rovo__getJiraIssue`. Extract: summary, description,
+- **Fetch the Jira ticket** via `mcp__claude_ai_Atlassian_Rovo__getJiraIssue` — **keyed threads only;
+  skip this bullet entirely when there is no key**. Extract: summary, description,
   acceptance criteria, labels, linked issues, subtasks, comments. If `cloudId`
   is unknown, call `mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources` first (once per session).
   Comments are **not** in the default field set — pass `fields` explicitly including `"comment"`
@@ -117,6 +125,9 @@ When investigation is complete and open questions are resolved (or consciously d
 - Make sure the Open Questions section clearly separates **resolved** items (moved to Decisions) from
   **genuinely unresolved** ones (still open)
 - Tell the user the document is ready and flag anything that still needs their attention
+- Point at the next step: `work-breakdown` if the work needs carving into separate tickets (always
+  the case for an unkeyed spike, which has no ticket of its own yet), or `commit-breakdown` if this
+  ticket is already the deployable unit and implementation starts now
 
 ---
 
@@ -128,15 +139,20 @@ content for every ticket, and that's fine. Don't pad.
 ```markdown
 # Investigation: TACO-XXXX — <title>
 
+Drop the key from the heading when the thread is unkeyed: `# Investigation: <title>`.
+
 ## Summary
 
-One paragraph. What is this ticket asking for, and why? Written for a developer who hasn't read
+One paragraph. What is this being investigated, and why? Written for a developer who hasn't read
 the Jira ticket — plain terms, no padding.
 
-## Ticket Requirements
+## Requirements
 
 A structured breakdown of what needs to be delivered. Use the Jira acceptance criteria if present;
 synthesise from the description if not. Be specific. Numbered list or sub-sections work well here.
+
+For an unkeyed thread there are no acceptance criteria to work from — state the question the
+investigation is answering instead, and retitle the section `## Question`.
 
 ## Current State
 
