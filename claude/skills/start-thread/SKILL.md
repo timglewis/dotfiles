@@ -37,7 +37,7 @@ Either a Jira key (`TACO-XXXX`) or a plain description of the work. Everything e
 | `work` | Non-code work that produces a proposal, plan or decision — team process, goals and OKRs, committee work. |
 | `incident` | An incident with a post-incident-review lifecycle. |
 
-Infer it: a Jira key with issue type Spike, or a request phrased as "look into" / "investigate" / "work out why", points at `investigation`. Something that produces a proposal or plan rather than code — team process, goals, committee work — is `work`. An incident is `incident`. Everything else is `code`. State the inference in one clause rather than asking — but ask if genuinely torn.
+Infer it: a request phrased as "look into" / "investigate" / "work out why" points at `investigation`. Something that produces a proposal or plan rather than code — team process, goals, committee work — is `work`. An incident is `incident`. Everything else is `code`. State the inference in one clause rather than asking — but ask if genuinely torn.
 
 ### 2. Fetch the Jira issue (keyed threads only)
 
