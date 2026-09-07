@@ -128,6 +128,8 @@ When investigation is complete and open questions are resolved (or consciously d
 - Point at the next step: `work-breakdown` if the work needs carving into separate tickets (always
   the case for an unkeyed spike, which has no ticket of its own yet), or `commit-breakdown` if this
   ticket is already the deployable unit and implementation starts now
+- If the investigation turned up a single thing worth raising on its own — a defect found along the
+  way, one follow-up — that's `jira-ticket`, which owns how a ticket is written and raised
 
 ---
 

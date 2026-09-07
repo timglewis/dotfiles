@@ -10,7 +10,8 @@ description: >
   Story, Technical Story or Bug, gets explicit sign-off, creates them in Jira via the Atlassian
   MCP, and writes work-breakdown.md into the same thread folder with the resulting keys. It
   sits one level above commit-breakdown — this skill decides what the tickets are, commit-
-  breakdown plans the commits inside one of them.
+  breakdown plans the commits inside one of them. Ticket conventions themselves — the item types,
+  description style and the fields set on creation — come from the jira-ticket skill.
 ---
 
 # Work Breakdown Skill
@@ -23,9 +24,13 @@ themselves in Jira.
 
 ```
 start-thread → investigate-ticket → work-breakdown → ┐
-                                                     │  per ticket:
+                                    (jira-ticket)    │  per ticket:
                                                      └→ start-thread → commit-breakdown → pr-summary
 ```
+
+`jira-ticket` is the reference this skill leans on: **it owns what a ticket looks like — the three
+item types, how the description is written, and the epic/sprint/assignee fields. This skill owns
+only the decision of what the tickets should be.** Don't restate its rules here; follow them.
 
 Two different cuts of the same work, and they are easy to confuse:
 
@@ -85,19 +90,11 @@ manufacture a breakdown to justify the skill.
 
 ### 3. Type each item
 
-Exactly three types are in use. Do not reach for any other type the project happens to expose —
-no Task, Epic, Sub-task, Spike or Design Task.
+Every item is a `User Story`, a `Technical Story` or a `Bug`. **The `jira-ticket` skill owns the
+type definitions and the rule for choosing between them — follow it rather than deciding here.**
 
-| Type | Use for |
-| --- | --- |
-| `User Story` | A feature the end user will see and/or experience |
-| `Technical Story` | Functionality that adds capability the end user does not directly experience |
-| `Bug` | A defect or problem that requires fixing |
-
-The distinction that matters is **who experiences the outcome**, not how technical the work is. A
-UI change driven by a refactor is still a User Story if the user sees it; a hard-won performance
-fix nobody notices is a Technical Story. When the source ticket is a Bug and the fix splits into
-several items, each item that corrects the defect stays a Bug; supporting work that merely enables
+The one thing worth restating: when the source ticket is a Bug and the fix splits into several
+items, each item that corrects the defect stays a Bug, while supporting work that merely enables
 the fix is a Technical Story.
 
 ### 4. Propose before creating — always
@@ -115,161 +112,37 @@ Silence or a question is not.
 
 ### 5. Fill in the ticket fields
 
-Three fields get set on every item: **parent epic**, **sprint** and **assignee**. Ask once and apply
-the answer to the whole set — items from one investigation almost always share all three.
+Parent epic, sprint and assignee are set on every item. **The `jira-ticket` skill owns how those
+are resolved** — the cached defaults in `~/.jira`, when to re-query, and the single-line
+confirmation that covers all three.
 
-Resolve the defaults first (cheap, mostly cache reads), then confirm them in a **single line**
-rather than three separate questions:
+Ask once and apply the answer to the whole set: items from one investigation almost always share
+an epic, a sprint and an assignee.
 
-> "Epic TACO-3143 (Autodesk Platform Services Integration), 2026 Sprint 97 (active), assigned to
-> you. Change any of these, or go ahead?"
-
-#### Parent epic
-
-Every item should have a parent epic. Start from the saved default, which costs no server call —
-`~/.jira/default_epic.ps1` is written by `taco_ticket.ps1` each time an epic is picked:
-
-```powershell
-$DEFAULT_EPIC_KEY = "TACO-3143"
-$DEFAULT_EPIC_SUMMARY = "Autodesk Platform Services Integration"
-```
-
-Read it directly with `grep`/`sed` — do not execute it.
-
-**Only if the user wants a different epic**, get the list of open epics. Check the cache first:
-
-- Cache file: `~/.jira/epics_cache.json`, holding `{"fetched": "<ISO-8601 UTC>", "epics": [{"key", "summary", "status"}]}`
-- Use it when it exists and is **less than 24 hours old**; say which list you're showing and how old it is
-- Otherwise query and rewrite the cache:
-
-```
-mcp__claude_ai_Atlassian_Rovo__searchJiraIssuesUsingJql(
-  cloudId="698e3af2-3533-45b9-bbdc-d0407275d5c7",
-  jql="project = TACO AND issuetype = Epic AND resolution is EMPTY ORDER BY created DESC",
-  fields=["summary", "status"],
-  maxResults=100,
-)
-```
-
-That is the same JQL `taco_ticket.ps1` uses. `maxResults` caps at 100; if there are more open
-epics, follow `nextPageToken` rather than truncating the list.
-
-Re-fetch regardless of cache age if the user says the epic they want isn't listed, or asks to
-refresh — an epic created today will not be in yesterday's cache.
-
-Present epics in the same order the script does, by status: **Implementing, In Design, On Hold,
-Backlog**, then everything else.
-
-Once an epic is chosen, write it back to `~/.jira/default_epic.ps1` in exactly the two-line format
-above, so the next `taco_ticket.ps1` run pre-selects the same epic. Only write it when the user
-actively picked an epic — never on "no parent".
-
-If the user declines a parent, note that explicitly in `work-breakdown.md` rather than leaving it
-looking like an oversight.
-
-#### Sprint
-
-Default to the **active** sprint, which is what `taco_ticket.ps1` pre-selects. Backlog (no sprint)
-and any future sprint are the alternatives.
-
-The MCP has no Agile board endpoint — `fetch` takes ARIs only, so the board/sprint REST API the
-script uses is out of reach. Harvest sprints from the issues that are already in them instead:
-
-```
-mcp__claude_ai_Atlassian_Rovo__searchJiraIssuesUsingJql(
-  cloudId="698e3af2-3533-45b9-bbdc-d0407275d5c7",
-  jql="project = TACO AND (sprint in openSprints() OR sprint in futureSprints()) ORDER BY created DESC",
-  fields=["customfield_10020"],
-  maxResults=50,
-)
-```
-
-Each issue's `customfield_10020` is an array of sprint objects — `{id, name, state, boardId,
-startDate, endDate}` — and includes closed sprints the issue passed through. Take the **distinct**
-sprints whose `state` is `active` or `future`, and discard the rest. One page is plenty; don't
-follow `nextPageToken` for this.
-
-The limitation of harvesting this way: a sprint that exists on the board but has **no issues in it
-yet** cannot be seen. If the user expects a future sprint that isn't listed, that's why — ask them
-for its name and id rather than insisting it doesn't exist.
-
-Cache the result in `~/.jira/sprints_cache.json` as
-`{"fetched": "<ISO-8601 UTC>", "sprints": [{"id", "name", "state", "endDate"}]}` and reuse it when
-**both** hold:
-
-- it is less than 12 hours old, **and**
-- the cached active sprint's `endDate` is still in the future
-
-The second check matters: sprints roll over on a fixed cadence, and a cache that survives the
-rollover will confidently name a sprint that closed overnight. Re-fetch if either check fails, or
-if the user asks to refresh.
-
-#### Assignee
-
-Default to the user — `taco_ticket.ps1` self-assigns unconditionally (`:417-430`), with no prompt.
-Offer "leave unassigned" as the alternative; don't offer to assign to anyone else unless asked.
-
-The account id is stable, so cache it in `~/.jira/account_cache.json` as
-`{"email": "...", "accountId": "..."}` and reuse it indefinitely. To resolve it the first time,
-read **only** the `$JIRA_EMAIL` line out of `~/.jira/profile.ps1` — that file also holds
-`$JIRA_API_TOKEN`, which you never need, never read and never echo — then:
-
-```
-mcp__claude_ai_Atlassian_Rovo__lookupJiraAccountId(
-  cloudId="698e3af2-3533-45b9-bbdc-d0407275d5c7",
-  searchString="<the JIRA_EMAIL value>",
-)
-```
+If the user declines a parent epic, note that explicitly in `work-breakdown.md` rather than
+leaving it looking like an oversight.
 
 ### 6. Create the tickets
 
-Site: `https://keyframeai.atlassian.net`, project `TACO`, cloudId
-`698e3af2-3533-45b9-bbdc-d0407275d5c7` — pass the cloudId straight through rather than spending a
-`getAccessibleAtlassianResources` round-trip.
+**The `jira-ticket` skill owns ticket creation** — how to write the summary and description, which
+fields to pass, and the exact `createJiraIssue` call. Follow it for each item; nothing about the
+mechanics is repeated here.
 
-```
-mcp__claude_ai_Atlassian_Rovo__createJiraIssue(
-  cloudId="698e3af2-3533-45b9-bbdc-d0407275d5c7",
-  projectKey="TACO",
-  issueTypeName="Technical Story",      # or "User Story" / "Bug" — exact strings
-  summary="<imperative, specific, under ~80 chars>",
-  description=<markdown, see below>,
-  contentFormat="markdown",
-  assignee_account_id="<cached accountId>",     # omit to leave unassigned
-  additional_fields={
-    "customfield_10014": "TACO-3143",           # Epic Link — the parent epic key
-    "customfield_10020": 1011,                  # Sprint — the bare sprint id, not an object
-  },
-)
-```
+What is specific to a breakdown:
 
-Create them one at a time, in dependency order, and capture each returned key as you go. If one
-fails, stop and report — do not carry on and leave a half-raised set without saying so.
-
-**Description body** for each ticket, in Markdown:
+- Create them **one at a time, in dependency order**, capturing each returned key as you go —
+  later items reference earlier keys in their "Depends on" notes
+- If one fails, stop and report. Don't carry on and leave a half-raised set without saying so
+- Each description should name what it depends on and link back to the investigation:
 
 ```markdown
-<One paragraph: what this item delivers and why.>
-
-## Acceptance criteria
-
-- <specific, checkable outcome>
-- <specific, checkable outcome>
-
 ## Notes
 
 - Depends on TACO-XXXX
 - Investigation: <vault path or Obsidian link>
 ```
 
-Write the description so it stands alone for whoever picks it up — they will not have the vault
-open. Pull the substance out of the investigation rather than linking to it and stopping there.
-
-Both custom fields are the ones `taco_ticket.ps1` sets on this classic company-managed project:
-`customfield_10014` is the Epic Link (`:433-435`) and `customfield_10020` is Sprint (`:438-441`),
-which takes a **bare numeric sprint id** — not an object, not a name. Omit either key entirely when
-the user chose no parent or Backlog. Do not use the MCP `parent` parameter for the epic; that one
-is for sub-tasks.
+Descriptions still have to stand alone — the link is context, not the substance.
 
 ### 7. Write work-breakdown.md
 
@@ -326,17 +199,9 @@ and point out that `commit-breakdown` is the next step once they pick one up.
 
 ## What not to do
 
-- Don't create anything in Jira before the user has explicitly approved the list
-- Don't raise a duplicate set when `work-breakdown.md` already carries keys
-- Don't use any item type outside User Story, Technical Story and Bug
 - Don't slice into items that can't ship independently — that's a commit plan, not a work breakdown
 - Don't pad the breakdown to make it look substantial, or collapse distinct deployables to shorten it
-- Don't write a description that only makes sense with the investigation open alongside it
-- Don't guess an epic — ask, defaulting to the saved one; don't silently raise items with no parent
-- Don't execute `~/.jira/default_epic.ps1` to read it, and don't rewrite it when no epic was chosen
-- Don't trust a stale epic cache when the user says the epic they want is missing — re-fetch
-- Don't trust a sprint cache that survived a sprint rollover — check the active sprint's endDate
-- Don't read or echo `$JIRA_API_TOKEN` when pulling `$JIRA_EMAIL` out of `~/.jira/profile.ps1`
-- Don't pass the sprint as a name or an object — `customfield_10020` takes the numeric id
-- Don't guess a priority, or assign to anyone other than the user, unless told
+- Don't raise a duplicate set when `work-breakdown.md` already carries keys
+- Don't restate the `jira-ticket` rules here or diverge from them — types, descriptions and fields
+  are owned by that skill
 - Don't add emojis
