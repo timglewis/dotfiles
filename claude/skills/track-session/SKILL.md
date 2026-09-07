@@ -2,8 +2,8 @@
 name: track-session
 description: >
   Record the current Claude Code session against a thread in the Obsidian vault so it can
-  be resumed later. Works for any thread kind — work (ticketed or not), investigation,
-  initiative or incident. Use when the user says "track this session", "log this session",
+  be resumed later. Works for any thread kind — code (ticketed or not), investigation,
+  work or incident. Use when the user says "track this session", "log this session",
   "add this session to my notes"; when re-running in a session already recorded, to
   set or sharpen its label and hand-off notes; and when a session begins in a worktree
   whose branch names a ticket that already has a thread. Appends to
@@ -52,7 +52,7 @@ Record the absolute path. In a worktree this is the worktree, not the repo root.
 
 Two routes, depending on whether the thread has a key. Try them in this order.
 
-**Keyed threads (`work` with a `ticket:`, or `incident`).** Take the key from the current branch, which always leads with it:
+**Keyed threads (`code` with a `ticket:`, or `incident`).** Take the key from the current branch, which always leads with it:
 
 ```bash
 git branch --show-current
@@ -60,7 +60,7 @@ git branch --show-current
 
 Then glob `Threads/*(TACO-XXXX)*/` — the key sits in brackets in the folder name.
 
-**Unkeyed threads (`initiative`, `investigation`, untracked `work`).** There is no branch key to go on, and often no git repo at all. Resolve it from what the session has actually been about: search `Threads/*/index.md` frontmatter for a matching `title:` or `aliases:` entry, and if more than one plausibly fits, ask rather than guess. A session working inside a thread folder can also take the thread from the working directory.
+**Unkeyed threads (`work`, `investigation`, untracked `code`).** There is no branch key to go on, and often no git repo at all. Resolve it from what the session has actually been about: search `Threads/*/index.md` frontmatter for a matching `title:` or `aliases:` entry, and if more than one plausibly fits, ask rather than guess. A session working inside a thread folder can also take the thread from the working directory.
 
 Either way the folder holds `index.md` and `sessions.md`. If no thread exists, tell the user to run `start-thread` — do not scaffold one here.
 

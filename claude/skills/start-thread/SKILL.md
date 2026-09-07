@@ -6,7 +6,7 @@ description: >
   TACO-XXXX", "kick off TACO-XXXX", "set up TACO-XXXX",
   "start a thread on X", "start a topic for X", "make me a thread for this investigation", or
   otherwise asks for a place to keep notes on a new piece of work. Handles all four thread kinds:
-  work (ticketed or not), investigation, initiative (non-code proposals, team process, goals) and
+  code (ticketed or not), investigation, work (non-code proposals, team process, goals) and
   incident. When given a Jira key it fetches ticket details via the Atlassian MCP. Creates the
   `Threads/YYYY-MM-DD - (KEY) <title>/` folder, scaffolds `index.md`, infers tags, and records the
   session via track-session.
@@ -32,12 +32,12 @@ Either a Jira key (`TACO-XXXX`) or a plain description of the work. Everything e
 
 | kind | When |
 | --- | --- |
-| `work` | Something being built or changed — ticketed or not. The default. |
+| `code` | Something being built or changed — ticketed or not. The default. |
 | `investigation` | Digging with no deliverable: a spike without a ticket, an alert investigation, research. |
-| `initiative` | Non-code work that produces a proposal, plan or decision — team process, goals and OKRs, committee work. |
+| `work` | Non-code work that produces a proposal, plan or decision — team process, goals and OKRs, committee work. |
 | `incident` | An incident with a post-incident-review lifecycle. |
 
-Infer it: a Jira key with issue type Spike, or a request phrased as "look into" / "investigate" / "work out why", points at `investigation`. Work that produces a proposal or plan rather than code — team process, goals, committee work — is `initiative`. An incident is `incident`. Everything else is `work`. State the inference in one clause rather than asking — but ask if genuinely torn.
+Infer it: a Jira key with issue type Spike, or a request phrased as "look into" / "investigate" / "work out why", points at `investigation`. Something that produces a proposal or plan rather than code — team process, goals, committee work — is `work`. An incident is `incident`. Everything else is `code`. State the inference in one clause rather than asking — but ask if genuinely torn.
 
 ### 2. Fetch the Jira issue (keyed threads only)
 
@@ -78,7 +78,7 @@ Index note path is always `<folder>/index.md`.
 
 ```yaml
 ---
-kind: work
+kind: code
 title: <full summary, quoted if it contains a colon>
 status: active
 aliases:
@@ -89,7 +89,7 @@ updated: <today>
 ---
 ```
 
-**`kind: work` also gets**, in this order after `updated:`:
+**`kind: code` also gets**, in this order after `updated:`:
 
 ```yaml
 ticket: TACO-XXXX                            # omit entirely when unkeyed
@@ -99,7 +99,7 @@ prs: []
 
 **`kind: incident` also gets** `incident:`, `severity:`, `detected:`, `resolved:`.
 
-**`kind: investigation`** and **`kind: initiative`** add nothing.
+**`kind: investigation`** and **`kind: work`** add nothing.
 
 Body:
 
@@ -115,7 +115,7 @@ Rules that matter:
 - **`status:` defaults to `active`** — the user is starting this. The vocabulary is `planned | active | paused | done | dropped`.
 - **`aliases:` is not optional.** It is the only thing keeping `[[TACO-1234]]` and `[[Some Thread Title]]` resolving to a note called `index.md`.
 - **Quote any title containing a colon.** An unquoted colon breaks the line, and Obsidian then shows no properties at all and Bases silently drops the note from every view.
-- **`prs:` is always present on `work`**, as `prs: []` when empty. Never omitted.
+- **`prs:` is always present on `code`**, as `prs: []` when empty. Never omitted.
 - Empty lists render inline as `[]`, not as an empty block.
 
 ### 6. Record this session
@@ -124,7 +124,7 @@ Hand off to `track-session`, which writes the working directory and resume comma
 
 The thread is new, so give it a label from the title and no notes. If the session ID can't be verified, `track-session` says so and stops; that is not a scaffold failure. Mention it and carry on.
 
-### 7. Offer a branch (keyed `work` threads only)
+### 7. Offer a branch (keyed `code` threads only)
 
 Ask once, concisely — _"Want me to create a branch for this in `<repo>`?"_ — and don't push if declined. If yes:
 
