@@ -41,10 +41,10 @@ Infer it: a Jira key with issue type Spike, or a request phrased as "look into" 
 
 ### 2. Fetch the Jira issue (keyed threads only)
 
-Use the Atlassian MCP. If `cloudId` isn't known, call `mcp__claude_ai_Atlassian__getAccessibleAtlassianResources` once and cache it for the session.
+Use the Atlassian MCP. If `cloudId` isn't known, call `mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources` once and cache it for the session.
 
 ```
-mcp__claude_ai_Atlassian__getJiraIssue(cloudId=<id>, issueIdOrKey="TACO-XXXX")
+mcp__claude_ai_Atlassian_Rovo__getJiraIssue(cloudId=<id>, issueIdOrKey="TACO-XXXX")
 ```
 
 Take `summary` as the title, and scan `description` and `labels` for tag hints. Note that the Jira issue **type** is deliberately not recorded — that field is not part of the schema.
@@ -135,7 +135,7 @@ Ask once, concisely — _"Want me to create a branch for this in `<repo>`?"_ —
 ## Defaults and error handling
 
 - **Jira fetch fails or the ticket doesn't exist**: say so, then offer to scaffold from a user-supplied title instead, or abort.
-- **Atlassian auth errors**: ask the user to run `mcp__claude_ai_Atlassian__authenticate`, then retry.
+- **Atlassian auth errors**: the Rovo connector has no `authenticate` tool — ask the user to reconnect Atlassian at https://claude.ai/settings/connectors and restart Claude Code, then retry.
 - **Folder collision**: never delete or rename an existing thread folder.
 
 ## What NOT to do

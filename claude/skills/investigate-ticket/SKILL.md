@@ -47,9 +47,11 @@ than a single-repo one they can extend.
 
 Run these together at the start:
 
-- **Fetch the Jira ticket** via `mcp__claude_ai_Atlassian__getJiraIssue`. Extract: summary, description,
+- **Fetch the Jira ticket** via `mcp__claude_ai_Atlassian_Rovo__getJiraIssue`. Extract: summary, description,
   acceptance criteria, labels, linked issues, subtasks, comments. If `cloudId`
-  is unknown, call `mcp__claude_ai_Atlassian__getAccessibleAtlassianResources` first (once per session).
+  is unknown, call `mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources` first (once per session).
+  Comments are **not** in the default field set — pass `fields` explicitly including `"comment"`
+  (they arrive at `fields.comment.comments`), and `responseContentFormat="markdown"` to avoid raw ADF.
 - **Read the vault index note**: `/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/index.md`
 - **Read any existing files** already in the thread folder — the user may have left scratch notes,
   previous research, or design docs that should inform the investigation.
