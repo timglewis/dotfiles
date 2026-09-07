@@ -3,9 +3,6 @@ customCommands:
     context: "files"
     description: "AI commit message (staged changes)"
     loadingText: "Asking Claude..."
-    subprocess: true
     command: >-
-      git commit -e -m "$(git diff --cached | head -c 100000 | claude -p
-      'Write a git commit message for this staged diff. Output ONLY the message:
-      an imperative subject line under 72 chars, a blank line, then 2-5 bullets
-      on what changed and why. No preamble, no code fences.')"
+      git commit -e -m "$(git diff --cached | head -c 100000 | claude -p 'Write a git commit message for this staged diff. Output ONLY the message: an imperative subject line under 72 chars, a blank line, then 2-5 bullets on what changed and why. No preamble, no code fences.')"
+    output: terminal
