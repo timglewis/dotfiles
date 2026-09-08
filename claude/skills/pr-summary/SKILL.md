@@ -5,7 +5,7 @@ description: >
   to the thread's index note in the Obsidian vault. Use this skill whenever the user says
   "write a PR summary", "PR summary for TACO-XXXX", "draft the PR description",
   "write up this PR", "summarise this PR", "PR description for this branch", "generate a PR title
-  and summary", or any similar phrasing asking for a pull-request write-up — even if they don't
+  and summary", or any similar phrasing asking for a pull-request write-up, even if they don't
   name the ticket. The skill derives the changes from the branch's commits and diff against the
   default branch, produces a title in the project's `<type>: [TACO-XXX] - <short title>`
   format, and a concise high-level summary that starts with a Jira Reference line followed by a
@@ -19,7 +19,7 @@ Produces a ready-to-paste pull-request **title** and **description** for a ticke
 into the thread's index note as a new `## Pull Request` section, and echoes them in chat.
 
 The goal is something the user can paste straight into the Azure DevOps PR form: a clean title and a
-short, high-level description of _what changed_ — not a changelog, not testing notes, not
+short, high-level description of _what changed_, not a changelog, not testing notes, not
 implementation play-by-play. Reviewers skim PR descriptions; the value is in a tight summary that
 orients them fast.
 
@@ -43,13 +43,13 @@ Derive `TACO-XXXX` from the user's message or the branch name. Find the index no
 /mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/index.md
 ```
 
-Read its frontmatter — you need the `jira:` URL for the Jira Reference line. If the note has no
+Read its frontmatter: you need the `jira:` URL for the Jira Reference line. If the note has no
 `jira:` field, fall back to `https://keyframeai.atlassian.net/browse/TACO-XXXX`. If no note folder
 exists, tell the user and ask whether to proceed (writing only to chat) or stop.
 
 ### 2. Derive the changes from git
 
-The branch diff against the repo's **default branch** is the source of truth — commit messages alone
+The branch diff against the repo's **default branch** is the source of truth. Commit messages alone
 can miss things or overstate them. Resolve the default branch first rather than assuming, then read
 both the log and the diff:
 
@@ -74,12 +74,12 @@ Format, matching the project's commit convention:
 ```
 
 - `<type>` is one of `feat | fix | refactor | chore | docs | test`. Pick the type that reflects the
-  PR's primary purpose — if it adds new behaviour, it's `feat` even if it also includes refactors
+  PR's primary purpose: if it adds new behaviour, it's `feat` even if it also includes refactors
   and tests. Use the dominant intent, not a literal count of commit types.
 - Keep the title short, specific, and imperative ("Send confirmation email on order completion",
   not "Changes for orders"). Aim for under ~72 characters total.
 
-The title is **separate** from the summary — it is not repeated inside the description body.
+The title is **separate** from the summary: it is not repeated inside the description body.
 
 ### 4. Compose the PR description
 
@@ -102,33 +102,33 @@ Jira Reference: <jira-url>
   or file-by-file detail. If a change is only a supporting detail of a larger one, fold it in rather
   than giving it its own bullet.
 
-**Default detail level.** Each bullet names what changed _plus a short clause of mechanism or why_ —
+**Default detail level.** Each bullet names what changed _plus a short clause of mechanism or why_:
 roughly 15–25 words. The aim is enough for a reviewer to understand the change without opening the
 diff, but no more. Avoid bare one-liners that just name a method or file, and equally avoid
 sprawling bullets that drift into implementation play-by-play.
 
 - ✅ `Adds SendOrderConfirmationAsync to the Notifications client, which posts the order summary to the notification service's email endpoint`
-- ⚠️ Too thin: `Adds a new client method` — names the change but gives the reviewer nothing to go on.
+- ⚠️ Too thin: `Adds a new client method`, which names the change but gives the reviewer nothing to go on.
 - ⚠️ Too much: a bullet that walks through the method body, parameters, and HTTP headers line by line.
 
 **Detail nudge.** Treat the level above as the default, but adjust when the user signals one. If they
 say things like "keep it tight", "more concise", "shorter", "TL;DR", drop to terse one-line bullets
 that just name each change (~6–10 words, no mechanism clause). If they say "more detail", "expand
 it", "more thorough", widen each bullet with the mechanism and the reason, and split a bundled
-bullet into its parts where that adds genuine clarity. Don't change the voice or structure — only
+bullet into its parts where that adds genuine clarity. Don't change the voice or structure, only
 the depth of each bullet.
 
-**Bullet voice — important.** Write each bullet as a neutral description of _what the PR does to the
+**Bullet voice, important.** Write each bullet as a neutral description of _what the PR does to the
 codebase_, using present-tense third-person verbs: **Adds, Updates, Introduces, Parameterises,
 Moves, Removes, Renames, Replaces**. The reader is reviewing the change, so the bullets should
-describe the change itself — not narrate the actions the author took.
+describe the change itself, not narrate the actions the author took.
 
 - ✅ `Adds an order-confirmation method to the Notifications client`
 - ✅ `Updates order status to Completed when payment settles, alongside the existing receipt write`
 - ✅ `Parameterises the shared notification method by channel (email and SMS)`
-- ❌ `Added ...` / `Called it from ...` / `Wired up ...` — past-tense narration reads like a personal
+- ❌ `Added ...` / `Called it from ...` / `Wired up ...`: past-tense narration reads like a personal
   changelog of what _you_ did, and "it" referring back to a previous bullet is informal and unclear.
-- ❌ `I added ...` / `We updated ...` — never first person.
+- ❌ `I added ...` / `We updated ...`: never first person.
 
 Each bullet should stand on its own without depending on a previous bullet for a pronoun like "it".
 
@@ -162,20 +162,20 @@ Jira Reference: https://keyframeai.atlassian.net/browse/TACO-1234
 ````
 
 If a `## Pull Request` section already exists in the note, replace it rather than adding a second
-one — the latest summary supersedes the old one.
+one, and the latest summary supersedes the old one.
 
 Then echo the same title and description in the chat reply so the user can copy-paste immediately
 without opening the note.
 
-Do not modify the note's frontmatter (including `prs:`) — the PR URL doesn't exist yet, and that's
+Do not modify the note's frontmatter (including `prs:`): the PR URL doesn't exist yet, and that's
 the user's to add.
 
 ## What not to do
 
-- Don't pad the summary with testing notes, rollout steps, or file-by-file detail — it's a
+- Don't pad the summary with testing notes, rollout steps, or file-by-file detail. It's a
   high-level overview of changes only.
 - Don't repeat the title inside the description.
-- Don't assume the default branch is `master` or `main` — resolve it.
+- Don't assume the default branch is `master` or `main`. Resolve it.
 - Don't invent changes that aren't in the diff, or omit a significant one because it wasn't in a
-  commit message — the diff is the source of truth.
+  commit message. The diff is the source of truth.
 - Don't touch frontmatter or create a PR; this skill only writes the summary.

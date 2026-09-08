@@ -2,7 +2,7 @@
 name: track-session
 description: >
   Record the current Claude Code session against a thread in the Obsidian vault so it can
-  be resumed later. Works for any thread kind — code (ticketed or not), investigation,
+  be resumed later. Works for any thread kind: code (ticketed or not), investigation,
   work or incident. Use when the user says "track this session", "log this session",
   "add this session to my notes"; when re-running in a session already recorded, to
   set or sharpen its label and hand-off notes; and when a session begins in a worktree
@@ -58,26 +58,26 @@ Two routes, depending on whether the thread has a key. Try them in this order.
 git branch --show-current
 ```
 
-Then glob `Threads/*(TACO-XXXX)*/` — the key sits in brackets in the folder name.
+Then glob `Threads/*(TACO-XXXX)*/`: the key sits in brackets in the folder name.
 
 **Unkeyed threads (`work`, `investigation`, untracked `code`).** There is no branch key to go on, and often no git repo at all. Resolve it from what the session has actually been about: search `Threads/*/index.md` frontmatter for a matching `title:` or `aliases:` entry, and if more than one plausibly fits, ask rather than guess. A session working inside a thread folder can also take the thread from the working directory.
 
-Either way the folder holds `index.md` and `sessions.md`. If no thread exists, tell the user to run `start-thread` — do not scaffold one here.
+Either way the folder holds `index.md` and `sessions.md`. If no thread exists, tell the user to run `start-thread`. Do not scaffold one here.
 
 ### 4. Write the entry
 
-Entries go in `sessions.md` in the thread folder — never in `index.md`. Create the file if absent, with an H1 and nothing else:
+Entries go in `sessions.md` in the thread folder, never in `index.md`. Create the file if absent, with an H1 and nothing else:
 
 ```markdown
-# TACO-XXXX — Sessions
+# TACO-XXXX - Sessions
 ```
 
 Give it no frontmatter. `threads.base` filters on `file.hasProperty("kind")`, so a `kind` property here would list the session log as a thread in its own right. The H1 uses the key for keyed threads and the thread title otherwise.
 
 Search the file for this session's UUID first:
 
-- **Already there** — update that entry in place. Never append a second entry for one session.
-- **Not there** — append below the existing entries, so they read oldest to newest.
+- **Already there**: update that entry in place. Never append a second entry for one session.
+- **Not there**: append below the existing entries, so they read oldest to newest.
 
 Leave the index note's own content untouched, frontmatter included.
 
@@ -89,14 +89,14 @@ Leave the index note's own content untouched, frontmatter included.
 See [[sessions]] for the session log.
 ```
 
-It goes after the prose summary, before the first `##` section — or at the end of the note if it has none. Skip this step if the link is already there. `[[sessions]]` is deliberately unqualified: Obsidian resolves it to the `sessions.md` in the same folder, so every thread's link points at its own log.
+It goes after the prose summary, before the first `##` section, or at the end of the note if it has none. Skip this step if the link is already there. `[[sessions]]` is deliberately unqualified: Obsidian resolves it to the `sessions.md` in the same folder, so every thread's link points at its own log.
 
 ## Entry format
 
 ````markdown
-# TACO-1234 — Sessions
+# TACO-1234 - Sessions
 
-## 2026-01-15 — Return destination refactor
+## 2026-01-15 - Return destination refactor
 
 `example-service/TACO-1234-quickpayment-back-to-redirect`
 
@@ -108,10 +108,10 @@ claude --resume 1b7d3725-9bcc-4b49-8c16-a607c437150e
 Split the return hook into record + navigate. Option A applied, not committed past `3797cd99`.
 ````
 
-- **Heading** — `##`, the date, then the **label**.
-- **Path line** — the last two segments of the working directory, so entries are scannable without reading the code block.
-- **Code block** — the full `cd` and resume command, copy-pasteable as a pair.
-- **Notes** — optional prose, omitted entirely when there is nothing to say.
+- **Heading**: `##`, the date, then the **label**.
+- **Path line**: the last two segments of the working directory, so entries are scannable without reading the code block.
+- **Code block**: the full `cd` and resume command, copy-pasteable as a pair.
+- **Notes**: optional prose, omitted entirely when there is nothing to say.
 
 ### Label vs notes
 
@@ -128,8 +128,8 @@ Notes are for the state a resumer would otherwise have to rediscover: uncommitte
 
 ## Defaults & error handling
 
-- **Session ID unverifiable** — stop and say so. Never write a guessed UUID.
-- **No thread folder** — point at `start-thread`; don't create the folder. `sessions.md` itself is fine to create — it's the folder that must already exist.
-- **Several worktrees on one thread** — expected. Each session records its own `cwd`, so entries for different repos sit side by side under the same thread.
-- **Session already recorded** — update in place, and say which entry changed.
-- **Entries still in `index.md`** — an older note may carry a `## Sessions` section. Move it to `sessions.md`, demoting each `###` entry to `##`, and leave the link behind.
+- **Session ID unverifiable**: stop and say so. Never write a guessed UUID.
+- **No thread folder**: point at `start-thread`; don't create the folder. `sessions.md` itself is fine to create, but the folder must already exist.
+- **Several worktrees on one thread**: expected. Each session records its own `cwd`, so entries for different repos sit side by side under the same thread.
+- **Session already recorded**: update in place, and say which entry changed.
+- **Entries still in `index.md`**: an older note may carry a `## Sessions` section. Move it to `sessions.md`, demoting each `###` entry to `##`, and leave the link behind.

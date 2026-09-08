@@ -16,11 +16,11 @@ description: >
 
 Reads the ticket's investigation document and produces a sequenced commit plan as
 `commit-breakdown.md` in the thread folder. The goal is commits that are small, purposeful,
-and independently coherent — each one leaving the codebase in a working state, telling a clear
+and independently coherent, each one leaving the codebase in a working state, telling a clear
 story when read in sequence.
 
 Scope is **one ticket, one branch**. If the investigation covers work that needs more than one
-ticket, that split belongs to the `work-breakdown` skill — run that first, then come back here for
+ticket, that split belongs to the `work-breakdown` skill. Run that first, then come back here for
 whichever ticket is being picked up.
 
 ## Locating the thread
@@ -30,7 +30,7 @@ Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named
 ## Inputs
 
 - Ticket key: `TACO-XXXX` (supplied by the user or inferred from context)
-- `investigation.md` in the ticket's vault folder — the primary source of truth
+- `investigation.md` in the ticket's vault folder, the primary source of truth
 - The vault at `/mnt/c/Users/timle/Obsidian/keyframe/`
 
 ## Workflow
@@ -42,7 +42,7 @@ Also read the `index.md` index note for context.
 
 If `investigation.md` does not exist or is clearly incomplete (placeholder sections, unresolved
 open questions that affect scope), tell the user and suggest running the `investigate-ticket` skill
-first. Don't proceed on a half-baked investigation — the breakdown will be wrong.
+first. Don't proceed on a half-baked investigation, because the breakdown will be wrong.
 
 ### 2. Think about the right sequencing
 
@@ -53,16 +53,25 @@ Before writing anything, think through the order. Good sequencing criteria:
 - **Infrastructure before consumers**: if a new service/client/helper is needed, add it before the
   code that calls it
 - **Tests can accompany or follow logic**: unit tests for a class can go in the same commit as the
-  class, or immediately after — don't leave tests to a single final commit at the end
+  class, or immediately after. Don't leave tests to a single final commit at the end
 - **Refactors before new behaviour**: if existing code needs reshaping to accommodate the change, do
   that in a separate commit first so the diff of the actual feature is clean
 - **Each commit should compile and pass tests**: no commit should leave the branch in a broken state
 - **Prefer smaller over larger**: if a commit is doing two separable things, split it
 
-The number of commits is whatever the work actually needs — don't artificially inflate or compress.
+The number of commits is whatever the work actually needs. Don't artificially inflate or compress.
 Three well-chosen commits is better than eight micro-commits or one giant one.
 
-### 3. Write the breakdown document
+### 3. Load the commit message rules
+
+**Invoke the `git-workflow` skill** (`Skill(skill="git-workflow")`) and read its "Commit Messages"
+section. It is the single source of truth for how a commit message is written, and this skill
+deliberately does not restate the format.
+
+Do this before writing any message, not after. The rules are not in context until the skill is
+invoked, and a plan written first and corrected afterwards is a plan the user has already read.
+
+### 4. Write the breakdown document
 
 Path: `/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/commit-breakdown.md`
 
@@ -73,27 +82,27 @@ Write it in one pass once you've thought the sequencing through. Use the templat
 ## Document structure
 
 ```markdown
-# Commit Breakdown: TACO-XXXX — <title>
+# Commit Breakdown: TACO-XXXX - <title>
 
 > Investigation: [[investigation]]
 
 ## Sequencing rationale
 
 One short paragraph explaining the overall approach and why commits are ordered this way.
-Don't list the commits again here — just explain the logic (e.g. "model changes first so the
+Don't list the commits again here, just explain the logic (e.g. "model changes first so the
 feature logic has a stable contract to depend on; tests travel with each commit to keep the
 branch green throughout").
 
 ---
 
-## Commit 1 — <short name for this commit>
+## Commit 1 - <short name for this commit>
 
-**Message:** `<type>: [TACO-XXXX] - <description>`
+**Message:** `<the commit message, per the git-workflow format>`
 
 **Files:**
 
-- [`/full/path/to/File.cs`](file:///full/path/to/File.cs) — what changes in this file
-- [`/full/path/to/AnotherFile.cs`](file:///full/path/to/AnotherFile.cs) — what changes here
+- [`/full/path/to/File.cs`](file:///full/path/to/File.cs): what changes in this file
+- [`/full/path/to/AnotherFile.cs`](file:///full/path/to/AnotherFile.cs): what changes here
 
 **What needs to happen:**
 Concrete description of the work in this commit. Specific enough that the developer could sit down
@@ -106,9 +115,9 @@ earlier commits it depends on.
 
 ---
 
-## Commit 2 — <short name>
+## Commit 2 - <short name>
 
-**Message:** `<type>: [TACO-XXXX] - <description>`
+**Message:** `<the commit message, per the git-workflow format>`
 
 **Files:**
 ...
@@ -121,34 +130,23 @@ earlier commits it depends on.
 ```
 
 Repeat the commit block for each commit. Number them sequentially. Keep the short name in the
-heading descriptive enough to scan — "add PaymentStatus enum", "wire StatusMapper into handler",
-"add unit tests for StatusMapper" — not just "changes" or "update".
+heading descriptive enough to scan: "add PaymentStatus enum", "wire StatusMapper into handler",
+"add unit tests for StatusMapper", not just "changes" or "update".
 
 ---
 
 ## Commit message format
 
-Every commit message must follow the format from the git-workflow skill:
+The format comes from the `git-workflow` skill, invoked in step 3. It is not restated here, and that
+duplication is how the two skills drifted apart last time, and a copy that looks authoritative is
+worse than no copy at all.
 
-```
-<type>: [TACO-XXXX] - <description>
-```
+If step 3 was skipped, go back and do it. Don't reconstruct the format from memory or from commits
+already in the repo's history, which predate the current rules.
 
-Valid types:
-
-| Type       | Use for                                             |
-| ---------- | --------------------------------------------------- |
-| `feat`     | new behaviour visible to callers / users            |
-| `fix`      | correcting a bug                                    |
-| `refactor` | restructuring without behaviour change              |
-| `chore`    | config, dependencies, tooling, non-code maintenance |
-| `docs`     | documentation only                                  |
-| `test`     | adding or updating tests with no production changes |
-
-The description should be imperative and specific: "Add PaymentStatus enum to domain model", not
-"Payment status changes". Keep it under 72 characters.
-
-Never include a Co-Authored-By trailer or any AI attribution in commit messages.
+One thing this skill adds on top: the description should be imperative and specific to *this*
+commit's slice of the work: "Add PaymentStatus enum to domain model", not "Payment status changes",
+and not a description of the ticket as a whole repeated across every commit.
 
 ---
 
@@ -166,12 +164,13 @@ Match the conventions from the investigation document:
 
 ## What not to do
 
-- Don't start writing before thinking through the full sequence — getting the order wrong means
+- Don't start writing before thinking through the full sequence, because getting the order wrong means
   rewriting the whole document
 - Don't invent commits to pad the list; don't collapse distinct concerns into one commit to shorten it
-- Don't leave tests to a single final commit — keep the branch green
-- Don't write vague "what needs to happen" sections — if it's not specific enough to act on, it's
+- Don't leave tests to a single final commit: keep the branch green
+- Don't write vague "what needs to happen" sections: if it's not specific enough to act on, it's
   not done
 - Don't use relative paths or short filenames in the Files list
 - Don't add emojis
+- Don't write commit messages without invoking `git-workflow` first (step 3), and don't reconstruct its format from memory or from the repo's existing commit history
 - Don't include a Co-Authored-By trailer or AI attribution in any commit message
