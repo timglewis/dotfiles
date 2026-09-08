@@ -81,6 +81,12 @@ Explore the current repo with intent:
 Be thorough but purposeful. You're not cataloguing the whole repo, you're mapping the territory that
 the ticket's work will touch.
 
+Once you're ready to describe changes rather than just current behaviour, **invoke the `coding-style`
+skill** (`Skill(skill="coding-style")`). "What Needs to Change" proposes the shape of code that
+doesn't exist yet, and that skill owns what that shape should be. It also settles a question this
+step raises directly: a repo convention that conflicts with those preferences is not a reason to
+follow the convention, so flag the conflict in the investigation rather than resolving it silently.
+
 ### 3. Ask as you go, don't assume
 
 When you hit an ambiguity, a design fork, or something that only the user can resolve, **stop and ask**
@@ -225,4 +231,5 @@ what was decided and why (briefly), so future-you can reconstruct the reasoning.
 - Don't move on past an ambiguity that matters: ask first
 - Don't include every file you read, only the ones genuinely relevant to the ticket
 - Don't wander into a second repo without asking
+- Don't write "What Needs to Change" without invoking `coding-style` first, and don't infer the user's style preferences from the surrounding code
 - Don't add emojis

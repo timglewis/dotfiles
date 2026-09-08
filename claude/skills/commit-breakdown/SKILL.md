@@ -62,14 +62,20 @@ Before writing anything, think through the order. Good sequencing criteria:
 The number of commits is whatever the work actually needs. Don't artificially inflate or compress.
 Three well-chosen commits is better than eight micro-commits or one giant one.
 
-### 3. Load the commit message rules
+### 3. Load the commit message and code style rules
 
 **Invoke the `git-workflow` skill** (`Skill(skill="git-workflow")`) and read its "Commit Messages"
 section. It is the single source of truth for how a commit message is written, and this skill
 deliberately does not restate the format.
 
-Do this before writing any message, not after. The rules are not in context until the skill is
-invoked, and a plan written first and corrected afterwards is a plan the user has already read.
+**Invoke the `coding-style` skill** (`Skill(skill="coding-style")`) as well. The breakdown describes
+code that is about to be written, so the "what needs to happen" sections should describe it in the
+shape Tim actually wants: guard clauses over nesting, comments only where the _why_ isn't derivable,
+no catch-log-rethrow. That skill owns those preferences and this one does not restate them.
+
+Do this before writing any message or any "what needs to happen" text, not after. The rules are not
+in context until the skills are invoked, and a plan written first and corrected afterwards is a plan
+the user has already read.
 
 ### 4. Write the breakdown document
 
@@ -173,4 +179,4 @@ Match the conventions from the investigation document:
 - Don't use relative paths or short filenames in the Files list
 - Don't add emojis
 - Don't write commit messages without invoking `git-workflow` first (step 3), and don't reconstruct its format from memory or from the repo's existing commit history
-- Don't include a Co-Authored-By trailer or AI attribution in any commit message
+- Don't describe the code a commit should produce without invoking `coding-style` first (step 3), and don't infer his style preferences from the surrounding code
