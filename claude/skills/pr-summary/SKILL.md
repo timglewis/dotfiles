@@ -10,7 +10,8 @@ description: >
   default branch, produces a title in the project's `<type>: [TACO-XXX] - <short title>`
   format, and a concise high-level summary that starts with a Jira Reference line followed by a
   `## Summary` section of bullet points. It writes the result into the ticket note and echoes it in
-  chat for copy-paste into Azure DevOps.
+  chat for copy-paste into Azure DevOps. Offers a `/code-review` pass over the branch first,
+  since being asked for a PR write-up is the signal that the ticket's work is finished.
 ---
 
 # PR Summary Skill
@@ -35,7 +36,27 @@ Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named
 
 ## Workflow
 
-### 1. Identify the ticket and locate its note
+### 1. Offer a code review before writing anything
+
+Being asked for a PR summary is the signal that the ticket's work is finished, and that makes this
+the last cheap moment for a review: the branch is complete, nothing is in the PR yet, and the diff
+can still change without a force-push or a second round of reviewer comments.
+
+Ask once, concisely:
+
+> "The branch looks complete. Want me to run `/code-review` over it before I write the summary?"
+
+- **If yes**: run it (`Skill(skill="code-review")`, it is a harness skill rather than one of these).
+  Don't pass an effort level unless the user names one, because it reuses the level they last typed.
+  `ultra` is user-triggered and billed, so if they want that, they type it themselves. Once the
+  findings are dealt with (fixed, or consciously left), pick up from step 2. The summary must
+  describe the final diff, not the one that existed before the review.
+- **If no**: carry straight on, and don't ask again.
+
+Skip the question entirely when a review has already run on this branch in the session, or when the
+user declined one in the same breath as asking for the summary. Ask once, don't push.
+
+### 2. Identify the ticket and locate its note
 
 Derive `TACO-XXXX` from the user's message or the branch name. Find the index note:
 
@@ -47,7 +68,7 @@ Read its frontmatter: you need the `jira:` URL for the Jira Reference line. If t
 `jira:` field, fall back to `https://keyframeai.atlassian.net/browse/TACO-XXXX`. If no note folder
 exists, tell the user and ask whether to proceed (writing only to chat) or stop.
 
-### 2. Derive the changes from git
+### 3. Derive the changes from git
 
 The branch diff against the repo's **default branch** is the source of truth. Commit messages alone
 can miss things or overstate them. Resolve the default branch first rather than assuming, then read
@@ -65,7 +86,7 @@ Synthesise _what changed at a feature level_, not file-by-file. Group related co
 bullet where it reads better (e.g. three test commits → one "Added test coverage" bullet). You're
 describing the change to a reviewer, not transcribing git history.
 
-### 3. Compose the PR title
+### 4. Compose the PR title
 
 Format, matching the project's commit convention:
 
@@ -81,7 +102,7 @@ Format, matching the project's commit convention:
 
 The title is **separate** from the summary: it is not repeated inside the description body.
 
-### 4. Compose the PR description
+### 5. Compose the PR description
 
 The description body is what gets pasted into Azure DevOps. ALWAYS use this exact structure:
 
@@ -132,7 +153,7 @@ describe the change itself, not narrate the actions the author took.
 
 Each bullet should stand on its own without depending on a previous bullet for a pronoun like "it".
 
-### 5. Write to the ticket note and echo in chat
+### 6. Write to the ticket note and echo in chat
 
 Append a new `## Pull Request` section to the **end** of `index.md`. Put the title and the
 description in fenced code blocks so they copy cleanly and the inner `## Summary` doesn't fragment
@@ -178,4 +199,6 @@ the user's to add.
 - Don't assume the default branch is `master` or `main`. Resolve it.
 - Don't invent changes that aren't in the diff, or omit a significant one because it wasn't in a
   commit message. The diff is the source of truth.
+- Don't write the summary from a diff a review is about to change: offer the review first (step 1),
+  and regenerate the summary if the review changes anything.
 - Don't touch frontmatter or create a PR; this skill only writes the summary.

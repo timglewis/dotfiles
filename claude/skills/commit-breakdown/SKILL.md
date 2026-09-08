@@ -139,6 +139,20 @@ Repeat the commit block for each commit. Number them sequentially. Keep the shor
 heading descriptive enough to scan: "add PaymentStatus enum", "wire StatusMapper into handler",
 "add unit tests for StatusMapper", not just "changes" or "update".
 
+Close the document with the review step, so the plan ends where the work does:
+
+```markdown
+---
+
+## After the last commit
+
+Run `/code-review` over the branch, then deal with the findings before the PR is raised. The
+`pr-summary` skill offers this too, so if the review has already run there is nothing to repeat.
+```
+
+Write that section verbatim: it is a fixed footer, not something to reword per ticket. It is a
+pointer, not a commit, so don't number it or give it a commit message.
+
 ---
 
 ## Commit message format
@@ -177,6 +191,8 @@ Match the conventions from the investigation document:
 - Don't write vague "what needs to happen" sections: if it's not specific enough to act on, it's
   not done
 - Don't use relative paths or short filenames in the Files list
+- Don't turn the review step into a numbered commit, and don't leave the footer off: a plan that
+  stops at the last commit reads as though the branch is ready to raise
 - Don't add emojis
 - Don't write commit messages without invoking `git-workflow` first (step 3), and don't reconstruct its format from memory or from the repo's existing commit history
 - Don't describe the code a commit should produce without invoking `coding-style` first (step 3), and don't infer his style preferences from the surrounding code
