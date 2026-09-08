@@ -43,25 +43,47 @@ git clone-worktree https://keyframe-ai@dev.azure.com/keyframe-ai/KeyframeAI/_git
 
 ## Creating a New Branch (Worktree)
 
-New branches must be created using `git worktree add`, and the command **must be run from inside the `.bare` folder** of the repo.
+New branches must be created using `git worktree add`, and the command **must be run from inside the `.bare` folder** of the repo. Fetch first so the branch starts from current upstream:
 
 ```bash
 cd /home/tim/code/<repo-name>/.bare
-git worktree add ../<branch-name>
+git fetch origin
+git worktree add ../<directory> -b <branch-name> origin/master
 ```
+
+Use the repo's actual default branch if it is not `master`.
+
+### The directory and the branch are named differently
+
+This is the part that trips people up. They are not the same string.
+
+| | Form | Example |
+| --- | --- | --- |
+| Worktree directory | ticket key only, lower case | `taco-1234` |
+| Branch | ticket key plus a short description | `taco-1234-add-payment-button` |
+
+The short directory keeps paths workable: it appears in every `cd`, every recorded session path and
+every pane title. The branch is what reviewers read, so it keeps the words.
 
 ### Branch Naming Rules
 
 - Branches **must** be prefixed with a Jira ticket key, written in **lower case**. The typical
   prefix is `taco` (e.g. `taco-1234`), never `TACO-1234`.
-- Optionally (and preferably) include a short description after the ticket key: `taco-1234-fix-xyz`
-- The description suffix is not required but is encouraged for clarity.
+- Include a short description after the ticket key: `taco-1234-add-payment-button`. Three to five
+  words, hyphen separated, drawn from the Jira summary.
+- The description is on the branch only. The directory stays bare.
 
 ### Always confirm the branch name with the user before creating it.
 
-Example flow:
+Confirm both names together, since one is not simply a prefix of the other:
 
-> "I'm going to create branch `taco-1234-add-payment-button`. Does that look right?"
+> "I'm going to create worktree `taco-1234` on branch `taco-1234-add-payment-button`. Does that look right?"
+
+### Setting up the whole environment
+
+`git-workflow` owns the naming rules above and nothing more. When the user wants the environment
+built rather than just a branch (a worktree plus a Herdr workspace with Prompt, Claude and Editor
+tabs), that is the `start-work` skill, which calls back here for the names.
 
 ---
 
@@ -112,7 +134,8 @@ Example flow:
 | Task             | Command                                                                     |
 | ---------------- | --------------------------------------------------------------------------- |
 | Clone a repo     | `git clone-worktree https://keyframe-ai@dev.azure.com/keyframe-ai/KeyframeAI/_git/<repo>`               |
-| Add a new branch | `cd /home/tim/code/<repo>/.bare && git worktree add ../<branch-name>`        |
+| Add a new branch | `cd /home/tim/code/<repo>/.bare && git fetch origin && git worktree add ../<dir> -b <branch> origin/master` |
+| Set up an environment | Use the `start-work` skill (worktree plus Herdr workspace)                   |
 | Commit           | Confirm the message with the user first, then `git commit -m "<message>"`   |
 
 ---
@@ -121,10 +144,11 @@ Example flow:
 
 1. **Never create a branch without confirming the name first.**
 2. **Branch name ticket prefixes must be lower case**: `taco-1234-fix-xyz`, never `TACO-1234-fix-xyz`.
-3. **Never commit without confirming the message first.**
-4. `git worktree add` must always be run from inside the `<repo>/.bare` directory.
-5. **Never include a "Co-Authored-By" trailer (or any variation) referencing Claude/AI in commit messages.**
-6. **Never put a `[TACO-1234]` ticket reference in a commit message**: the branch and PR title carry it.
+3. **The worktree directory is the bare ticket key** (`taco-1234`), not the full branch name.
+4. **Never commit without confirming the message first.**
+5. `git worktree add` must always be run from inside the `<repo>/.bare` directory.
+6. **Never include a "Co-Authored-By" trailer (or any variation) referencing Claude/AI in commit messages.**
+7. **Never put a `[TACO-1234]` ticket reference in a commit message**: the branch and PR title carry it.
 
 ---
 
