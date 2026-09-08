@@ -1,6 +1,6 @@
 ---
 name: coding-style
-description: Tim's personal coding style preferences for C#, TypeScript and Terraform. Consult this whenever writing, reviewing, or refactoring C#, TypeScript or Terraform (.tf/.tfvars) code to ensure it matches his style. Also trigger when Tim corrects a style choice or says she prefers X over Y, propose capturing the preference before saving it.
+description: Tim's personal coding style preferences for C#, TypeScript and Terraform. Consult this whenever writing, reviewing, or refactoring C#, TypeScript or Terraform (.tf/.tfvars) code to ensure it matches his style. Also trigger when Tim corrects a style choice or says he prefers X over Y, propose capturing the preference before saving it.
 ---
 
 # Coding Style
