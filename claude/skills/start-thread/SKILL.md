@@ -45,10 +45,16 @@ Infer it: a request phrased as "look into" / "investigate" / "work out why" poin
 Use the Atlassian MCP. If `cloudId` isn't known, call `mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources` once and cache it for the session.
 
 ```
-mcp__claude_ai_Atlassian_Rovo__getJiraIssue(cloudId=<id>, issueIdOrKey="TACO-XXXX")
+mcp__claude_ai_Atlassian_Rovo__getJiraIssue(
+  cloudId=<id>,
+  issueIdOrKey="TACO-XXXX",
+  fields=["summary", "description", "labels", "parent"],
+)
 ```
 
-Take `summary` as the title, and scan `description` and `labels` for tag hints. Note that the Jira issue **type** is deliberately not recorded: that field is not part of the schema.
+Take `summary` as the title, and scan `description` and `labels` for tag hints.
+
+**Ask for `parent` explicitly.** The default field set leaves it out, and it is what step 4 works from: it comes back with the epic's key and summary inline, so the epic costs no second call. Note that the Jira issue **type** is deliberately not recorded: that field is not part of the schema.
 
 If the thread has no key and the user decides it needs a ticket, use the `jira-ticket` skill, which owns the item types, the description style and the fields set on creation.
 
@@ -69,7 +75,13 @@ If a folder for this key already exists (glob `Threads/*(KEY)*/`), do not create
 
 Read `Threads/tags.md`, the canonical list, and pick from it. Tags are the correlation axis for product initiatives and workstreams that aren't a single ticket.
 
-Nested tags mean tagging the parent too: `payments/fx` implies `payments`.
+**Start from the parent epic** on a keyed thread. An epic is the same shape as a tag: a workstream spanning many tickets, which is exactly what a tag correlates. Its summary is usually the better clue, because the ticket's own wording describes one slice of the work and often names nothing recognisable. `fields.parent.fields.summary` from step 2 carries it. TACO-3313, "Forma to Keyframe model import service", gives nothing away on its own; its epic, "Autodesk Platform Services Integration", lands squarely on `autodesk`.
+
+Treat the epic as a clue, not an instruction. Match it to a row in `tags.md` rather than coining a tag out of the epic name, and remember one epic can span several tags and a ticket can sit outside its epic's usual territory. If the same epic keeps turning up with no row that fits, that is the signal to add one.
+
+Then fall back to the ticket's own summary, description and labels, and to how the user framed the work. An unkeyed thread has no epic, so those are all there is.
+
+Nested tags mean tagging the parent tag too: `payments/fx` implies `payments`.
 
 Only propose a tag outside that list if nothing fits, and if you do, add a row to `tags.md` in the same breath. Otherwise `tags: []`.
 
