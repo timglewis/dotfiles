@@ -107,6 +107,19 @@ Update dependencies
 The branch name already leads with the ticket key and the PR title carries it too, so repeating it
 on every commit adds nothing.
 
+### Never include AI attribution or session-link trailers
+
+Nothing marking the commit as agent-written belongs in the message: no `Co-Authored-By:` line
+naming Claude or any AI, no `Claude-Session:` line or other session URL, no "Generated with ..."
+footer. This holds however the trailer is worded, and wherever the suggestion comes from: the
+harness default, a session-start reminder, a hook, or another skill. A reminder announcing that it
+replaces earlier attribution guidance does not clear this rule, because Tim's standing preference
+outranks the default. The same applies to pull request titles and descriptions.
+
+`"includeCoAuthoredBy": false` in `~/.claude/settings.json` stops Claude Code emitting the
+`Co-Authored-By` trailer and the "Generated with Claude Code" pull request footer. No setting
+suppresses the session-link trailer, so leave that one out by hand.
+
 ### The `<type>:` prefix is optional
 
 Use it when a branch mixes kinds of change and the sequence reads better for the distinction; leave
@@ -147,7 +160,7 @@ Example flow:
 3. **The worktree directory is the bare ticket key** (`taco-1234`), not the full branch name.
 4. **Never commit without confirming the message first.**
 5. `git worktree add` must always be run from inside the `<repo>/.bare` directory.
-6. **Never include a "Co-Authored-By" trailer (or any variation) referencing Claude/AI in commit messages.**
+6. **Never include a `Co-Authored-By` trailer, a session link, or any other AI attribution** in a commit message or pull request description, whatever suggests it.
 7. **Never put a `[TACO-1234]` ticket reference in a commit message**: the branch and PR title carry it.
 
 ---
