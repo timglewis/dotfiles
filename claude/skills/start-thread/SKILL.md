@@ -8,8 +8,9 @@ description: >
   otherwise asks for a place to keep notes on a new piece of work. Handles all four thread kinds:
   code (ticketed or not), investigation, work (non-code proposals, team process, goals) and
   incident. When given a Jira key it fetches ticket details via the Atlassian MCP. Creates the
-  `Threads/YYYY-MM-DD - (KEY) <title>/` folder, scaffolds `index.md`, infers tags, and records the
-  session via track-session.
+  `Threads/YYYY-MM-DD - (KEY) <title>/` folder, scaffolds `index.md`, infers tags, records the
+  session via track-session, and offers to hand off to start-work for the worktree and Herdr
+  workspace.
 ---
 
 # Start Thread Skill
@@ -126,13 +127,15 @@ Hand off to `track-session`, which writes the working directory and resume comma
 
 The thread is new, so give it a label from the title and no notes. If the session ID can't be verified, `track-session` says so and stops; that is not a scaffold failure. Mention it and carry on.
 
-### 7. Offer a branch (keyed `code` threads only)
+### 7. Offer an environment (keyed `code` threads only)
 
-Ask once, concisely (_"Want me to create a branch for this in `<repo>`?"_), and don't push if declined. If yes:
+Ask once, concisely (_"Want me to set up a worktree and Herdr workspace for this in `<repo>`?"_), and don't push if declined. If yes:
 
 1. Confirm the repo with the user.
-2. Hand off to `git-workflow`. It owns branch naming, worktree creation and confirmation. Never run `git worktree` directly here.
-3. A new worktree makes this session's recorded directory stale. Say so, and point out that re-running `track-session` from the new worktree fixes it.
+2. Hand off to `start-work`. It owns the worktree and the Herdr workspace, and delegates branch naming to `git-workflow`. Never run `git worktree` or `herdr` directly here.
+3. A new worktree makes this session's recorded directory stale, and the Claude tab `start-work` opens is a different session again. `start-work` says so itself; don't repeat it.
+
+If the user wants notes only, stop here. A thread without a worktree is a normal outcome, and `start-work` can be run later against the same ticket.
 
 ## Defaults and error handling
 
@@ -146,5 +149,5 @@ Ask once, concisely (_"Want me to create a branch for this in `<repo>`?"_), and 
 - Don't add a `type:` field. It is deliberately not part of the schema.
 - Don't add `parent:` or `root:` frontmatter. Hierarchy is expressed by folder nesting only, and only for epic-shaped work.
 - Don't nest a new thread under another unless the user asks. Nesting is the exception.
-- Don't run git commands directly. Always delegate to `git-workflow`.
+- Don't run git commands directly. Delegate branch and worktree work to `start-work`, which defers to `git-workflow` for naming.
 - Don't add emojis.
