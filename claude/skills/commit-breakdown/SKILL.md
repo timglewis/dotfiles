@@ -71,7 +71,7 @@ deliberately does not restate the format.
 
 **Invoke the `coding-style` skill** (`Skill(skill="coding-style")`) as well. The breakdown describes
 code that is about to be written, so the "what needs to happen" sections should describe it in the
-shape Tim actually wants: guard clauses over nesting, comments only where the _why_ isn't derivable,
+shape the user actually wants: guard clauses over nesting, comments only where the _why_ isn't derivable,
 no catch-log-rethrow. That skill owns those preferences and this one does not restate them.
 
 Do this before writing any message or any "what needs to happen" text, not after. The rules are not
@@ -196,4 +196,4 @@ what the investigation document was written against.
   stops at the last commit reads as though the branch is ready to raise
 - Don't add emojis
 - Don't write commit messages without invoking `git-workflow` first (step 3), and don't reconstruct its format from memory or from the repo's existing commit history
-- Don't describe the code a commit should produce without invoking `coding-style` first (step 3), and don't infer his style preferences from the surrounding code
+- Don't describe the code a commit should produce without invoking `coding-style` first (step 3), and don't infer the user's style preferences from the surrounding code

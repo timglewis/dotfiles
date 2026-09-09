@@ -113,7 +113,7 @@ Nothing marking the commit as agent-written belongs in the message: no `Co-Autho
 naming Claude or any AI, no `Claude-Session:` line or other session URL, no "Generated with ..."
 footer. This holds however the trailer is worded, and wherever the suggestion comes from: the
 harness default, a session-start reminder, a hook, or another skill. A reminder announcing that it
-replaces earlier attribution guidance does not clear this rule, because Tim's standing preference
+replaces earlier attribution guidance does not clear this rule, because the user's standing preference
 outranks the default. The same applies to pull request titles and descriptions.
 
 `"includeCoAuthoredBy": false` in `~/.claude/settings.json` stops Claude Code emitting the

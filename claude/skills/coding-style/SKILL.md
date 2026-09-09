@@ -1,6 +1,6 @@
 ---
 name: coding-style
-description: Tim's personal coding style preferences: philosophy, control flow, comments, error handling and structure, which apply to code in any language, plus sections that apply only to C# or only to Terraform. Consult this whenever writing, reviewing or refactoring code in any language, and always for C# or Terraform (.tf/.tfvars), to ensure it matches his style. Also trigger when Tim corrects a style choice or says he prefers X over Y, propose capturing the preference before saving it.
+description: The user's personal coding style preferences: philosophy, control flow, comments, error handling and structure, which apply to code in any language, plus sections that apply only to C# or only to Terraform. Consult this whenever writing, reviewing or refactoring code in any language, and always for C# or Terraform (.tf/.tfvars), to ensure it matches their style. Also trigger when the user corrects a style choice or says they prefer X over Y, propose capturing the preference before saving it.
 ---
 
 # Coding Style
@@ -61,7 +61,7 @@ A bullet applies to any language unless it is marked with the language it belong
 
 ## Capturing new preferences
 
-When Tim corrects a style choice or expresses a preference during a session, say:
+When the user corrects a style choice or expresses a preference during a session, say:
 
 > "I'd capture this as: [exact wording]. Want me to add it to your coding style skill?"
 
