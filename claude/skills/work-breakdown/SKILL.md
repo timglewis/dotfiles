@@ -6,7 +6,7 @@ description: >
   investigation into tickets", "raise the tickets for this work", "what tickets do we need",
   "split this into deployable items", "create the Jira items for this", or any similar phrase
   asking for the work to be carved up into ticketed units. This skill is the natural next step
-  after investigate-ticket: it reads investigation.md, proposes a set of items typed as User
+  after investigate: it reads investigation.md, proposes a set of items typed as User
   Story, Technical Story or Bug, gets explicit sign-off, creates them in Jira via the Atlassian
   MCP, and writes work-breakdown.md into the same thread folder with the resulting keys. It
   sits one level above commit-breakdown: this skill decides what the tickets are, commit-
@@ -23,9 +23,10 @@ themselves in Jira.
 ## Where this sits
 
 ```
-start-thread → investigate-ticket → work-breakdown → ┐
-                                    (jira-ticket)    │  per ticket:
-                                                     └→ start-thread → commit-breakdown → pr-summary
+start-thread → investigate → work-breakdown → (jira-ticket)
+                                   │
+                                   └→ per ticket:
+                                      start-thread → commit-breakdown → pr-summary
 ```
 
 `jira-ticket` is the reference this skill leans on: **it owns what a ticket looks like: the three
@@ -65,7 +66,7 @@ Concerns** and **Open Questions** sections carry most of what you need.
 
 If `investigation.md` does not exist, or is visibly incomplete (placeholder sections, or open
 questions that would change the shape of the work), stop and say so, and suggest running
-`investigate-ticket` first. Tickets raised off a half-finished investigation have to be rewritten
+`investigate` first. Tickets raised off a half-finished investigation have to be rewritten
 or closed, which is worse than not raising them yet.
 
 If `work-breakdown.md` already exists with ticket keys in it, **do not raise a second set**. Read

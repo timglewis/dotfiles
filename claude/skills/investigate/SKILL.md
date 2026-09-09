@@ -1,24 +1,24 @@
 ---
-name: investigate-ticket
+name: investigate
 description: >
-  Investigate a Jira ticket by digging into the codebase and writing a thorough investigation.md
-  in the ticket's Obsidian vault folder. Use this skill whenever the user says "investigate
-  TACO-XXXX", "investigate this ticket", "dig into this ticket", "run investigation on
-  TACO-XXXX", "do an investigation for TACO-XXXX", "look into this ticket",
-  "analyse this ticket", or any similar phrase asking for a deep dive into what's needed for a Jira
-  ticket. This skill is the natural next step after start-thread: it reads the ticket, existing vault
-  notes, and the current repo's codebase to produce a living investigation document covering the
-  current state of the code, exactly what changes are needed, high-risk areas, and well-linked file
-  paths. It pauses to ask clarifying questions as ambiguities surface, never ploughing ahead on
-  assumptions, and rewrites the document in-place to stay current as decisions are made. Always
-  produces a file named investigation.md inside the thread folder. Works equally on an unkeyed
-  thread (a spike, an alert investigation, research) where there is no Jira ticket to fetch;
-  trigger phrases there are "investigate this spike", "look into why X", "research X".
+  Investigate a piece of work by digging into the codebase and writing a thorough investigation.md
+  in its thread folder in the Obsidian vault. Works on any thread, keyed or not: a Jira ticket is
+  investigated to work out the approach to delivering it, an unkeyed thread (a spike, an alert, a
+  piece of research) to work out whether there is anything to deliver at all. Use this skill
+  whenever the user says "investigate TACO-XXXX", "investigate this ticket", "investigate this
+  spike", "dig into this", "run investigation on TACO-XXXX", "look into why X", "research X",
+  "analyse this ticket", or any similar phrase asking for a deep dive before work starts. This
+  skill is the natural next step after start-thread: it reads the ticket where there is one,
+  existing vault notes, and the current repo's codebase to produce a living investigation document
+  covering the current state of the code, exactly what changes are needed, high-risk areas, and
+  well-linked file paths. It pauses to ask clarifying questions as ambiguities surface, never
+  ploughing ahead on assumptions, and rewrites the document in-place to stay current as decisions
+  are made. Always produces a file named investigation.md inside the thread folder.
 ---
 
-# Investigate Ticket Skill
+# Investigation Skill
 
-Produces a living `investigation.md` in the ticket's vault folder. The document is not a one-shot
+Produces a living `investigation.md` in the thread's folder. The document is not a one-shot
 summary: it grows and self-corrects as you dig deeper and clarify with the user. You're aiming for
 the document a thoughtful senior engineer would hand off before starting implementation: accurate,
 navigable, and honest about what's uncertain.
@@ -79,7 +79,7 @@ Explore the current repo with intent:
   deviations or guide implementation choices
 
 Be thorough but purposeful. You're not cataloguing the whole repo, you're mapping the territory that
-the ticket's work will touch.
+the work will touch.
 
 Once you're ready to describe changes rather than just current behaviour, **invoke the `coding-style`
 skill** (`Skill(skill="coding-style")`). "What Needs to Change" proposes the shape of code that

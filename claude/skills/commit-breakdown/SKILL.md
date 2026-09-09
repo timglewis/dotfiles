@@ -6,7 +6,7 @@ description: >
   "commit breakdown for TACO-XXXX", "break down the commits", "plan the commits for
   this ticket", "work out the commit order", "commit plan for TACO-XXXX", "how should
   I break up the work", "chunk up the work", or any similar phrase asking for a commit-by-commit
-  plan. This skill is the natural next step after investigate-ticket: it reads investigation.md
+  plan. This skill is the natural next step after investigate: it reads investigation.md
   and produces commit-breakdown.md in the same thread folder. Each commit entry describes the
   files touched, what needs to happen, how it fits into the sequence, and a ready-to-use commit
   message in the project's standard format.
@@ -41,7 +41,7 @@ Read `/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/investigation
 Also read the `index.md` index note for context.
 
 If `investigation.md` does not exist or is clearly incomplete (placeholder sections, unresolved
-open questions that affect scope), tell the user and suggest running the `investigate-ticket` skill
+open questions that affect scope), tell the user and suggest running the `investigate` skill
 first. Don't proceed on a half-baked investigation, because the breakdown will be wrong.
 
 ### 2. Think about the right sequencing
