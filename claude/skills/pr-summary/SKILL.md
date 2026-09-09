@@ -26,7 +26,8 @@ orients them fast.
 
 ## Locating the thread
 
-Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named `YYYY-MM-DD - (KEY) <title>` for keyed threads. Find one by globbing `Threads/*(TACO-XXXX)*/`; its index note is always `index.md` and its session log is always `sessions.md`.
+**Invoke `obsidian` first.** It owns where thread folders live, how to find one, and how notes
+are written. Don't reconstruct any of it from memory.
 
 ## Inputs
 
@@ -58,11 +59,8 @@ user declined one in the same breath as asking for the summary. Ask once, don't 
 
 ### 2. Identify the ticket and locate its note
 
-Derive `TACO-XXXX` from the user's message or the branch name. Find the index note:
-
-```
-/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/index.md
-```
+Derive `TACO-XXXX` from the user's message or the branch name, then find
+`<thread-folder>/index.md`.
 
 Read its frontmatter: you need the `jira:` URL for the Jira Reference line. If the note has no
 `jira:` field, fall back to `https://keyframeai.atlassian.net/browse/TACO-XXXX`. If no note folder
@@ -188,8 +186,8 @@ one, and the latest summary supersedes the old one.
 Then echo the same title and description in the chat reply so the user can copy-paste immediately
 without opening the note.
 
-Do not modify the note's frontmatter (including `prs:`): the PR URL doesn't exist yet, and that's
-the user's to add.
+Stamp `updated:` to today, per `obsidian`. Leave the rest of the frontmatter alone, `prs:`
+included: the PR URL doesn't exist yet, and that is the user's to add.
 
 ## What not to do
 
@@ -201,4 +199,8 @@ the user's to add.
   commit message. The diff is the source of truth.
 - Don't write the summary from a diff a review is about to change: offer the review first (step 1),
   and regenerate the summary if the review changes anything.
-- Don't touch frontmatter or create a PR; this skill only writes the summary.
+- Don't touch the frontmatter beyond `updated:`, and don't add the PR URL to `prs:`: that is the
+  user's to add once the PR exists.
+- Don't create a PR; this skill only writes the summary.
+- Don't hard-wrap prose in the note.
+- Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`.

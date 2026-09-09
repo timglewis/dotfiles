@@ -45,17 +45,15 @@ about to write code (commit-breakdown) or about to fill the backlog (work-breakd
 
 ## Locating the thread
 
-Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named
-`YYYY-MM-DD - (KEY) <title>` for keyed threads and `YYYY-MM-DD - <title>` for unkeyed ones. With a
-key, glob `Threads/*(TACO-XXXX)*/`; without one, match on distinctive title words and confirm the
-match if more than one folder is plausible. The index note is always `index.md`.
+**Invoke `obsidian` first.** It owns where thread folders live, how to find one keyed or unkeyed,
+and how notes are written. Don't reconstruct any of it from memory.
 
 ## Inputs
 
 - The thread folder, keyed or unkeyed. An investigation spike with no ticket of its own is the
   common case here, and is fine
 - `investigation.md` in that folder, the primary source of truth
-- The vault at `/mnt/c/Users/timle/Obsidian/keyframe/`
+- The thread folder in the vault, located per `obsidian`
 
 ## Workflow
 
@@ -147,7 +145,7 @@ Descriptions still have to stand alone: the link is context, not the substance.
 
 ### 7. Write work-breakdown.md
 
-Path: `/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/work-breakdown.md`
+Path: `<thread-folder>/work-breakdown.md`
 
 ```markdown
 # Work Breakdown: <title>
@@ -190,13 +188,12 @@ Concrete description of the item, specific enough to act on without re-reading t
 Repeat per item, numbered in dependency order. Then tell the user what was raised, with the keys,
 and point out that `commit-breakdown` is the next step once they pick one up.
 
-## File path conventions
+## Finishing the write
 
-- Always use **full absolute paths**, never relative paths or bare filenames
-- Wrap local paths in `file://` links so they are clickable in Obsidian:
-  `[File.cs](file:///home/tim/code/<repo>/master/path/to/File.cs)`
-- Inline code references in prose go in backticks with a line number where it helps:
-  `` `/home/tim/code/<repo>/master/src/Services/PaymentService.cs:142` ``
+Writing `work-breakdown.md` is a write into the thread, so stamp `updated:` in the thread's
+`index.md` per `obsidian`. Change nothing else in that note.
+
+Absolute paths, `file://` links and backticked code references all follow `obsidian`.
 
 ## What not to do
 
@@ -205,4 +202,7 @@ and point out that `commit-breakdown` is the next step once they pick one up.
 - Don't raise a duplicate set when `work-breakdown.md` already carries keys
 - Don't restate the `jira-ticket` rules here or diverge from them: types, descriptions and fields
   are owned by that skill
+- Don't restate the vault conventions here either: folder naming, frontmatter and note style are
+  owned by `obsidian`
+- Don't hard-wrap prose in the document, and don't leave the index note's `updated:` stale
 - Don't add emojis

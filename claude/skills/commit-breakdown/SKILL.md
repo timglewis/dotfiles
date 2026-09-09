@@ -25,19 +25,20 @@ whichever ticket is being picked up.
 
 ## Locating the thread
 
-Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named `YYYY-MM-DD - (KEY) <title>` for keyed threads. Find one by globbing `Threads/*(TACO-XXXX)*/`; its index note is always `index.md` and its session log is always `sessions.md`.
+**Invoke `obsidian` first.** It owns where thread folders live, how to find one, and how notes
+are written. Don't reconstruct any of it from memory.
 
 ## Inputs
 
 - Ticket key: `TACO-XXXX` (supplied by the user or inferred from context)
-- `investigation.md` in the ticket's vault folder, the primary source of truth
-- The vault at `/mnt/c/Users/timle/Obsidian/keyframe/`
+- `investigation.md` in the ticket's thread folder, the primary source of truth
+- The thread folder in the vault, located per `obsidian`
 
 ## Workflow
 
 ### 1. Read the investigation
 
-Read `/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/investigation.md` in full.
+Read `<thread-folder>/investigation.md` in full.
 Also read the `index.md` index note for context.
 
 If `investigation.md` does not exist or is clearly incomplete (placeholder sections, unresolved
@@ -79,7 +80,7 @@ the user has already read.
 
 ### 4. Write the breakdown document
 
-Path: `/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/commit-breakdown.md`
+Path: `<thread-folder>/commit-breakdown.md`
 
 Write it in one pass once you've thought the sequencing through. Use the template below.
 
@@ -170,15 +171,13 @@ and not a description of the ticket as a whole repeated across every commit.
 
 ---
 
-## File path conventions
+## Finishing the write
 
-Match the conventions from the investigation document:
+Writing `commit-breakdown.md` is a write into the thread, so stamp `updated:` in the thread's
+`index.md` per `obsidian`. Change nothing else in that note.
 
-- Always use **full absolute paths**
-- Wrap in `file://` links so they're clickable in Obsidian:
-  `[File.cs](file:///home/tim/code/<repo>/master/path/to/File.cs)`
-- If a file needs to be **created** (doesn't exist yet), note that clearly:
-  `[NewService.cs](file:///home/tim/code/<repo>/master/src/Services/NewService.cs) *(new file)*`
+Absolute paths, `file://` links and the `*(new file)*` marker all follow `obsidian`, which is also
+what the investigation document was written against.
 
 ---
 
@@ -191,6 +190,8 @@ Match the conventions from the investigation document:
 - Don't write vague "what needs to happen" sections: if it's not specific enough to act on, it's
   not done
 - Don't use relative paths or short filenames in the Files list
+- Don't hard-wrap prose in the document, and don't leave the index note's `updated:` stale
+- Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`
 - Don't turn the review step into a numbered commit, and don't leave the footer off: a plan that
   stops at the last commit reads as though the branch is ready to raise
 - Don't add emojis

@@ -15,11 +15,9 @@ description: >
 
 # Start Thread Skill
 
-Scaffolds a new thread under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`. Follows the conventions in that vault's `CLAUDE.md` (Threads section). Read it if anything here is ambiguous.
+Scaffolds a new thread in the vault. This skill owns the scaffolding decisions: which kind, which tags, what the index note says. The conventions it scaffolds *to* belong to `obsidian`.
 
-## The model, in one paragraph
-
-A **thread** is a folder holding an `index.md` plus whatever working files get produced. A Jira ticket is just a thread carrying a `ticket:` key, and there is no separate Tickets folder and no `ticket` kind. "Is this a ticket" is answered by `ticket:` having a value.
+**Invoke `obsidian` first.** It owns the thread model, the folder naming format, the frontmatter schema and how notes are written. Don't reconstruct any of it from memory or from a neighbouring thread folder.
 
 ## Inputs
 
@@ -62,14 +60,9 @@ If the thread has no key and the user decides it needs a ticket, use the `jira-t
 
 ### 3. Build the folder name
 
-| Case | Format |
-| --- | --- |
-| Keyed | `YYYY-MM-DD - (KEY) Title` |
-| Unkeyed | `YYYY-MM-DD - Title` |
+Per the naming format in `obsidian`, with today as the date.
 
-The date is today. A single ` - ` separator follows the date; the key sits in brackets with no extra hyphen after it. **Cap the title portion at 60 characters**, trimming at a word boundary and dropping any trailing stop-word or unbalanced bracket. The full title goes in frontmatter `title:`. Strip characters illegal on macOS (`/`, `:`).
-
-If a folder for this key already exists (glob `Threads/*(KEY)*/`), do not create a second one and do not overwrite. Say so and stop.
+Check for a collision before creating anything. If a folder for this key already exists (glob `Threads/*(KEY)*/`), do not create a second one and do not overwrite. Say so and stop.
 
 ### 4. Infer `tags:`
 
@@ -87,34 +80,15 @@ Only propose a tag outside that list if nothing fits, and if you do, add a row t
 
 ### 5. Create the folder and index note
 
-Index note path is always `<folder>/index.md`.
+Index note path is always `<folder>/index.md`. Write the frontmatter for the kind exactly as `obsidian` specifies it, filling in:
 
-**Core frontmatter, every kind:**
+- `title:` the full untruncated summary
+- `aliases:` the key when keyed, the title when unkeyed
+- `tags:` from step 4
+- `created:` and `updated:` both today
+- `ticket:` and `jira:` on a keyed `code` thread, omitted entirely when unkeyed
 
-```yaml
----
-kind: code
-title: <full summary, quoted if it contains a colon>
-status: active
-aliases:
-  - <KEY, or the title when unkeyed>
-tags: []
-created: <today>
-updated: <today>
----
-```
-
-**`kind: code` also gets**, in this order after `updated:`:
-
-```yaml
-ticket: TACO-XXXX                            # omit entirely when unkeyed
-jira: https://keyframeai.atlassian.net/browse/TACO-XXXX     # omit when unkeyed
-prs: []
-```
-
-**`kind: incident` also gets** `incident:`, `severity:`, `detected:`, `resolved:`.
-
-**`kind: investigation`** and **`kind: work`** add nothing.
+`status:` is `active`: the user is starting this.
 
 Body:
 
@@ -125,13 +99,7 @@ Body:
 user's framing. Plain prose. If there's nothing to go on, write a placeholder and flag it.>
 ```
 
-Rules that matter:
-
-- **`status:` defaults to `active`**: the user is starting this. The vocabulary is `planned | active | paused | done | dropped`.
-- **`aliases:` is not optional.** It is the only thing keeping `[[TACO-1234]]` and `[[Some Thread Title]]` resolving to a note called `index.md`.
-- **Quote any title containing a colon.** An unquoted colon breaks the line, and Obsidian then shows no properties at all and Bases silently drops the note from every view.
-- **`prs:` is always present on `code`**, as `prs: []` when empty. Never omitted.
-- Empty lists render inline as `[]`, not as an empty block.
+One sentence per paragraph line, unwrapped, per `obsidian`.
 
 ### 6. Record this session
 
@@ -157,9 +125,7 @@ If the user wants notes only, stop here. A thread without a worktree is a normal
 
 ## What NOT to do
 
-- Don't put thread-scoped files anywhere but inside the thread folder.
-- Don't add a `type:` field. It is deliberately not part of the schema.
-- Don't add `parent:` or `root:` frontmatter. Hierarchy is expressed by folder nesting only, and only for epic-shaped work.
+- Don't restate the vault conventions here or diverge from them: the folder format, the frontmatter schema and note style are owned by `obsidian`.
 - Don't nest a new thread under another unless the user asks. Nesting is the exception.
 - Don't run git commands directly. Delegate branch and worktree work to `start-work`, which defers to `git-workflow` for naming.
 - Don't add emojis.

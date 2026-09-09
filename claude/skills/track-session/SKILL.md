@@ -12,11 +12,9 @@ description: >
 
 # Track Session Skill
 
-Records this session against a thread in `/mnt/c/Users/timle/Obsidian/keyframe/Threads/` so a future session can be resumed with the right working directory. Entries live in their own `sessions.md` file inside the thread folder, so the index note stays a summary and the session log can grow without burying it.
+Records this session against a thread in the vault so a future session can be resumed with the right working directory. Entries live in their own `sessions.md` file inside the thread folder, so the index note stays a summary and the session log can grow without burying it.
 
-## Locating the thread
-
-Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named `YYYY-MM-DD - (KEY) <title>` when the thread has a key and `YYYY-MM-DD - <title>` when it doesn't. The index note is always `index.md` and the session log is always `sessions.md`. Step 3 covers finding the right one for both cases.
+**Invoke `obsidian` first.** It owns where thread folders live, how to find one, and how notes are written. Don't reconstruct any of that from memory.
 
 ## Why the working directory is recorded
 
@@ -50,19 +48,9 @@ Record the absolute path. In a worktree this is the worktree, not the repo root.
 
 ### 3. Find the thread
 
-Two routes, depending on whether the thread has a key. Try them in this order.
+Follow the routes in `obsidian`. **Keyed threads** (`code` with a `ticket:`, or `incident`) take their key from the current branch. **Unkeyed threads** (`work`, `investigation`, untracked `code`) resolve from what the session has actually been about, which is the one extra clue this skill has: the transcript itself.
 
-**Keyed threads (`code` with a `ticket:`, or `incident`).** Take the key from the current branch, which always leads with it:
-
-```bash
-git branch --show-current
-```
-
-Then glob `Threads/*(TACO-XXXX)*/`: the key sits in brackets in the folder name.
-
-**Unkeyed threads (`work`, `investigation`, untracked `code`).** There is no branch key to go on, and often no git repo at all. Resolve it from what the session has actually been about: search `Threads/*/index.md` frontmatter for a matching `title:` or `aliases:` entry, and if more than one plausibly fits, ask rather than guess. A session working inside a thread folder can also take the thread from the working directory.
-
-Either way the folder holds `index.md` and `sessions.md`. If no thread exists, tell the user to run `start-thread`. Do not scaffold one here.
+If no thread exists, tell the user to run `start-thread`. Do not scaffold one here.
 
 ### 4. Write the entry
 
@@ -72,14 +60,14 @@ Entries go in `sessions.md` in the thread folder, never in `index.md`. Create th
 # TACO-XXXX - Sessions
 ```
 
-Give it no frontmatter. `threads.base` filters on `file.hasProperty("kind")`, so a `kind` property here would list the session log as a thread in its own right. The H1 uses the key for keyed threads and the thread title otherwise.
+Give it no frontmatter, per `obsidian`. The H1 uses the key for keyed threads and the thread title otherwise.
 
 Search the file for this session's UUID first:
 
 - **Already there**: update that entry in place. Never append a second entry for one session.
 - **Not there**: append below the existing entries, so they read oldest to newest.
 
-Leave the index note's own content untouched, frontmatter included.
+Leave the index note's own content untouched. Its `updated:` stamp is the one exception, covered in step 6.
 
 ### 5. Link it from the index note
 
@@ -89,7 +77,11 @@ Leave the index note's own content untouched, frontmatter included.
 See [[sessions]] for the session log.
 ```
 
-It goes after the prose summary, before the first `##` section, or at the end of the note if it has none. Skip this step if the link is already there. `[[sessions]]` is deliberately unqualified: Obsidian resolves it to the `sessions.md` in the same folder, so every thread's link points at its own log.
+It goes after the prose summary, before the first `##` section, or at the end of the note if it has none. Skip this step if the link is already there. The wikilink is deliberately unqualified, for the reason `obsidian` gives.
+
+### 6. Stamp the index note
+
+Writing to `sessions.md` is a write into the thread, so set `updated:` in `index.md` to today per `obsidian`. Change nothing else in that note.
 
 ## Entry format
 
@@ -133,3 +125,10 @@ Notes are for the state a resumer would otherwise have to rediscover: uncommitte
 - **Several worktrees on one thread**: expected. Each session records its own `cwd`, so entries for different repos sit side by side under the same thread.
 - **Session already recorded**: update in place, and say which entry changed.
 - **Entries still in `index.md`**: an older note may carry a `## Sessions` section. Move it to `sessions.md`, demoting each `###` entry to `##`, and leave the link behind.
+
+## What not to do
+
+- Don't write session entries into `index.md`, or edit anything in it but `updated:` and the `[[sessions]]` link.
+- Don't write a guessed session UUID.
+- Don't restate the vault conventions here or diverge from them: folder naming, frontmatter and link style are owned by `obsidian`.
+- Don't add emojis.

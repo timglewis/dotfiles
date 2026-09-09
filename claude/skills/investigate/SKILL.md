@@ -25,7 +25,8 @@ navigable, and honest about what's uncertain.
 
 ## Locating the thread
 
-Thread folders live under `/mnt/c/Users/timle/Obsidian/keyframe/Threads/`, named `YYYY-MM-DD - (KEY) <title>` for keyed threads and `YYYY-MM-DD - <title>` for unkeyed ones. With a key, find the folder by globbing `Threads/*(TACO-XXXX)*/`. Without one, match on the title, so glob `Threads/*<distinctive words>*/` and confirm the match with the user if more than one folder is plausible. Its index note is always `index.md` and its session log is always `sessions.md`.
+**Invoke `obsidian` first.** It owns where thread folders live, how to find one keyed or unkeyed,
+and how notes are written. Don't reconstruct any of it from memory.
 
 If no thread folder exists yet, say so and offer to run `start-thread` first rather than writing `investigation.md` into a folder you invented.
 
@@ -36,7 +37,7 @@ If no thread folder exists yet, say so and offer to run `start-thread` first rat
   first-class: a keyed ticket is investigated to work out the approach to delivering it, an unkeyed
   thread to work out whether there is anything to deliver at all.
 - The current working directory. **This is the repo to investigate, and the only one**
-- The vault at `/mnt/c/Users/timle/Obsidian/keyframe/`
+- The thread folder in the vault, located per `obsidian`
 
 ## Scope
 
@@ -60,7 +61,7 @@ Run these together at the start:
   is unknown, call `mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources` first (once per session).
   Comments are **not** in the default field set, so pass `fields` explicitly including `"comment"`
   (they arrive at `fields.comment.comments`), and `responseContentFormat="markdown"` to avoid raw ADF.
-- **Read the vault index note**: `/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/index.md`
+- **Read the vault index note**: `<thread-folder>/index.md`
 - **Read any existing files** already in the thread folder, since the user may have left scratch notes,
   previous research, or design docs that should inform the investigation.
 
@@ -109,7 +110,7 @@ After the user answers, incorporate the answer into the document and continue.
 
 ### 4. Write the document incrementally
 
-Path: `/mnt/c/Users/timle/Obsidian/keyframe/Threads/<thread-folder>/investigation.md`
+Path: `<thread-folder>/investigation.md`
 
 Don't wait until everything is done to start writing. Write a first draft early, even if some sections
 say "investigating…", and then update it in-place as you learn more. The document should always
@@ -211,14 +212,13 @@ what was decided and why (briefly), so future-you can reconstruct the reasoning.
 
 ---
 
-## File path conventions
+## Finishing a write
 
-- Always use **full absolute paths**, never relative paths or just filenames
-- For local files, use `file://` links so they're clickable in Obsidian:
-  `[Filename](file:///home/tim/code/<repo>/master/path/to/File.cs)`
-- For code references inline in prose, use backticks:
-  `` `/home/tim/code/<repo>/master/src/Services/PaymentService.cs:142` ``
-- For Azure DevOps links, target `https://dev.azure.com/keyframe-ai/KeyframeAI/_git/<repo>` unless the vault note says otherwise
+Every write to `investigation.md` is a write into the thread, so stamp `updated:` in the thread's
+`index.md` per `obsidian`. Change nothing else in that note.
+
+Absolute paths, `file://` links, backticked code references and Azure DevOps URLs all follow
+`obsidian`.
 
 ---
 
@@ -228,6 +228,8 @@ what was decided and why (briefly), so future-you can reconstruct the reasoning.
 - Don't make design decisions silently: surface trade-offs and ask
 - Don't pad sections with "this section will be updated" filler: leave sections out if empty
 - Don't use relative paths or shortened paths in the Relevant Files table
+- Don't hard-wrap prose in the document, and don't leave the index note's `updated:` stale
+- Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`
 - Don't move on past an ambiguity that matters: ask first
 - Don't include every file you read, only the ones genuinely relevant to the ticket
 - Don't wander into a second repo without asking
