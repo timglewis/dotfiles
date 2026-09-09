@@ -7,11 +7,12 @@ description: >
   "write up this PR", "summarise this PR", "PR description for this branch", "generate a PR title
   and summary", or any similar phrasing asking for a pull-request write-up, even if they don't
   name the ticket. The skill derives the changes from the branch's commits and diff against the
-  default branch, produces a title in the project's `<type>: [TACO-XXX] - <short title>`
-  format, and a concise high-level summary that starts with a Jira Reference line followed by a
-  `## Summary` section of bullet points. It writes the result into the ticket note and echoes it in
-  chat for copy-paste into Azure DevOps. Offers a `/code-review` pass over the branch first,
-  since being asked for a PR write-up is the signal that the ticket's work is finished.
+  default branch, produces a title in the project's `[TACO-XXXX] <short title>` format, and a
+  concise high-level summary that starts with a Jira Reference line followed by a `## Summary`
+  section of bullet points. It writes the result into the ticket note, echoes it in chat, and then
+  offers to create the pull request on Azure DevOps with those fields already populated. Offers a
+  `/code-review` pass over the branch first, since being asked for a PR write-up is the signal that
+  the ticket's work is finished.
 ---
 
 # PR Summary Skill
@@ -91,17 +92,19 @@ describing the change to a reviewer, not transcribing git history.
 
 ### 4. Compose the PR title
 
-Format, matching the project's commit convention:
+Format:
 
 ```
-<type>: [TACO-XXX] - <concise imperative title>
+[TACO-XXXX] <concise title>
 ```
 
-- `<type>` is one of `feat | fix | refactor | chore | docs | test`. Pick the type that reflects the
-  PR's primary purpose: if it adds new behaviour, it's `feat` even if it also includes refactors
-  and tests. Use the dominant intent, not a literal count of commit types.
-- Keep the title short, specific, and imperative ("Send confirmation email on order completion",
-  not "Changes for orders"). Aim for under ~72 characters total.
+- **The key is upper case and in square brackets**, `[TACO-3379]`, never `taco-3379` and never bare.
+  The branch name is lower case; the PR title is not.
+- **No `<type>:` prefix.** Commit messages take an optional `feat:`/`fix:` prefix, PR titles do not.
+- Nothing between the closing bracket and the title but a single space. A ` - ` separator appears in
+  some older PRs; it is not the convention to follow.
+- Keep the title short and specific ("Send confirmation email on order completion", not "Changes for
+  orders"). Aim for under ~72 characters total.
 
 The title is **separate** from the summary: it is not repeated inside the description body.
 
@@ -194,6 +197,47 @@ without opening the note.
 Stamp `updated:` to today, per `obsidian`. Leave the rest of the frontmatter alone, `prs:`
 included: the PR URL doesn't exist yet, and that is the user's to add.
 
+### 7. Offer to create the PR on Azure DevOps
+
+Having written the summary, offer to raise the PR with those fields already filled in. Ask once:
+
+> "Want me to create the PR on Azure DevOps with this title and description?"
+
+If they decline, stop: the summary in the note and in chat is the deliverable.
+
+Creating a PR is outward-facing and visible to the team, so **always show the resolved command and
+wait for approval before running it**. Never create one unasked.
+
+`az` with the `azure-devops` extension does the work. Derive the org, project and repository from the
+`origin` remote rather than hardcoding them, and the source branch from the current branch:
+
+```bash
+az repos pr create \
+  --org https://dev.azure.com/keyframe-ai \
+  --project KeyframeAI \
+  --repository <repo> \
+  --source-branch "$(git branch --show-current)" \
+  --target-branch master \
+  --title "[TACO-XXXX] <title>" \
+  --description "<the description body>" \
+  --draft \
+  --open
+```
+
+Points that matter:
+
+- **`--target-branch master` always**, unless the user has explicitly said otherwise. It is never the
+  branch the work was cut from. See `git-workflow`.
+- **The branch must be pushed first.** `az` fails on a source branch the remote doesn't have.
+- **`--draft`** whenever the work is not ready to merge, which includes every branch still waiting on
+  an unmerged base. Add the fork note to the description in that case:
+  `Branched from TACO-1200. Will require a rebase once that has merged.`
+- **`--open`** opens the created PR in the browser, which is usually what the user wants next.
+- Report the PR id and URL back, and leave `prs:` in the note for the user to fill in.
+
+If `az` is missing, not logged in, or the extension is absent, say so plainly and fall back to the
+copy-paste flow rather than trying to work around it.
+
 ## What not to do
 
 - Don't pad the summary with testing notes, rollout steps, or file-by-file detail. It's a
@@ -206,6 +250,6 @@ included: the PR URL doesn't exist yet, and that is the user's to add.
   and regenerate the summary if the review changes anything.
 - Don't touch the frontmatter beyond `updated:`, and don't add the PR URL to `prs:`: that is the
   user's to add once the PR exists.
-- Don't create a PR; this skill only writes the summary.
+- Don't create the PR without asking, and never without showing the resolved command first.
 - Don't hard-wrap prose in the note.
 - Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`.
