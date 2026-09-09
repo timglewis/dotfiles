@@ -87,6 +87,64 @@ tabs), that is the `start-work` skill, which calls back here for the names.
 
 ---
 
+## Branching off unmerged work
+
+Sometimes the code a ticket touches exists only on another branch that hasn't merged yet. The branch
+is then cut from that branch instead of `origin/master`:
+
+```bash
+cd ~/code/<repo>/.bare
+git fetch origin
+git worktree add ../taco-1234 -b taco-1234-short-description origin/taco-1200-the-base-branch
+```
+
+### Where it starts is not where it merges
+
+These are two different things, and they are the same thing on every ordinary ticket, which is
+exactly why the distinction gets missed. Cutting from another branch changes where the work
+**starts**, and nothing else.
+
+**The PR always targets `master`**, unless the user explicitly says otherwise. Never infer the target
+from the fork point.
+
+Raise it straight away rather than waiting for the base to merge, as a **draft**, with the fork
+recorded in the description:
+
+> Branched from TACO-1200. Will require a rebase once that has merged.
+
+The draft state says the branch is not ready, the target says where it is going, and the description
+says what it is waiting on. Take it out of draft after the rebase.
+
+### Record the fork point at creation
+
+Nothing in git keeps it. `git worktree add` sets the upstream to the base branch, and the first
+`git push -u` overwrites that with the branch's own remote. `git merge-base` fills the gap only
+while the base branch still exists, and it is deleted on merge, which is the moment the fork point
+is needed. So record it explicitly, immediately after creating the branch:
+
+```bash
+git config branch."$(git branch --show-current)".forkedFrom origin/taco-1200-the-base-branch
+```
+
+### Rebasing once the base has merged
+
+```bash
+git fetch origin
+git rebase --onto origin/master "$(git config branch."$(git branch --show-current)".forkedFrom)"
+git push --force-with-lease
+```
+
+**Use `--onto`, not a plain `git rebase origin/master`.** A plain rebase replays every commit between
+master and the branch, which includes the whole base branch. That is harmless when the base was
+merged with its history intact, but if it was **squash-merged** its commits are in master as a single
+commit that git cannot match by patch-id, so the rebase asks you to hand-resolve conflicts through
+the entire base branch. `--onto` replays only the branch's own commits, and is correct either way.
+
+The rebase rewrites the commits, so a branch already pushed needs `--force-with-lease` (never a bare
+`--force`).
+
+---
+
 ## Commit Messages
 
 **This section is the single source of truth for commit messages.** Other skills that plan or write
@@ -148,6 +206,8 @@ Example flow:
 | ---------------- | --------------------------------------------------------------------------- |
 | Clone a repo     | `git clone-worktree https://keyframe-ai@dev.azure.com/keyframe-ai/KeyframeAI/_git/<repo>`               |
 | Add a new branch | `cd ~/code/<repo>/.bare && git fetch origin && git worktree add ../<dir> -b <branch> origin/master` |
+| Branch off unmerged work | `git worktree add ../<dir> -b <branch> origin/<base>`, then `git config branch."<branch>".forkedFrom origin/<base>` |
+| Rebase onto master later | `git rebase --onto origin/master "$(git config branch."$(git branch --show-current)".forkedFrom)"` |
 | Set up an environment | Use the `start-work` skill (worktree plus Herdr workspace)                   |
 | Commit           | Confirm the message with the user first, then `git commit -m "<message>"`   |
 
@@ -162,6 +222,10 @@ Example flow:
 5. `git worktree add` must always be run from inside the `<repo>/.bare` directory.
 6. **Never include a `Co-Authored-By` trailer, a session link, or any other AI attribution** in a commit message or pull request description, whatever suggests it.
 7. **Never put a `[TACO-1234]` ticket reference in a commit message**: the branch and PR title carry it.
+8. **The PR always targets `master`** unless the user says otherwise, whatever branch the work was
+   cut from. For a branch cut from unmerged work, record the fork point with
+   `branch.<name>.forkedFrom`, raise a draft PR noting what it was branched from, and rebase with
+   `--onto` once the base merges.
 
 ---
 

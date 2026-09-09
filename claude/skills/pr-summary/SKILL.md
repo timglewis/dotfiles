@@ -68,12 +68,17 @@ exists, tell the user and ask whether to proceed (writing only to chat) or stop.
 
 ### 3. Derive the changes from git
 
-The branch diff against the repo's **default branch** is the source of truth. Commit messages alone
-can miss things or overstate them. Resolve the default branch first rather than assuming, then read
-both the log and the diff:
+The branch diff against its **base** is the source of truth. Commit messages alone can miss things
+or overstate them. Resolve the base rather than assuming it, then read both the log and the diff.
+
+The base is the fork point, which is not always the default branch. Work cut from another unmerged
+branch records its fork point in `branch.<name>.forkedFrom` (see `git-workflow`), and diffing such a
+branch against master would present the whole base branch as this PR's changes.
 
 ```bash
-BASE=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || echo origin/main)
+BASE=$(git config branch."$(git branch --show-current)".forkedFrom 2>/dev/null \
+  || git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null \
+  || echo origin/master)
 
 git log "$BASE"..HEAD --pretty='%s'        # commit subjects, for the shape of the work
 git diff "$BASE"...HEAD --stat             # files touched, for scope
@@ -194,7 +199,7 @@ included: the PR URL doesn't exist yet, and that is the user's to add.
 - Don't pad the summary with testing notes, rollout steps, or file-by-file detail. It's a
   high-level overview of changes only.
 - Don't repeat the title inside the description.
-- Don't assume the default branch is `master` or `main`. Resolve it.
+- Don't assume the diff base is `master`. Resolve it, honouring `forkedFrom` on a stacked branch.
 - Don't invent changes that aren't in the diff, or omit a significant one because it wasn't in a
   commit message. The diff is the source of truth.
 - Don't write the summary from a diff a review is about to change: offer the review first (step 1),
