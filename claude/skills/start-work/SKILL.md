@@ -48,7 +48,7 @@ test "${HERDR_ENV:-}" = 1 && command -v herdr
 
 If `HERDR_ENV` is not `1`, say the environment cannot be built because this session is not running
 inside Herdr, and offer to create the worktree alone. If `herdr` is not on `PATH`, check
-`/home/tim/.local/bin`.
+`~/.local/bin`.
 
 The installed binary is the authority for command syntax. The bundled `herdr` skill documents
 v0.9.0 and the installed client may be older, so if a command below is rejected, print the command
@@ -110,7 +110,7 @@ Then check both halves of the environment before building either, so a half-exis
 reported rather than duplicated:
 
 ```bash
-ls -d /home/tim/code/<repo>/<dir> 2>/dev/null
+ls -d ~/code/<repo>/<dir> 2>/dev/null
 herdr workspace list
 ```
 
@@ -120,7 +120,7 @@ Run from inside the `.bare` directory, per `git-workflow`. Fetch first so the br
 current upstream rather than whatever the bare repo last saw:
 
 ```bash
-cd /home/tim/code/<repo>/.bare
+cd ~/code/<repo>/.bare
 git fetch origin
 git worktree add ../<dir> -b <branch> origin/master
 ```
@@ -138,7 +138,7 @@ Focus moves once, at the end.
 The root tab is created labelled `1`, so it is renamed rather than created:
 
 ```bash
-WT=/home/tim/code/<repo>/<dir>
+WT=~/code/<repo>/<dir>
 
 herdr workspace create --cwd "$WT" --label <dir> --no-focus
 # -> .result.workspace.workspace_id, .result.tab.tab_id, .result.root_pane.pane_id

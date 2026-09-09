@@ -121,7 +121,7 @@ change log.
 Make the file **navigable**. Every code reference should include a full absolute path so the user can
 `cmd+click` or copy-paste it straight into their editor. Where line numbers are meaningful (a specific
 function, a config key), include them. Use Markdown file links for local paths, e.g.
-`[example-service](file:///home/tim/code/example-service/master/)`.
+`[example-service](file://<code-root>/example-service/master/)`.
 
 ### 5. Finalise
 
@@ -173,7 +173,7 @@ How the codebase currently works in the area this ticket touches. Focus on what'
 - Anything surprising or non-obvious that the ticket author might not have known
 
 Include inline code references with full paths, e.g.:
-`/home/tim/code/example-service/master/src/Handlers/PaymentHandler.cs`
+`<code-root>/example-service/master/src/Handlers/PaymentHandler.cs`
 
 ## What Needs to Change
 

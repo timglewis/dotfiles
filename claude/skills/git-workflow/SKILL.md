@@ -13,7 +13,7 @@ description: >
 
 ## Repository Location
 
-All cloned repositories live in `/home/tim/code`.
+All cloned repositories live under a single code root, `~/code`. Shell commands below write it as `~/code`, which expands when pasted; examples that need an absolute path (a `file://` link, a tool argument) write it as `<code-root>`.
 
 ---
 
@@ -46,7 +46,7 @@ git clone-worktree https://keyframe-ai@dev.azure.com/keyframe-ai/KeyframeAI/_git
 New branches must be created using `git worktree add`, and the command **must be run from inside the `.bare` folder** of the repo. Fetch first so the branch starts from current upstream:
 
 ```bash
-cd /home/tim/code/<repo-name>/.bare
+cd ~/code/<repo-name>/.bare
 git fetch origin
 git worktree add ../<directory> -b <branch-name> origin/master
 ```
@@ -147,7 +147,7 @@ Example flow:
 | Task             | Command                                                                     |
 | ---------------- | --------------------------------------------------------------------------- |
 | Clone a repo     | `git clone-worktree https://keyframe-ai@dev.azure.com/keyframe-ai/KeyframeAI/_git/<repo>`               |
-| Add a new branch | `cd /home/tim/code/<repo>/.bare && git fetch origin && git worktree add ../<dir> -b <branch> origin/master` |
+| Add a new branch | `cd ~/code/<repo>/.bare && git fetch origin && git worktree add ../<dir> -b <branch> origin/master` |
 | Set up an environment | Use the `start-work` skill (worktree plus Herdr workspace)                   |
 | Commit           | Confirm the message with the user first, then `git commit -m "<message>"`   |
 
@@ -168,7 +168,7 @@ Example flow:
 ## Not using worktrees?
 
 The worktree layout above is a preference, not a requirement: it keeps every branch of a repo
-checked out side by side under `/home/tim/code/<repo>/`. If you'd rather use ordinary clones and
+checked out side by side under `~/code/<repo>/`. If you'd rather use ordinary clones and
 `git checkout -b`, delete the "Cloning a New Repo" and "Creating a New Branch (Worktree)" sections
 and keep everything else. The branch-naming, commit-message and confirmation rules are the part that
 matters.

@@ -93,7 +93,7 @@ Writing to `sessions.md` is a write into the thread, so set `updated:` in `index
 `example-service/TACO-1234-quickpayment-back-to-redirect`
 
 ```bash
-cd /home/tim/code/example-service/TACO-1234-quickpayment-back-to-redirect
+cd ~/code/example-service/TACO-1234-quickpayment-back-to-redirect
 claude --resume 1b7d3725-9bcc-4b49-8c16-a607c437150e
 ```
 
