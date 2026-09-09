@@ -200,6 +200,59 @@ Example flow:
 
 ---
 
+## Pushing a Branch
+
+Pushing is the first outward-facing step in the workflow. It makes the branch visible to the team
+and starts the build pipeline running against it, so it gets the same treatment as creating a branch
+and writing a commit: confirm first.
+
+### Always confirm before pushing.
+
+> "The branch has 3 commits that aren't on origin. Shall I push `taco-1234-add-payment-button`?"
+
+Show the resolved command and wait for approval. Never push unasked, and never push a branch the
+user has not finished with.
+
+### First push
+
+A worktree's upstream still points at the branch it was cut from, so the first push has to set it:
+
+```bash
+git push -u origin HEAD
+```
+
+`HEAD` saves retyping the branch name and cannot push the wrong branch. This push is also what
+replaces the base branch as the upstream, which is why a stacked branch records its fork point in
+`branch.<name>.forkedFrom` at creation instead of relying on the upstream to remember it.
+
+### Later pushes
+
+```bash
+git push
+```
+
+### After a rebase or an amend
+
+Rewriting commits that are already on origin needs a force, and the force must be a lease:
+
+```bash
+git push --force-with-lease
+```
+
+**Never a bare `git push --force`.** `--force-with-lease` refuses the push when origin has moved
+since your last fetch, which is the whole difference between replacing your own old commits and
+quietly discarding someone else's work.
+
+### Where the push sits in the workflow
+
+Finish the code, run `/code-review`, deal with the findings, **then** push. Pushing before the
+review means the build runs against a diff that is about to change and every review fix costs
+another force-push. Once the branch is on origin, the PR work can start: `pr-summary` writes the
+title and description and offers to raise the PR, and `az repos pr create` fails outright on a
+source branch the remote does not have.
+
+---
+
 ## Quick Reference
 
 | Task             | Command                                                                     |
@@ -210,6 +263,8 @@ Example flow:
 | Rebase onto master later | `git rebase --onto origin/master "$(git config branch."$(git branch --show-current)".forkedFrom)"` |
 | Set up an environment | Use the `start-work` skill (worktree plus Herdr workspace)                   |
 | Commit           | Confirm the message with the user first, then `git commit -m "<message>"`   |
+| Push (first time) | Confirm with the user first, then `git push -u origin HEAD`                 |
+| Push after a rebase or amend | `git push --force-with-lease`, never a bare `--force`           |
 
 ---
 
@@ -219,10 +274,13 @@ Example flow:
 2. **Branch name ticket prefixes must be lower case**: `taco-1234-fix-xyz`, never `TACO-1234-fix-xyz`.
 3. **The worktree directory is the bare ticket key** (`taco-1234`), not the full branch name.
 4. **Never commit without confirming the message first.**
-5. `git worktree add` must always be run from inside the `<repo>/.bare` directory.
-6. **Never include a `Co-Authored-By` trailer, a session link, or any other AI attribution** in a commit message or pull request description, whatever suggests it.
-7. **Never put a `[TACO-1234]` ticket reference in a commit message**: the branch and PR title carry it.
-8. **The PR always targets `master`** unless the user says otherwise, whatever branch the work was
+5. **Never push without confirming first**, and never force-push with a bare `--force`: rewritten
+   commits go up with `--force-with-lease`. The branch is pushed after the code review and before
+   any PR work.
+6. `git worktree add` must always be run from inside the `<repo>/.bare` directory.
+7. **Never include a `Co-Authored-By` trailer, a session link, or any other AI attribution** in a commit message or pull request description, whatever suggests it.
+8. **Never put a `[TACO-1234]` ticket reference in a commit message**: the branch and PR title carry it.
+9. **The PR always targets `master`** unless the user says otherwise, whatever branch the work was
    cut from. For a branch cut from unmerged work, record the fork point with
    `branch.<name>.forkedFrom`, raise a draft PR noting what it was branched from, and rebase with
    `--onto` once the base merges.
