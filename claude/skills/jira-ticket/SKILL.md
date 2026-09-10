@@ -9,7 +9,8 @@ description: >
   consult it whenever another skill needs to create tickets (`work-breakdown` raises a set of
   them from an investigation), so that ticket conventions live in one place rather than being
   restated. Covers the cached defaults in ~/.jira that make the epic, sprint and assignee
-  prompts cost no server call.
+  prompts cost no server call, and drives Jira through the `acli` command line tool where it is
+  available, falling back to the Atlassian MCP where it is not.
 ---
 
 # Jira Ticket Skill
@@ -20,6 +21,28 @@ are needed; this one decides what goes in them.
 Site `https://keyframeai.atlassian.net`, project `TACO`, cloudId
 `698e3af2-3533-45b9-bbdc-d0407275d5c7`. Pass the cloudId straight through rather than spending a
 `getAccessibleAtlassianResources` round-trip.
+
+## Which interface
+
+**Prefer `acli`**, Atlassian's command line tool. Fall back to the Atlassian MCP when it is not
+installed or not authenticated. Check once per session, and cache the answer:
+
+```bash
+command -v acli >/dev/null && acli jira auth status
+```
+
+If that succeeds, read `references/acli.md` and work from it: it owns the commands, the
+`--from-json` shape, the ADF descriptions and the query recipes. If it fails, say which of the two
+reasons it was and use the MCP calls given below.
+
+Everything else on this page, the item types, how a description is written, which fields get set
+and the confirmation step, is the same whichever interface is used. Only the calls differ, and
+each section below gives the MCP form.
+
+One difference is worth knowing up front: `acli` takes descriptions as plain text or ADF, never
+Markdown, and it cannot set a custom field on an **existing** ticket. So on the CLI path the
+epic and sprint have to be set at creation time, and a later change to either falls back to the
+MCP.
 
 ## Item types
 
@@ -62,7 +85,10 @@ Write it so it stands alone for whoever picks it up. They will not have the inve
 the vault, or this conversation. Link to supporting material, but never let the link carry the
 substance.
 
-Use `contentFormat="markdown"` and pass Markdown; do not hand-build ADF.
+Write it as Markdown either way. On the MCP, pass it straight through with
+`contentFormat="markdown"`. On the CLI path, `acli` will not take Markdown, so convert it to ADF
+using the node-by-node table in `references/acli.md`: that is the one situation where ADF gets
+built by hand, and the table exists so it is mechanical rather than invented.
 
 ### Per type
 
@@ -146,11 +172,20 @@ $DEFAULT_EPIC_SUMMARY = "Autodesk Platform Services Integration"
 
 Read it with `grep`/`sed`, and do not execute it.
 
-**Only if the user wants a different epic**, get the list of open epics. Check the cache first:
+**Only if the user wants a different epic**, get the list of open epics. Check the cache first
+(the cache and its rules are the same on both interfaces; only the query differs):
 
 - Cache file: `~/.jira/epics_cache.json`, holding `{"fetched": "<ISO-8601 UTC>", "epics": [{"key", "summary", "status"}]}`
 - Use it when it exists and is **less than 24 hours old**; say which list you're showing and how old it is
-- Otherwise query and rewrite the cache:
+- Otherwise query and rewrite the cache, with `acli`:
+
+```bash
+acli jira workitem search \
+  --jql "project = TACO AND issuetype = Epic AND resolution is EMPTY ORDER BY created DESC" \
+  --fields "key,summary,status" --json --paginate
+```
+
+or, on the MCP fallback:
 
 ```
 mcp__claude_ai_Atlassian_Rovo__searchJiraIssuesUsingJql(
@@ -161,8 +196,9 @@ mcp__claude_ai_Atlassian_Rovo__searchJiraIssuesUsingJql(
 )
 ```
 
-That is the same JQL `taco_ticket.ps1` uses. `maxResults` caps at 100; if there are more open
-epics, follow `nextPageToken` rather than truncating the list.
+That is the same JQL `taco_ticket.ps1` uses. On the MCP, `maxResults` caps at 100; if there are
+more open epics, follow `nextPageToken` rather than truncating the list. `acli --paginate` already
+fetches every page.
 
 Re-fetch regardless of cache age if the user says the epic they want isn't listed, or asks to
 refresh, since an epic created today will not be in yesterday's cache.
@@ -179,8 +215,11 @@ actively picked an epic, never on "no parent".
 Default to the **active** sprint, which is what `taco_ticket.ps1` pre-selects. Backlog (no sprint)
 and any future sprint are the alternatives.
 
-The MCP has no Agile board endpoint: `fetch` takes ARIs only, so the board/sprint REST API the
-script uses is out of reach. Harvest sprints from the issues already in them instead:
+Neither interface can list sprints directly. The MCP has no Agile board endpoint (`fetch` takes
+ARIs only, so the board/sprint REST API the script uses is out of reach), and `acli jira sprint`
+only has `list-workitems`. Harvest sprints from the issues already in them instead. On the CLI
+path `search` will not return the Sprint field, so it takes a `search` then a `view` per issue;
+the loop is in `references/acli.md`. On the MCP fallback it is one call:
 
 ```
 mcp__claude_ai_Atlassian_Rovo__searchJiraIssuesUsingJql(
@@ -216,6 +255,9 @@ if the user asks to refresh.
 Default to the user, since `taco_ticket.ps1` self-assigns unconditionally (`:417-430`), with no prompt.
 Offer "leave unassigned" as the alternative; don't offer to assign to anyone else unless asked.
 
+On the CLI path the create JSON takes the email, so only the cached `email` is needed and the
+`lookupJiraAccountId` call below is skipped.
+
 The account id is stable, so cache it in `~/.jira/account_cache.json` as
 `{"email": "...", "accountId": "..."}` and reuse it indefinitely. To resolve it the first time,
 read **only** the `$JIRA_EMAIL` line out of `~/.jira/profile.ps1`. That file also holds
@@ -236,6 +278,16 @@ tedious to unpick. "Yes", "go ahead", "raise it" is the signal. Silence or a que
 
 ## Creating it
 
+On the CLI path, `references/acli.md` has the command and the JSON shape. In short: the epic and
+sprint are custom fields, so the create goes through `--from-json` with the description built as
+ADF.
+
+```bash
+acli jira workitem create --from-json <scratchpad>/ticket.json --json
+```
+
+On the MCP fallback:
+
 ```
 mcp__claude_ai_Atlassian_Rovo__createJiraIssue(
   cloudId="698e3af2-3533-45b9-bbdc-d0407275d5c7",
@@ -252,7 +304,8 @@ mcp__claude_ai_Atlassian_Rovo__createJiraIssue(
 )
 ```
 
-Both custom fields are the ones `taco_ticket.ps1` sets on this classic company-managed project:
+The same two custom fields carry over to the `acli` JSON, under its `additionalAttributes` key.
+They are the ones `taco_ticket.ps1` sets on this classic company-managed project:
 `customfield_10014` is the Epic Link (`:433-435`) and `customfield_10020` is Sprint (`:438-441`),
 which takes a **bare numeric sprint id**, not an object, not a name. Omit either key entirely
 when the user chose no parent or Backlog. Do not use the MCP `parent` parameter for the epic; that
@@ -276,6 +329,14 @@ Report back with the key and the browse URL: `https://keyframeai.atlassian.net/b
 - Don't trust a stale epic cache when the user says the epic they want is missing: re-fetch
 - Don't trust a sprint cache that survived a sprint rollover: check the active sprint's endDate
 - Don't read or echo `$JIRA_API_TOKEN` when pulling `$JIRA_EMAIL` out of `~/.jira/profile.ps1`
+- Don't run `acli jira auth login` for the user, or put an API token on a command line: it is
+  interactive, so ask them to run it
+- Don't pass Markdown to `acli`: `--description` and `--description-file` take plain text or ADF,
+  and Markdown arrives as literal `##` and `**` in the ticket
+- Don't reach for `acli jira workitem edit` to change a sprint or any other custom field: it
+  cannot, so use the MCP and say that you did
+- Don't retry a failed `acli` create on the MCP without checking whether the ticket was already
+  created: a duplicate is worse than a missing field
 - Don't pass the sprint as a name or an object: `customfield_10020` takes the numeric id
 - Don't guess a priority, or assign to anyone other than the user, unless told
 - Don't add emojis
