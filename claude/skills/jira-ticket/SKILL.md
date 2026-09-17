@@ -5,9 +5,10 @@ description: >
   use (User Story, Technical Story, Bug), how to write a summary and description, and which
   fields to set on creation (parent epic, sprint, assignee). Use this skill whenever a ticket is
   about to be created or reworded: "raise a ticket for this", "create a Jira ticket", "log a bug
-  for this", "write up this story", "add a ticket to the backlog", or any similar phrase. Also
-  consult it whenever another skill needs to create tickets (`work-breakdown` raises a set of
-  them from an investigation), so that ticket conventions live in one place rather than being
+  for this", "write up this story", "add a ticket to the backlog", or any similar phrase, and
+  when one is to be cancelled ("cancel TACO-XXXX", "we're not doing this ticket"). Also consult
+  it whenever another skill needs to create or cancel tickets (`work-breakdown` raises a set of
+  them from an investigation, `investigate` cancels one it finds isn't needed), so that ticket conventions live in one place rather than being
   restated. Covers the cached defaults in ~/.jira that make the epic, sprint and assignee
   prompts cost no server call, and drives Jira through the `acli` command line tool where it is
   available, falling back to the Atlassian MCP where it is not.
@@ -317,6 +318,28 @@ saying so.
 
 Report back with the key and the browse URL: `https://keyframeai.atlassian.net/browse/TACO-XXXX`.
 
+## Cancelling a ticket
+
+A ticket that turns out not to be needed is moved to `Cancelled` with a comment giving the reason,
+never deleted. The comment is what a teammate finds later when they wonder where the work went, so
+say why in a sentence or two and name whatever supersedes it.
+
+Confirm first, as with creating: show the ticket and the comment, and wait for an explicit yes.
+
+On the CLI path, `references/acli.md` has the commands. On the MCP fallback, find the transition's
+id, move the ticket, then comment:
+
+```
+mcp__claude_ai_Atlassian_Rovo__getTransitionsForJiraIssue(cloudId=..., issueIdOrKey="TACO-XXXX")
+mcp__claude_ai_Atlassian_Rovo__transitionJiraIssue(cloudId=..., issueIdOrKey="TACO-XXXX",
+                                                   transition={"id": "<id of Cancelled>"})
+mcp__claude_ai_Atlassian_Rovo__addCommentToJiraIssue(cloudId=..., issueIdOrKey="TACO-XXXX",
+                                                     commentBody="Cancelled: <reason>")
+```
+
+If no `Cancelled` transition is offered from the ticket's current status, report what is offered
+and stop. Don't step the ticket through other statuses to reach it.
+
 ## What not to do
 
 - Don't create anything in Jira before the user has explicitly approved it
@@ -339,4 +362,5 @@ Report back with the key and the browse URL: `https://keyframeai.atlassian.net/b
   created: a duplicate is worse than a missing field
 - Don't pass the sprint as a name or an object: `customfield_10020` takes the numeric id
 - Don't guess a priority, or assign to anyone other than the user, unless told
+- Don't cancel a ticket without a comment giving the reason, or without the user's go-ahead
 - Don't add emojis

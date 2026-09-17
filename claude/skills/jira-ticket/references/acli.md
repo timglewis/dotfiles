@@ -202,3 +202,18 @@ acli jira workitem edit --key TACO-1234 --summary "..." --description-file desc.
 Summary, description, type, assignee and labels only. For **anything custom-field shaped, the
 sprint and the epic included, `edit` will not do it**: use
 `mcp__claude_ai_Atlassian_Rovo__editJiraIssue` and say that you have.
+
+## Cancelling a ticket
+
+Transition first, then comment, so a transition that fails doesn't leave a comment claiming the
+ticket is cancelled:
+
+```bash
+acli jira workitem transition --key TACO-1234 --status "Cancelled" --yes
+acli jira workitem comment create --key TACO-1234 --body "Cancelled: <the reason, one or two sentences>"
+```
+
+`--body` takes plain text, which is all a short reason needs. There is no command that lists the
+transitions available, so if `Cancelled` is rejected (the workflow doesn't allow it from the
+ticket's current status), look them up with `mcp__claude_ai_Atlassian_Rovo__getTransitionsForJiraIssue`
+and report what is offered rather than stepping the ticket through other statuses to get there.

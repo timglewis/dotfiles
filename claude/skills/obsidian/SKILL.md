@@ -118,7 +118,7 @@ Rules that matter:
 | `review` | Waiting on review | An active PR for the key, draft or not |
 | `done` | Merged | A completed PR for the key and no active one |
 | `paused` | Set aside on purpose | Set by the user only |
-| `dropped` | Abandoned on purpose | Set by the user only |
+| `dropped` | Abandoned on purpose | Set by the user, or by `investigate` once the user agrees there is nothing to deliver |
 
 A branch or PR belongs to a key when the branch name starts with the key (`taco-1234-...`, compared case-insensitively) or the PR title carries it (`[TACO-1234] ...`).
 
@@ -130,6 +130,7 @@ Each stage has an owner that moves it forward, so the value stays current withou
 | `planned` to `coding` | `start-work`, or `git-workflow` when a branch is created without it |
 | `coding` to `review` | `pr-summary`, once it has raised the PR |
 | `review` to `done` | `sweep-thread-status`, since the merge happens on Azure DevOps where no skill sees it |
+| any stage to `dropped` | `investigate`, when it concludes the ticket isn't needed, alongside cancelling it in Jira |
 
 `sweep-thread-status` also corrects any thread that has fallen behind, whichever stage it missed.
 

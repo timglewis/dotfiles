@@ -138,6 +138,27 @@ When investigation is complete and open questions are resolved (or consciously d
 - If the investigation turned up a single thing worth raising on its own (a defect found along the
   way, one follow-up), that's `jira-ticket`, which owns how a ticket is written and raised
 
+### When there is nothing to deliver
+
+Sometimes the investigation concludes the ticket shouldn't be done at all: the change is already
+unnecessary, it's covered elsewhere, or the decision is to go without it. Record that in Decisions
+with the reason, as with any other decision, and make the Summary say so plainly.
+
+On a keyed thread, the note and Jira then both still say the work is pending, so close it out in
+both places. Offer the two together, once:
+
+> "The investigation concludes TACO-XXXX isn't needed. Want me to mark the thread `dropped` and
+> cancel the ticket in Jira with a comment giving the reason?"
+
+- **The thread**: set `status:` to `dropped` and stamp `updated:`, per the lifecycle in `obsidian`.
+- **The ticket**: move it to `Cancelled` with a one or two sentence comment giving the reason and
+  pointing at what supersedes it, if anything. `jira-ticket` owns the commands. Cancelling is
+  outward-facing, so show the comment and get an explicit yes before running anything.
+
+The user may want one without the other, say because someone else owns the ticket and should make
+the call. Do only what they agree to. On an unkeyed thread there is no ticket, and a spike that
+answered its question is `done`, not `dropped`: there's nothing to offer here.
+
 ---
 
 ## Document structure
@@ -215,7 +236,8 @@ what was decided and why (briefly), so future-you can reconstruct the reasoning.
 ## Finishing a write
 
 Every write to `investigation.md` is a write into the thread, so stamp `updated:` in the thread's
-`index.md` per `obsidian`. Change nothing else in that note.
+`index.md` per `obsidian`. Change nothing else in that note, apart from setting `status:` to
+`dropped` when the user agrees there is nothing to deliver.
 
 Absolute paths, `file://` links, backticked code references and Azure DevOps URLs all follow
 `obsidian`.
@@ -233,5 +255,6 @@ Absolute paths, `file://` links, backticked code references and Azure DevOps URL
 - Don't move on past an ambiguity that matters: ask first
 - Don't include every file you read, only the ones genuinely relevant to the ticket
 - Don't wander into a second repo without asking
+- Don't cancel a Jira ticket, or drop its thread, without the user agreeing to it
 - Don't write "What Needs to Change" without invoking `coding-style` first, and don't infer the user's style preferences from the surrounding code
 - Don't add emojis
