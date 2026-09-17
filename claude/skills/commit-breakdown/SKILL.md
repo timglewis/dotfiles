@@ -181,6 +181,14 @@ Writing `commit-breakdown.md` is a write into the thread, so stamp `updated:` in
 Absolute paths, `file://` links and the `*(new file)*` marker all follow `obsidian`, which is also
 what the investigation document was written against.
 
+Coding starts from the document, not from this conversation, so tell the user to `/clear` before the
+first commit rather than compacting. The plan, the investigation and the skill rules all reload
+cleanly from disk, while a compacted context replaces the verbatim `git-workflow` and `coding-style`
+rules with a summary of them, which is the one thing step 3 exists to prevent. A plan that doesn't
+survive the clear is a plan that wasn't specific enough, and that is worth finding now rather than
+three commits in. Suggest a re-run of `track-session` after the clear so the session log points at
+the live conversation.
+
 ---
 
 ## What not to do

@@ -276,6 +276,18 @@ status too; `sweep-thread-status` picks it up.
 If `az` is missing, not logged in, or the extension is absent, say so plainly and fall back to the
 copy-paste flow rather than trying to work around it.
 
+## Finishing up
+
+Raising the PR ends the ticket's work, so this is the natural place to suggest a `/clear` before the
+next one starts. Nothing needs carrying forward: everything this skill produced is in the note, and
+everything the next ticket needs is in its own thread folder. Re-running `track-session` after the
+clear keeps the session log pointing at the live conversation.
+
+The same holds on the way in. This skill derives the summary from the branch diff and the thread's
+notes, not from the conversation, so it runs perfectly well in a context that knows nothing about
+how the code got written. Don't ask the user to clear mid-skill though: the review at step 1 belongs
+to this run, and clearing partway through loses the skill's own place in the workflow.
+
 ## What not to do
 
 - Don't pad the summary with testing notes, rollout steps, or file-by-file detail. It's a

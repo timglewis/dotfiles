@@ -137,6 +137,12 @@ When investigation is complete and open questions are resolved (or consciously d
   ticket is already the deployable unit and implementation starts now
 - If the investigation turned up a single thing worth raising on its own (a defect found along the
   way, one follow-up), that's `jira-ticket`, which owns how a ticket is written and raised
+- Suggest `/clear` before that next step rather than a compaction. The document is the handoff, so
+  nothing the next step needs lives only in this conversation, and a compacted context quietly
+  turns the skill rules it must load verbatim into a summary of themselves. Before clearing, check
+  the Decisions section really does carry the answers the user gave and the reasoning behind them:
+  that, and the dead ends worth recording, are the only things a clear costs. Re-running
+  `track-session` afterwards keeps the session log pointing at the live conversation
 
 ### When there is nothing to deliver
 

@@ -195,6 +195,13 @@ Writing `work-breakdown.md` is a write into the thread, so stamp `updated:` in t
 
 Absolute paths, `file://` links and backticked code references all follow `obsidian`.
 
+Each ticket is picked up in its own right, so suggest `/clear` before `commit-breakdown` runs on the
+first of them rather than a compaction. `work-breakdown.md` and `investigation.md` are the handoff,
+and a context still carrying the slicing debate for five tickets is mostly noise to a plan concerned
+with one. A compacted context is worse than noise, because it turns the skill rules the next step
+must load verbatim into a summary of themselves. Re-running `track-session` after the clear keeps
+the session log pointing at the live conversation.
+
 ## What not to do
 
 - Don't slice into items that can't ship independently: that's a commit plan, not a work breakdown
