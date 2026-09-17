@@ -88,7 +88,7 @@ Index note path is always `<folder>/index.md`. Write the frontmatter for the kin
 - `created:` and `updated:` both today
 - `ticket:` and `jira:` on a keyed `code` thread, omitted entirely when unkeyed
 
-`status:` is `active`: the user is starting this.
+`status:` is `planned` on a keyed `code` thread, since no branch exists yet and `start-work` moves it to `coding` when one does. Every other thread starts `active`: the user is starting it. Both values come from the lifecycle in `obsidian`.
 
 Body:
 

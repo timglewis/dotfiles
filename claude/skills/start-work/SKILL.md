@@ -130,7 +130,19 @@ Use the repo's actual default branch if it is not `master`.
 `git worktree add` fails rather than clobbering if the directory or branch already exists. Treat
 that as the collision case, not as something to force.
 
-### 3. Create the workspace and its three tabs
+### 3. Move the thread to `coding`
+
+The branch now exists, which is what `coding` means in the lifecycle `obsidian` defines. If the key
+has a thread (locate it per `obsidian`) and its `status:` is `planned`, set it to `coding` and stamp
+`updated:`. Change nothing else in the note.
+
+Leave any other status alone: `review` or `done` means the work is being reopened, and `paused` or
+`dropped` is the user's call. No thread at all is fine too; this skill does not scaffold one.
+
+Do this whenever the worktree exists at the end of step 2, including when an existing directory was
+reused.
+
+### 4. Create the workspace and its three tabs
 
 Build the whole layout unfocused, so the user's current pane keeps focus while it is assembled.
 Focus moves once, at the end.
@@ -157,7 +169,7 @@ and are not sequential in any way you can rely on.
 
 Pass `--cwd` on every tab. A tab does not inherit the workspace's directory.
 
-### 4. Fill the Claude and Editor tabs
+### 5. Fill the Claude and Editor tabs
 
 The Claude tab gets a real agent rather than a shell running `claude`, so Herdr tracks its
 lifecycle and it shows up in `herdr agent list`:
@@ -178,7 +190,7 @@ herdr pane run <editor-pane-id> "nvim ."
 Leave the Prompt tab alone. It is a shell sitting at a prompt in the worktree, which is the whole
 point of it.
 
-### 5. Focus the Claude tab
+### 6. Focus the Claude tab
 
 Last, and only now:
 
@@ -187,9 +199,10 @@ herdr workspace focus <ws-id>
 herdr tab focus <claude-tab-id>
 ```
 
-### 6. Report and hand back
+### 7. Report and hand back
 
-Give the user the worktree path, the branch, and the workspace ID and label.
+Give the user the worktree path, the branch, the workspace ID and label, and the thread's status
+if step 3 moved it.
 
 Then flag the session problem, because it is easy to miss: the Claude agent in the new tab is a
 **different session** from the one that ran this skill. Whatever `track-session` recorded points at
@@ -205,13 +218,13 @@ and what to do first is theirs to decide.
 | --- | --- |
 | Worktree directory exists, no workspace | Reuse it. Skip step 2, say you are reusing it, build the workspace. |
 | Workspace label exists, no worktree | Almost always a stale workspace. Report it and ask before creating a second. |
-| Both exist | Nothing to do. Focus the existing workspace and say so. |
+| Both exist | Nothing to build. Run step 3 anyway, focus the existing workspace and say so. |
 | Agent name already live | The workspace exists somewhere. Find it with `herdr agent list` before creating anything. |
 | `git fetch` fails | Offer to branch from the local default branch instead, saying it may be behind. |
 | `agent start` returns `agent_not_ready` | The pane kept the name. Wait for idle with `herdr agent wait <name>`, do not start a second agent. |
 | `agent start` fails outright | Leave the workspace up. The Prompt and Editor tabs are still useful; say the Claude tab needs starting by hand. |
 | `nvim` not installed | Leave the tab as a shell and say so. Do not substitute another editor. |
-| Not running inside Herdr | Create the worktree, skip the workspace, say which half was done. |
+| Not running inside Herdr | Create the worktree, move the thread to `coding`, skip the workspace, say which half was done. |
 
 Partial success is normal and worth reporting precisely. A worktree with two working tabs is a
 better outcome than an unwound setup, so never tear down what already succeeded because a later
@@ -225,8 +238,9 @@ step failed.
 - Don't create the worktree with `herdr worktree create`. It makes a workspace linked to the
   worktree, which brings group-close semantics the existing `taco-*` workspaces do not have.
   Keep git and Herdr as separate steps.
-- Don't focus anything before step 5.
+- Don't focus anything before step 6.
 - Don't close or reuse a workspace you did not create in this run.
-- Don't scaffold vault notes here. That is `start-thread`.
+- Don't scaffold vault notes here. That is `start-thread`. Moving an existing thread to `coding`
+  is the only vault write this skill makes.
 - Don't restate branch-naming or commit rules. That is `git-workflow`.
 - Don't add emojis.

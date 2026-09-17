@@ -79,6 +79,13 @@ Confirm both names together, since one is not simply a prefix of the other:
 
 > "I'm going to create worktree `taco-1234` on branch `taco-1234-add-payment-button`. Does that look right?"
 
+### Move the thread to `coding`
+
+Once the branch exists, a ticket with a thread in the vault is no longer `planned`. If its
+`status:` is `planned`, set it to `coding` and stamp `updated:`, following the lifecycle and the
+note-writing rules in `obsidian`. Leave any other status alone. `start-work` does this itself, so
+this applies when a branch is created without it.
+
 ### Setting up the whole environment
 
 `git-workflow` owns the naming rules above and nothing more. When the user wants the environment

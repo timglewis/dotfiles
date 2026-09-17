@@ -7,9 +7,10 @@ description: >
   reading or writing anything under the vault, whether the user asked directly ("add this to my
   notes", "what does the note say about TACO-1234", "find the thread for this branch") or another
   skill needs to locate a thread folder or write a working file into one. It is the single source
-  of truth for those conventions: `start-thread`, `track-session`, `investigate`,
-  `work-breakdown`, `commit-breakdown` and `pr-summary` all defer to it rather than restating
-  them. It owns conventions only, and creates nothing: scaffolding a new thread is `start-thread`.
+  of truth for those conventions, including the status lifecycle of a ticketed thread:
+  `start-thread`, `start-work`, `track-session`, `investigate`, `work-breakdown`,
+  `commit-breakdown`, `pr-summary` and `sweep-thread-status` all defer to it rather than
+  restating them. It owns conventions only, and creates nothing: scaffolding a new thread is `start-thread`.
 ---
 
 # Obsidian Vault Skill
@@ -76,7 +77,7 @@ Core, on every thread:
 ---
 kind: code            # code | investigation | work | incident
 title: Send confirmation email on order completion
-status: active        # planned | active | paused | done | dropped
+status: active        # see "Status" below: the values depend on whether the thread is a ticket
 aliases:
   - TACO-1234         # the key when keyed, the title when not
 tags: []
@@ -99,17 +100,48 @@ Rules that matter:
 
 - **`aliases:` is load-bearing.** It is the only thing keeping `[[TACO-1234]]` and `[[Some Thread Title]]` resolving to a note named `index.md`. Never drop it.
 - **Quote any title containing a colon.** An unquoted colon breaks the line, Obsidian then shows no properties at all, and Bases silently drops the note from every view.
-- **`status:` is `active` on a new thread.** The user is starting it. `planned` is for work deliberately queued rather than begun.
 - **`prs:` is always present on `code`**, as `prs: []` when empty. Never omitted.
 - Empty lists render inline as `[]`, not as an empty block.
 - **No `type:` field, and no `parent:` or `root:`.** They are deliberately not part of the schema; hierarchy is folder nesting only, because `file.inFolder()` already matches subfolders.
 - Only `index.md` carries frontmatter. `threads.base` filters on `file.hasProperty("kind")`, so a `kind` property on a working file would list it as a thread in its own right.
 
+## Status
+
+`status:` takes one of two value sets, and which applies is decided by the frontmatter alone.
+
+**Ticketed code threads** (`kind: code` with a `ticket:`) follow the ticket through delivery:
+
+| Status | Meaning | Evidence |
+| --- | --- | --- |
+| `planned` | Not started | No branch and no PR for the key |
+| `coding` | In progress | A branch for the key exists, locally or on origin, with no active PR |
+| `review` | Waiting on review | An active PR for the key, draft or not |
+| `done` | Merged | A completed PR for the key and no active one |
+| `paused` | Set aside on purpose | Set by the user only |
+| `dropped` | Abandoned on purpose | Set by the user only |
+
+A branch or PR belongs to a key when the branch name starts with the key (`taco-1234-...`, compared case-insensitively) or the PR title carries it (`[TACO-1234] ...`).
+
+Each stage has an owner that moves it forward, so the value stays current without anyone editing it by hand:
+
+| Transition | Made by |
+| --- | --- |
+| new thread, `planned` | `start-thread` |
+| `planned` to `coding` | `start-work`, or `git-workflow` when a branch is created without it |
+| `coding` to `review` | `pr-summary`, once it has raised the PR |
+| `review` to `done` | `sweep-thread-status`, since the merge happens on Azure DevOps where no skill sees it |
+
+`sweep-thread-status` also corrects any thread that has fallen behind, whichever stage it missed.
+
+**Every other thread** (investigation, work, incident, and unticketed code) uses `planned | active | paused | done | dropped`. `status:` is `active` on a new one, since the user is starting it, and `planned` is for work deliberately queued rather than begun. These have no branch or PR to go on, so only the user moves them.
+
+**Only move a ticketed thread forward** along `planned`, `coding`, `review`, `done` when a skill sets its status in passing. Leave `paused` and `dropped` alone, and leave a thread already past the stage being set alone too: `start-work` on a thread at `review` is reworking it, not starting it.
+
 ## Stamping `updated:`
 
 **Stamp `updated:` in the thread's `index.md` whenever you write anywhere in the thread**, not just when you edit the index note itself. Writing `investigation.md`, appending to `sessions.md` or adding a `commit-breakdown.md` all count. The Recent threads view sorts on it, so a stale stamp hides live work.
 
-This is the only edit to make to an index note you weren't asked to change. Leave its body and the rest of its frontmatter alone.
+This and a status move made by the skill that owns it (see "Status") are the only edits to make to an index note you weren't asked to change. Leave its body and the rest of its frontmatter alone.
 
 ## Writing prose in a note
 

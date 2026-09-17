@@ -225,8 +225,9 @@ one, and the latest summary supersedes the old one.
 Then echo the same title and description in the chat reply so the user can copy-paste immediately
 without opening the note.
 
-Stamp `updated:` to today, per `obsidian`. Leave the rest of the frontmatter alone, `prs:`
-included: the PR URL doesn't exist yet, and that is the user's to add.
+Stamp `updated:` to today, per `obsidian`. Leave the rest of the frontmatter alone, `prs:` and
+`status:` included: the PR doesn't exist yet, the URL is the user's to add, and the status moves
+only once the PR is raised (step 8).
 
 ### 8. Offer to create the PR on Azure DevOps
 
@@ -267,6 +268,11 @@ Points that matter:
 - **`--open`** opens the created PR in the browser, which is usually what the user wants next.
 - Report the PR id and URL back, and leave `prs:` in the note for the user to fill in.
 
+Once `az` reports the PR created, move the thread to `review` per the lifecycle in `obsidian`: set
+`status:` to `review` if it is `planned` or `coding`, and leave `paused`, `dropped` or a status
+already at `review` or `done` alone. If the user declines or the PR is raised by hand, leave the
+status too; `sweep-thread-status` picks it up.
+
 If `az` is missing, not logged in, or the extension is absent, say so plainly and fall back to the
 copy-paste flow rather than trying to work around it.
 
@@ -280,8 +286,8 @@ copy-paste flow rather than trying to work around it.
   commit message. The diff is the source of truth.
 - Don't write the summary from a diff a review is about to change: offer the review first (step 1),
   and regenerate the summary if the review changes anything.
-- Don't touch the frontmatter beyond `updated:`, and don't add the PR URL to `prs:`: that is the
-  user's to add once the PR exists.
+- Don't touch the frontmatter beyond `updated:` and, once the PR is raised, `status:`. Don't add
+  the PR URL to `prs:`: that is the user's to add once the PR exists.
 - Don't force-push without asking, and don't offer to create the PR on a branch that isn't on
   origin: it will fail.
 - Don't create the PR without asking, and never without showing the resolved command first.
