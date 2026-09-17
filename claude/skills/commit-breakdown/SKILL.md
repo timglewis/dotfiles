@@ -92,6 +92,8 @@ Write it in one pass once you've thought the sequencing through. Use the templat
 # Commit Breakdown: TACO-XXXX - <title>
 
 > Investigation: [[investigation]]
+>
+> Push each commit to origin as soon as it is made, per `git-workflow`.
 
 ## Sequencing rationale
 
@@ -192,6 +194,8 @@ what the investigation document was written against.
 - Don't use relative paths or short filenames in the Files list
 - Don't hard-wrap prose in the document, and don't leave the index note's `updated:` stale
 - Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`
+- Don't leave the push line out of the header: without it the commits pile up locally until the
+  whole plan is done
 - Don't turn the review step into a numbered commit, and don't leave the footer off: a plan that
   stops at the last commit reads as though the branch is ready to raise
 - Don't add emojis

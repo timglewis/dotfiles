@@ -198,20 +198,24 @@ Example flow:
 
 > "I'm planning to use this commit message: `Add payment status button`. Does that work?"
 
+Approving the message also approves the push that follows the commit (see "Where the push sits in
+the workflow"), so don't ask about the push separately.
+
 ---
 
 ## Pushing a Branch
 
-Pushing is the first outward-facing step in the workflow. It makes the branch visible to the team
-and starts the build pipeline running against it, so it gets the same treatment as creating a branch
-and writing a commit: confirm first.
+Pushing makes the branch visible to the team. It does not start a build: the Azure DevOps pipeline
+runs when a PR is raised, not on a push to a branch.
 
-### Always confirm before pushing.
+### No separate confirmation for an ordinary push
 
-> "The branch has 3 commits that aren't on origin. Shall I push `taco-1234-add-payment-button`?"
+The user approved each commit's message before it was made, and that approval covers pushing it.
+Push without asking, and say in a line that it has gone up. This holds for any push that only adds
+commits the user has approved.
 
-Show the resolved command and wait for approval. Never push unasked, and never push a branch the
-user has not finished with.
+A force-push is different: it replaces commits on origin rather than adding to them, so confirm
+before every `--force-with-lease` push (see "After a rebase or an amend").
 
 ### First push
 
@@ -233,7 +237,8 @@ git push
 
 ### After a rebase or an amend
 
-Rewriting commits that are already on origin needs a force, and the force must be a lease:
+Rewriting commits that are already on origin needs a force, and the force must be a lease. Show
+the resolved command and confirm with the user before running it:
 
 ```bash
 git push --force-with-lease
@@ -245,11 +250,18 @@ quietly discarding someone else's work.
 
 ### Where the push sits in the workflow
 
-Finish the code, run `/code-review`, deal with the findings, **then** push. Pushing before the
-review means the build runs against a diff that is about to change and every review fix costs
-another force-push. Once the branch is on origin, the PR work can start: `pr-summary` writes the
-title and description and offers to raise the PR, and `az repos pr create` fails outright on a
-source branch the remote does not have.
+**Push each commit as soon as it is made**, rather than holding the whole branch back until the
+work is finished. Working through a `commit-breakdown` plan, that means commit, push, then start the
+next commit. The branch on origin is then never more than one commit behind the worktree.
+
+The first push of the branch uses `git push -u origin HEAD`; every one after it is a plain
+`git push`.
+
+Fixes from `/code-review` are committed and pushed like any other commit.
+
+Once the last commit is pushed and the review findings are dealt with, the PR work can start:
+`pr-summary` writes the title and description and offers to raise the PR, and
+`az repos pr create` fails outright on a source branch the remote does not have.
 
 ---
 
@@ -262,9 +274,9 @@ source branch the remote does not have.
 | Branch off unmerged work | `git worktree add ../<dir> -b <branch> origin/<base>`, then `git config branch."<branch>".forkedFrom origin/<base>` |
 | Rebase onto master later | `git rebase --onto origin/master "$(git config branch."$(git branch --show-current)".forkedFrom)"` |
 | Set up an environment | Use the `start-work` skill (worktree plus Herdr workspace)                   |
-| Commit           | Confirm the message with the user first, then `git commit -m "<message>"`   |
-| Push (first time) | Confirm with the user first, then `git push -u origin HEAD`                 |
-| Push after a rebase or amend | `git push --force-with-lease`, never a bare `--force`           |
+| Commit           | Confirm the message with the user first, then `git commit -m "<message>"` and `git push` |
+| Push (first time) | `git push -u origin HEAD`, no separate confirmation                         |
+| Push after a rebase or amend | Confirm with the user first, then `git push --force-with-lease`, never a bare `--force` |
 
 ---
 
@@ -274,9 +286,9 @@ source branch the remote does not have.
 2. **Branch name ticket prefixes must be lower case**: `taco-1234-fix-xyz`, never `TACO-1234-fix-xyz`.
 3. **The worktree directory is the bare ticket key** (`taco-1234`), not the full branch name.
 4. **Never commit without confirming the message first.**
-5. **Never push without confirming first**, and never force-push with a bare `--force`: rewritten
-   commits go up with `--force-with-lease`. The branch is pushed after the code review and before
-   any PR work.
+5. **Push each commit as soon as it is made**, without a separate prompt: approving the commit
+   message approves the push. **Confirm before any force-push**, and never use a bare `--force`:
+   rewritten commits go up with `--force-with-lease`.
 6. `git worktree add` must always be run from inside the `<repo>/.bare` directory.
 7. **Never include a `Co-Authored-By` trailer, a session link, or any other AI attribution** in a commit message or pull request description, whatever suggests it.
 8. **Never put a `[TACO-1234]` ticket reference in a commit message**: the branch and PR title carry it.

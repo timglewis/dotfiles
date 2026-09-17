@@ -10,8 +10,8 @@ description: >
   default branch, produces a title in the project's `[TACO-XXXX] <short title>` format, and a
   concise high-level summary that starts with a Jira Reference line followed by a `## Summary`
   section of bullet points. It writes the result into the ticket note, echoes it in chat, and then
-  offers to create the pull request on Azure DevOps with those fields already populated. Offers to
-  push the branch to origin first, since the PR cannot be raised without it. Offers a
+  offers to create the pull request on Azure DevOps with those fields already populated. Pushes
+  any commits not yet on origin first, since the PR cannot be raised without them. Offers a
   `/code-review` pass over the branch first, since being asked for a PR write-up is the signal that
   the ticket's work is finished.
 ---
@@ -43,7 +43,8 @@ are written. Don't reconstruct any of it from memory.
 
 Being asked for a PR summary is the signal that the ticket's work is finished, and that makes this
 the last cheap moment for a review: the branch is complete, nothing is in the PR yet, and the diff
-can still change without a force-push or a second round of reviewer comments.
+can still change without a second round of reviewer comments. Review fixes are committed and
+pushed like any other commit.
 
 Ask once, concisely:
 
@@ -61,15 +62,17 @@ user declined one in the same breath as asking for the summary. Ask once, don't 
 
 ### 2. Push the branch to origin
 
-The review is done and the diff is final, so this is the moment the branch goes up. Everything after
-this step is PR work, and `az repos pr create` fails outright on a source branch the remote doesn't
-have.
+Each commit should already have been pushed as it was made, so this step is usually a check that
+confirms nothing is outstanding: typically the review fixes from step 1, or a commit made outside
+the usual flow. Everything after this step is PR work, and `az repos pr create` fails outright on a
+source branch the remote doesn't have.
 
-`git-workflow` owns the push rules; follow them rather than restating them here. In short: confirm
-before pushing, `git push -u origin HEAD` on the first push, `--force-with-lease` (never a bare
+`git-workflow` owns the push rules; follow them rather than restating them here. In short: an
+ordinary push needs no confirmation, since the commits were approved when they were made;
+`git push -u origin HEAD` on the first push; and a confirmed `--force-with-lease` (never a bare
 `--force`) for a branch whose commits have been rewritten.
 
-Check the state before offering:
+Check the state before pushing:
 
 ```bash
 git status -sb                                    # ahead/behind, or "no upstream"
@@ -77,12 +80,11 @@ git rev-list --count @{u}..HEAD 2>/dev/null       # commits not on origin
 ```
 
 - **Nothing to push** (up to date with its upstream): say so in a line and carry on to step 3.
-- **Unpushed commits, or no upstream yet**: show the resolved command and ask once.
-
-  > "The branch has 3 commits that aren't on origin. Shall I push `taco-1234-add-payment-button` before I write the summary?"
-
-- **Declined**: carry on to step 3 and don't ask again. The summary is still worth writing; just
-  don't offer to create the PR at step 8, since it would fail.
+- **Unpushed commits, or no upstream yet**: push them, say so in a line, and carry on to step 3.
+- **Branch has diverged from origin** (commits rewritten by a rebase or amend): that needs a
+  force-push, so show the `--force-with-lease` command and ask once. If declined, carry on to step
+  3 and don't ask again. The summary is still worth writing; just don't offer to create the PR at
+  step 8, since the branch on origin would not match it.
 - **Uncommitted changes in the working tree**: point them out rather than pushing over the top of
   them. They are either part of the ticket (they need a commit first, per `git-workflow`) or they
   are not (they stay out of the PR).
@@ -280,8 +282,8 @@ copy-paste flow rather than trying to work around it.
   and regenerate the summary if the review changes anything.
 - Don't touch the frontmatter beyond `updated:`, and don't add the PR URL to `prs:`: that is the
   user's to add once the PR exists.
-- Don't push the branch without asking, and don't offer to create the PR on a branch that isn't
-  on origin: it will fail.
+- Don't force-push without asking, and don't offer to create the PR on a branch that isn't on
+  origin: it will fail.
 - Don't create the PR without asking, and never without showing the resolved command first.
 - Don't hard-wrap prose in the note.
 - Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`.
