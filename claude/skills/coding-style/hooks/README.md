@@ -5,27 +5,13 @@ about to be edited, rather than leaving it to the model to decide the skill is r
 
 ## Wiring
 
-The hook is registered in `claude/settings.json` at the root of this repo, which
-`~/.claude/settings.json` symlinks to. Nothing needs adding by hand on a machine where the
-symlink is in place.
-
-```
-~/.claude/settings.json -> <dotfiles>/claude/settings.json
-~/.claude/skills        -> <dotfiles>/claude/skills
-```
+The hook is registered in `~/.claude/settings.json`, which is a real file rather than a symlink
+into this repo (`claude/README.md` explains why). `claude/settings.json` holds a reference copy,
+so the two have to be kept in step by hand.
 
 Two events are registered. `PreToolUse` on `Edit|Write|NotebookEdit` runs the script, and
-`PostCompact` runs it with the `reset` argument.
-
-Work-specific settings (the permission rules naming branches, and the whole `autoMode` block
-with its organisation and infrastructure detail) live in `~/.claude/settings.local.json`, which
-is not in this repo and must not be: the repo is public. Claude Code merges that file over the
-tracked one. Anything naming an employer, a host, a registry or a branch belongs there.
-
-Both Claude Code and herdr write to `settings.json` themselves, Claude Code when a permission is
-accepted permanently or `/config` changes something, herdr when its integration is reinstalled.
-If either replaces the symlink with a regular file, the settings stop being tracked silently.
-`ls -l ~/.claude/settings.json` is the check.
+`PostCompact` runs it with the `reset` argument. The script itself is reached through the
+`~/.claude/skills` symlink, so it is version-controlled and needs no copying.
 
 ## What it does
 
