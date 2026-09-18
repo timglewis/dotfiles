@@ -11,15 +11,18 @@ The lifecycle itself is defined in the obsidian skill; this script implements it
 import argparse
 import datetime
 import json
+import os
 import pathlib
 import re
 import subprocess
 import sys
 
-VAULT = pathlib.Path.home() / "Obsidian" / "keyframe" / "Threads"
-CODE_ROOT = pathlib.Path.home() / "code"
-ORG = "https://dev.azure.com/keyframe-ai"
-PROJECT = "KeyframeAI"
+# Defaults match the layout the skills assume. Override any of them in the environment
+# rather than editing here, so an update to this file doesn't clobber the setting.
+VAULT = pathlib.Path(os.environ.get("KEYFRAME_VAULT", pathlib.Path.home() / "Obsidian" / "keyframe")) / "Threads"
+CODE_ROOT = pathlib.Path(os.environ.get("KEYFRAME_CODE_ROOT", pathlib.Path.home() / "code"))
+ORG = os.environ.get("KEYFRAME_AZDO_ORG", "https://dev.azure.com/keyframe-ai")
+PROJECT = os.environ.get("KEYFRAME_AZDO_PROJECT", "KeyframeAI")
 PR_LIMIT = 1000
 
 ORDER = ["planned", "coding", "review", "done"]

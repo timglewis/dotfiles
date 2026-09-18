@@ -32,17 +32,39 @@ implements them, and if the two ever disagree, `obsidian` wins and the script ne
 Only ticketed code threads (`kind: code` with a `ticket:`), nested ones included. Every other
 thread has no branch or PR to go on and is left alone, per `obsidian`.
 
+## The script
+
+`scripts/sweep.py` does the gathering. It lives in this skill's own folder, which is wherever the
+skill was installed (`~/.claude/skills/sweep-thread-status/` for Claude Code,
+`~/.copilot/skills/sweep-thread-status/` for Copilot CLI), so resolve it once and reuse it as
+`$SKILL_DIR`:
+
+```bash
+SKILL_DIR=$(ls -d ~/.claude/skills/sweep-thread-status ~/.copilot/skills/sweep-thread-status 2>/dev/null | head -1)
+```
+
+It reads the vault root, the code root and the Azure DevOps org and project from the environment,
+falling back to the defaults the rest of the skills assume. Override them there, not by editing the
+script:
+
+| Variable | Default |
+| --- | --- |
+| `KEYFRAME_VAULT` | `~/Obsidian/keyframe` |
+| `KEYFRAME_CODE_ROOT` | `~/code` |
+| `KEYFRAME_AZDO_ORG` | `https://dev.azure.com/keyframe-ai` |
+| `KEYFRAME_AZDO_PROJECT` | `KeyframeAI` |
+
 ## Workflow
 
 ### 1. Gather the evidence and derive each status
 
 ```bash
-python3 ~/.claude/skills/sweep-thread-status/scripts/sweep.py
+python3 "$SKILL_DIR"/scripts/sweep.py
 ```
 
 It is read-only. It reads every thread's frontmatter, lists local and origin branches for every
-`~/code/<repo>/.bare`, fetches the project's last 1000 PRs across all repos with `az repos pr list`
-(a few seconds), and prints JSON:
+`<code-root>/<repo>/.bare`, fetches the project's last 1000 PRs across all repos with
+`az repos pr list` (a few seconds), and prints JSON:
 
 | Field | Meaning |
 | --- | --- |
@@ -70,7 +92,7 @@ than trusting the old rows.
 way, so apply them without asking:
 
 ```bash
-python3 ~/.claude/skills/sweep-thread-status/scripts/sweep.py --apply TACO-3342=done TACO-3380=coding
+python3 "$SKILL_DIR"/scripts/sweep.py --apply TACO-3342=done TACO-3380=coding
 ```
 
 `--apply` sets `status:` and stamps `updated:` on each named thread, per `obsidian`, and touches
