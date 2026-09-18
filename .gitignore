@@ -1,0 +1,9 @@
+# Python bytecode, regenerated on every run
+__pycache__/
+*.py[cod]
+
+# Vim swap files
+*.sw[op]
+
+# Anthropic's own skills, synced into place by Claude Code and named by bucket id
+claude/skills/synced/
