@@ -12,8 +12,8 @@ description: >
   section of bullet points. It writes the result into the ticket note, echoes it in chat, and then
   offers to create the pull request on Azure DevOps with those fields already populated. Pushes
   any commits not yet on origin first, since the PR cannot be raised without them. Offers a
-  `/code-review` pass over the branch first, since being asked for a PR write-up is the signal that
-  the ticket's work is finished.
+  `/code-review` pass and a `semgrep-review` security scan over the branch first, since being asked
+  for a PR write-up is the signal that the ticket's work is finished.
 ---
 
 # PR Summary Skill
@@ -39,26 +39,34 @@ are written. Don't reconstruct any of it from memory.
 
 ## Workflow
 
-### 1. Offer a code review before writing anything
+### 1. Offer a review before writing anything
 
 Being asked for a PR summary is the signal that the ticket's work is finished, and that makes this
 the last cheap moment for a review: the branch is complete, nothing is in the PR yet, and the diff
 can still change without a second round of reviewer comments. Review fixes are committed and
 pushed like any other commit.
 
-Ask once, concisely:
+Two passes are on offer, and they look for different things: `/code-review` for correctness bugs,
+`semgrep-review` for known-shape vulnerabilities and leaked credentials. Ask for both in one
+question rather than two, so the user answers once:
 
-> "The branch looks complete. Want me to run `/code-review` over it before I write the summary?"
+> "The branch looks complete. Want me to run `/code-review` and a `semgrep-review` security scan
+> over it before I write the summary? Either, both or neither."
 
-- **If yes**: run it (`Skill(skill="code-review")`, it is a harness skill rather than one of these).
-  Don't pass an effort level unless the user names one, because it reuses the level they last typed.
-  `ultra` is user-triggered and billed, so if they want that, they type it themselves. Once the
-  findings are dealt with (fixed, or consciously left), pick up from step 3. The summary must
-  describe the final diff, not the one that existed before the review.
-- **If no**: carry straight on, and don't ask again.
+- **Code review**: run it (`Skill(skill="code-review")`, it is a harness skill rather than one of
+  these). Don't pass an effort level unless the user names one, because it reuses the level they
+  last typed. `ultra` is user-triggered and billed, so if they want that, they type it themselves.
+- **Security scan**: run it (`Skill(skill="semgrep-review")`). It takes well under a minute on a
+  normal branch, and it offers its own install if semgrep is not yet on the machine.
+- **Both**: run the code review first. It is the one more likely to change the diff, and the scan
+  should see the code that is actually going into the PR.
 
-Skip the question entirely when a review has already run on this branch in the session, or when the
-user declined one in the same breath as asking for the summary. Ask once, don't push.
+Once the findings are dealt with (fixed, or consciously left), pick up from step 3. The summary
+must describe the final diff, not the one that existed before the review.
+
+Skip the question entirely when both have already run on this branch in the session, or when the
+user declined in the same breath as asking for the summary. Ask once, don't push. If only one has
+run, offer just the other.
 
 ### 2. Push the branch to origin
 

@@ -264,7 +264,7 @@ next commit. The branch on origin is then never more than one commit behind the 
 The first push of the branch uses `git push -u origin HEAD`; every one after it is a plain
 `git push`.
 
-Fixes from `/code-review` are committed and pushed like any other commit.
+Fixes from `/code-review` and `semgrep-review` are committed and pushed like any other commit.
 
 Once the last commit is pushed and the review findings are dealt with, the PR work can start:
 `pr-summary` writes the title and description and offers to raise the PR, and
