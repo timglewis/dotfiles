@@ -58,6 +58,6 @@
   "switchModelsOnFlag": false,
   "statusLine": {
     "type": "command",
-    "command": "bash /home/tim/.claude/statusline.sh"
+    "command": "bash \"$HOME/.claude/statusline.sh\""
   }
 }
