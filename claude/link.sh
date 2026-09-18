@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Puts a symlink in ~/.claude/skills for every skill in claude/skills/. See claude/README.md.
+# Makes ~/.claude/skills match this repo: a symlink per skill in claude/skills/, plus the
+# third-party skills listed in claude/third-party-skills.txt. See claude/README.md.
 
 set -euo pipefail
 
 claude_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 own_skills="${claude_dir}/skills"
+third_party_list="${claude_dir}/third-party-skills.txt"
 installed="${HOME}/.claude/skills"
 
 if [[ -L "$installed" ]]; then
@@ -40,5 +42,15 @@ for link in "$installed"/*; do
   [[ "$(readlink "$link")" == "${own_skills}/"* ]] || continue
   rm "$link"
 done
+
+if [[ -f "$third_party_list" ]]; then
+  while read -r source || [[ -n "$source" ]]; do
+    [[ -n "$source" && "$source" != \#* ]] || continue
+    # Unquoted on purpose: a line may carry its own flags, such as --skill to take one skill
+    # out of a repo that holds several.
+    # shellcheck disable=SC2086
+    npx --yes skills add --global --agent claude-code --yes $source
+  done <"$third_party_list"
+fi
 
 exit "$clashes"

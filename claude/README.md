@@ -43,7 +43,9 @@ Install them with the vercel-labs CLI, which writes into `~/.claude/skills` dire
 npx skills add --global --agent claude-code <source>
 ```
 
-They land beside the links and never touch this repo.
+Its own record of what is installed lives in `~/.agents/.skill-lock.json`, outside version
+control, so add the source to `claude/third-party-skills.txt` as well. That file is what a new
+machine is rebuilt from: `link.sh` reads it and installs everything listed.
 
 ## settings.json is a reference copy, not a symlink
 

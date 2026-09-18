@@ -1,0 +1,8 @@
+# Third-party skills, installed into ~/.claude/skills by link.sh through the vercel-labs
+# skills CLI. One source per line; a line may add flags of its own, such as
+# --skill <name> to take a single skill out of a repo that holds several.
+#
+# The CLI keeps its global state in ~/.agents, which is not version-controlled, so this
+# file is the only record of what a new machine needs.
+#
+#   vercel-labs/agent-skills --skill web-design-guidelines
