@@ -9,7 +9,8 @@ description: >
   spike", "dig into this", "run investigation on TACO-XXXX", "look into why X", "research X",
   "analyse this ticket", or any similar phrase asking for a deep dive before work starts. This
   skill is the natural next step after start-thread: it reads the ticket where there is one,
-  existing vault notes, and the current repo's codebase to produce a living investigation document
+  through `acli` where available and the Atlassian MCP where not, along with
+  existing vault notes and the current repo's codebase, to produce a living investigation document
   covering the current state of the code, exactly what changes are needed, high-risk areas, and
   well-linked file paths. It pauses to ask clarifying questions as ambiguities surface, never
   ploughing ahead on assumptions, and rewrites the document in-place to stay current as decisions
@@ -55,12 +56,19 @@ than a single-repo one they can extend.
 
 Run these together at the start:
 
-- **Fetch the Jira ticket** via `mcp__claude_ai_Atlassian_Rovo__getJiraIssue`. **Keyed threads only;
-  skip this bullet entirely when there is no key**. Extract: summary, description,
-  acceptance criteria, labels, linked issues, subtasks, comments. If `cloudId`
-  is unknown, call `mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources` first (once per session).
-  Comments are **not** in the default field set, so pass `fields` explicitly including `"comment"`
-  (they arrive at `fields.comment.comments`), and `responseContentFormat="markdown"` to avoid raw ADF.
+- **Fetch the Jira ticket.** **Keyed threads only; skip this bullet entirely when there is no
+  key**. Pick the interface first, per `~/.claude/skills/jira-ticket/references/interface.md`:
+  `acli` where it is installed and authenticated, the Atlassian MCP only where it is not. Run
+  that check rather than reaching for the MCP because it is the tool in front of you. Extract:
+  summary, description, acceptance criteria, labels, linked issues, subtasks, comments.
+  - On the CLI path, the command and its field notes are under "Reading one ticket" in
+    `~/.claude/skills/jira-ticket/references/acli.md`. Bodies come back as ADF, so either read
+    the text out of the nested nodes or, where the prose matters more than the round-trip, make
+    this one call on the MCP for its Markdown and say that you did.
+  - On the MCP fallback, `mcp__claude_ai_Atlassian_Rovo__getJiraIssue` with the cloudId from
+    `interface.md` (no `getAccessibleAtlassianResources` round-trip needed). Comments are **not**
+    in the default field set, so pass `fields` explicitly including `"comment"` (they arrive at
+    `fields.comment.comments`), and `responseContentFormat="markdown"` to avoid raw ADF.
 - **Read the vault index note**: `<thread-folder>/index.md`
 - **Read any existing files** already in the thread folder, since the user may have left scratch notes,
   previous research, or design docs that should inform the investigation.

@@ -7,7 +7,8 @@ description: >
   "start a thread on X", "start a topic for X", "make me a thread for this investigation", or
   otherwise asks for a place to keep notes on a new piece of work. Handles all four thread kinds:
   code (ticketed or not), investigation, work (non-code proposals, team process, goals) and
-  incident. When given a Jira key it fetches ticket details via the Atlassian MCP. Creates the
+  incident. When given a Jira key it fetches ticket details through `acli`, falling back to the
+  Atlassian MCP where the CLI is unavailable. Creates the
   `Threads/YYYY-MM-DD - (KEY) <title>/` folder, scaffolds `index.md`, infers tags, records the
   session via track-session, and offers to hand off to start-work for the worktree and Herdr
   workspace.
@@ -40,7 +41,20 @@ Infer it: a request phrased as "look into" / "investigate" / "work out why" poin
 
 ### 2. Fetch the Jira issue (keyed threads only)
 
-Use the Atlassian MCP. If `cloudId` isn't known, call `mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources` once and cache it for the session.
+**Pick the interface first**, per `~/.claude/skills/jira-ticket/references/interface.md`: `acli`
+where it is installed and authenticated, the Atlassian MCP only where it is not. Don't reach
+for the MCP because it is the tool in front of you; run the check, cache it for the session, and
+take the read command from whichever path it lands on.
+
+On the CLI path, the command and the field notes are under "Reading one ticket" in
+`~/.claude/skills/jira-ticket/references/acli.md`:
+
+```bash
+acli jira workitem view TACO-XXXX --fields "summary,description,labels,parent" --json
+```
+
+On the MCP fallback, the cloudId is in `interface.md`; there is no need to spend a
+`getAccessibleAtlassianResources` round-trip on it.
 
 ```
 mcp__claude_ai_Atlassian_Rovo__getJiraIssue(
@@ -52,7 +66,7 @@ mcp__claude_ai_Atlassian_Rovo__getJiraIssue(
 
 Take `summary` as the title, and scan `description` and `labels` for tag hints.
 
-**Ask for `parent` explicitly.** The default field set leaves it out, and it is what step 4 works from: it comes back with the epic's key and summary inline, so the epic costs no second call. Note that the Jira issue **type** is deliberately not recorded: that field is not part of the schema.
+**Ask for `parent` explicitly** on either path. The default field set leaves it out, and it is what step 4 works from: it comes back with the epic's key and summary inline, so the epic costs no second call. Note that the Jira issue **type** is deliberately not recorded: that field is not part of the schema.
 
 If the thread has no key and the user decides it needs a ticket, use the `jira-ticket` skill, which owns the item types, the description style and the fields set on creation.
 
@@ -120,7 +134,7 @@ If the user wants notes only, stop here. A thread without a worktree is a normal
 ## Defaults and error handling
 
 - **Jira fetch fails or the ticket doesn't exist**: say so, then offer to scaffold from a user-supplied title instead, or abort.
-- **Atlassian auth errors**: the Rovo connector has no `authenticate` tool. Ask the user to reconnect Atlassian at https://claude.ai/settings/connectors and restart Claude Code, then retry.
+- **Atlassian auth errors**: handled in `interface.md`. In short, an unauthorised `acli` is fixed by the user running `acli jira auth login --web`; a failing MCP means reconnecting Atlassian at https://claude.ai/settings/connectors and restarting Claude Code. Don't treat one being unavailable as a reason to skip the other.
 - **Folder collision**: never delete or rename an existing thread folder.
 
 ## What NOT to do
@@ -128,4 +142,5 @@ If the user wants notes only, stop here. A thread without a worktree is a normal
 - Don't restate the vault conventions here or diverge from them: the folder format, the frontmatter schema and note style are owned by `obsidian`.
 - Don't nest a new thread under another unless the user asks. Nesting is the exception.
 - Don't run git commands directly. Delegate branch and worktree work to `start-work`, which defers to `git-workflow` for naming.
+- Don't reach for the Atlassian MCP without running the `acli` check first: the preference is `jira-ticket`'s, recorded in `references/interface.md`, and it applies to reading a ticket as much as to raising one.
 - Don't add emojis.

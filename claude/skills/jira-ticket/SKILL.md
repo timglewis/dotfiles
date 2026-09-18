@@ -25,16 +25,13 @@ Site `https://keyframeai.atlassian.net`, project `TACO`, cloudId
 
 ## Which interface
 
-**Prefer `acli`**, Atlassian's command line tool. Fall back to the Atlassian MCP when it is not
-installed or not authenticated. Check once per session, and cache the answer:
+**Prefer `acli`**, Atlassian's command line tool, and fall back to the Atlassian MCP only when it
+is not installed or not authenticated. The check, its three outcomes and the caching rule are in
+`references/interface.md`, the gate shared with `start-thread` and `investigate` so that the
+preference is stated once. Run it before the first call of the session.
 
-```bash
-command -v acli >/dev/null && acli jira auth status
-```
-
-If that succeeds, read `references/acli.md` and work from it: it owns the commands, the
-`--from-json` shape, the ADF descriptions and the query recipes. If it fails, say which of the two
-reasons it was and use the MCP calls given below.
+On the CLI path, work from `references/acli.md`: it owns the commands, the `--from-json` shape,
+the ADF descriptions and the query recipes. On the MCP path, use the calls given below.
 
 Everything else on this page, the item types, how a description is written, which fields get set
 and the confirmation step, is the same whichever interface is used. Only the calls differ, and

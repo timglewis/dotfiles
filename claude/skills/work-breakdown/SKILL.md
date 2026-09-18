@@ -7,8 +7,9 @@ description: >
   "split this into deployable items", "create the Jira items for this", or any similar phrase
   asking for the work to be carved up into ticketed units. This skill is the natural next step
   after investigate: it reads investigation.md, proposes a set of items typed as User
-  Story, Technical Story or Bug, gets explicit sign-off, creates them in Jira via the Atlassian
-  MCP, and writes work-breakdown.md into the same thread folder with the resulting keys. It
+  Story, Technical Story or Bug, gets explicit sign-off, creates them in Jira through whichever
+  interface `jira-ticket` selects (`acli` where available, the Atlassian MCP where not), and
+  writes work-breakdown.md into the same thread folder with the resulting keys. It
   sits one level above commit-breakdown: this skill decides what the tickets are, commit-
   breakdown plans the commits inside one of them. Ticket conventions themselves (the item types,
   description style and the fields set on creation) come from the jira-ticket skill.
@@ -123,9 +124,10 @@ leaving it looking like an oversight.
 
 ### 6. Create the tickets
 
-**The `jira-ticket` skill owns ticket creation**: how to write the summary and description, which
-fields to pass, and the exact `createJiraIssue` call. Follow it for each item; nothing about the
-mechanics is repeated here.
+**The `jira-ticket` skill owns ticket creation**: which interface to use, how to write the summary
+and description, which fields to pass, and the exact call on each path. Follow it for each item;
+nothing about the mechanics is repeated here. In particular, don't assume the MCP: `jira-ticket`
+prefers `acli`, and the check is in its `references/interface.md`.
 
 What is specific to a breakdown:
 

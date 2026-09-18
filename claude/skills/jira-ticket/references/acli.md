@@ -1,6 +1,6 @@
-# Raising TACO tickets with `acli`
+# Driving Jira with `acli`
 
-The mechanics of driving Atlassian's CLI. `SKILL.md` owns what goes in a ticket; this file owns
+The mechanics of Atlassian's CLI: reading a ticket as well as raising one. `SKILL.md` owns what goes in a ticket; this file owns
 how it gets there. Read it only once you are actually about to touch Jira.
 
 Site `https://keyframeai.atlassian.net`, project `TACO`. Verified against `acli 1.3.36-stable`,
@@ -8,18 +8,8 @@ installed at `~/.local/bin/acli` and authenticated by OAuth.
 
 ## Preflight, once per session
 
-```bash
-command -v acli >/dev/null && acli jira auth status
-```
-
-- **Not installed** (`command -v` fails): say so plainly and fall back to the MCP calls in
-  `SKILL.md`. Do not offer to install it; that is the user's call.
-- **Installed but not authenticated**: `acli jira auth status` reports `unauthorized`. Ask the
-  user to type `! acli jira auth login --web` themselves. Never run a login for them and never
-  pass a token on a command line.
-- **Both fine**: use `acli` for everything below.
-
-Cache the outcome for the session. Do not re-check before every command.
+The check and its three outcomes live in `interface.md`, the gate shared with every skill that
+touches Jira. Run it before anything below, and cache the answer for the session.
 
 ## What `acli` cannot do
 
@@ -44,6 +34,47 @@ Worth knowing before you plan a sequence of calls:
 
 One quirk: `--fields key` on its own returns `[null]`. Always ask for at least one real field
 alongside it (`summary` is the cheap choice); `key` comes back at the top level regardless.
+
+## Reading one ticket
+
+The operation `start-thread` and `investigate` need. `view` takes any field, custom ones
+included, so ask for exactly the ones you want rather than pulling the default set:
+
+```bash
+acli jira workitem view TACO-1234 --fields "summary,description,labels,parent" --json
+```
+
+An investigation wants more, comments among them:
+
+```bash
+acli jira workitem view TACO-1234 \
+  --fields "summary,description,labels,parent,issuelinks,subtasks,comment,status" --json
+```
+
+- **`--fields` is a single comma-separated string**, and unlike `search --fields` it accepts
+  custom fields (`customfield_10020` for Sprint, `customfield_10014` for Epic Link).
+- **`parent`** comes back with the epic's key and summary inline, so the epic costs no second
+  call.
+- **Comments** arrive at `fields.comment.comments`, oldest first.
+- **Descriptions and comment bodies come back as ADF**, not Markdown: there is no
+  `responseContentFormat` equivalent on the CLI. Read the text out of the nested `content` nodes
+  (the table under "Descriptions: ADF, not Markdown" maps them back) rather than pasting raw ADF
+  into a note. Where the prose matters more than the round-trip, the MCP's
+  `responseContentFormat="markdown"` is the easier read and worth falling back to for that one
+  call; say so if you do.
+
+`view --json` wraps the fields in a large envelope (`changelog`, `editmeta`, `transitions`,
+`renderedFields` and more), so pull out the part you want rather than reading the lot:
+
+```bash
+acli jira workitem view TACO-1234 --fields "summary,parent" --json \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['key'], d['fields']['summary'])"
+```
+
+`renderedFields` comes back null, so there is no HTML shortcut around the ADF.
+
+If the key does not exist, `acli` exits non-zero and says so. Report that rather than scaffolding
+around a ticket that isn't there.
 
 ## Descriptions: ADF, not Markdown
 
