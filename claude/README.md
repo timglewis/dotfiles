@@ -4,11 +4,46 @@
 
 ```
 ~/.claude/CLAUDE.md     -> claude/CLAUDE.md
-~/.claude/skills        -> claude/skills
 ~/.claude/statusline.sh -> claude/statusline.sh
 ```
 
-Those three are live: editing them here changes the running configuration.
+Both are live: editing them here changes the running configuration. The skills are live too,
+but they are linked one at a time rather than as a directory. Run `claude/link.sh` to set them
+up, and again after adding or renaming one.
+
+## Why the skills directory is not itself a symlink
+
+`~/.claude/skills` is the only place Claude Code reads user skills from, and this repo is not
+its only writer. Claude Code syncs Anthropic's own skills into `synced/` underneath it, and the
+vercel-labs `skills` CLI installs third-party ones as siblings. Pointing the whole directory at
+this repo made all of that land in version control, which is what the old
+`claude/skills/synced/` ignore rule was papering over.
+
+So `~/.claude/skills` is a real directory owned by nobody in particular, and `link.sh` puts one
+symlink in it per skill in `claude/skills/`. Third-party skills sit alongside them and never
+touch this repo:
+
+```
+~/.claude/skills/
+├── coding-style -> ~/code/dotfiles/claude/skills/coding-style
+├── ...
+├── web-design-guidelines/    installed by the skills CLI
+└── synced/                   written by Claude Code
+```
+
+`link.sh` removes a link whose target has gone, so a skill renamed or deleted here does not
+leave a broken one behind. It only ever touches links into this repo, so anything installed by
+another tool is left alone.
+
+## Third-party skills
+
+Install them with the vercel-labs CLI, which writes into `~/.claude/skills` directly:
+
+```
+npx skills add --global --agent claude-code <source>
+```
+
+They land beside the links and never touch this repo.
 
 ## settings.json is a reference copy, not a symlink
 

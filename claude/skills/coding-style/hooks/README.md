@@ -11,7 +11,8 @@ so the two have to be kept in step by hand.
 
 Two events are registered. `PreToolUse` on `Edit|Write|NotebookEdit` runs the script, and
 `PostCompact` runs it with the `reset` argument. The script itself is reached through the
-`~/.claude/skills` symlink, so it is version-controlled and needs no copying.
+`~/.claude/skills/coding-style` symlink that `claude/link.sh` creates, so it is
+version-controlled and needs no copying.
 
 ## What it does
 
