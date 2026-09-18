@@ -1,0 +1,63 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(git log *)",
+      "Bash(git for-each-ref *)",
+      "Bash(git fetch *)",
+      "Bash(git merge-base *)",
+      "Bash(git diff *)",
+      "Bash(git tag *)",
+      "Bash(git rev-parse *)",
+      "Bash(git rebase *)",
+      "Bash(git status *)"
+    ]
+  },
+  "model": "opus",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/tim/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/skills/coding-style/hooks/inject-style.sh\"",
+            "statusMessage": "Loading coding style",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/skills/coding-style/hooks/inject-style.sh\" reset",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "tui": "fullscreen",
+  "theme": "dark",
+  "switchModelsOnFlag": false,
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/tim/.claude/statusline.sh"
+  }
+}
