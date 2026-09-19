@@ -22,8 +22,10 @@ Worth knowing before you plan a sequence of calls:
   through the MCP afterwards.
 - **No sprint listing.** `acli jira sprint` only has `list-workitems`. Sprints are harvested from
   issues, as on the MCP path, but it takes a loop (see below).
-- **`search --fields` only takes standard fields.** `customfield_10020`, `sprint` and `*all` are
-  all rejected with `field '...' is not allowed`. `view --fields` takes anything.
+- **`search --fields` only takes standard fields**, and not even all of them. `customfield_10020`,
+  `sprint`, `*all` and `parent` are all rejected with `field '...' is not allowed`, so there is no
+  batched way to read a set of tickets' epics: that is one `view` per key. `view --fields` takes
+  anything.
 - **Descriptions are plain text or ADF, never Markdown.** Markdown passed to `--description`
   arrives as literal `##` and `**` characters in the ticket. See below.
 
