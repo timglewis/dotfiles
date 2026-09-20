@@ -9,7 +9,7 @@ description: >
   skill needs to locate a thread folder or write a working file into one. It is the single source
   of truth for those conventions, including the status lifecycle of a ticketed thread:
   `start-thread`, `start-work`, `track-session`, `investigate`, `work-breakdown`,
-  `commit-breakdown`, `pr-summary` and `sweep-thread-status` all defer to it rather than
+  `commit-breakdown`, `pr-summary` and `sweep-threads` all defer to it rather than
   restating them. It owns conventions only, and creates nothing: scaffolding a new thread is `start-thread`.
 ---
 
@@ -132,10 +132,10 @@ Each stage has an owner that moves it forward, so the value stays current withou
 | new thread, `planned` | `start-thread` |
 | `planned` to `coding` | `start-work`, or `git-workflow` when a branch is created without it |
 | `coding` to `review` | `pr-summary`, once it has raised the PR |
-| `review` to `done` | `sweep-thread-status`, since the merge happens on Azure DevOps where no skill sees it |
+| `review` to `done` | `sweep-threads`, since the merge happens on Azure DevOps where no skill sees it |
 | any stage to `dropped` | `investigate`, when it concludes the ticket isn't needed, alongside cancelling it in Jira |
 
-`sweep-thread-status` also corrects any thread that has fallen behind, whichever stage it missed.
+`sweep-threads` also corrects any thread that has fallen behind, whichever stage it missed.
 
 **Every other thread** (investigation, work, incident, and unticketed code) uses `planned | active | paused | done | dropped`. `status:` is `active` on a new one, since the user is starting it, and `planned` is for work deliberately queued rather than begun. These have no branch or PR to go on, so only the user moves them.
 
@@ -160,7 +160,7 @@ Nested threads move as a tree or not at all, since nesting is folder nesting. A 
 
 `threads.base` filters on `file.inFolder("Threads")`, so an archived thread leaves every view without the base needing to change. It stays fully searchable, and `[[TACO-1234]]` keeps resolving, because `aliases:` works across the whole vault rather than per folder.
 
-`sweep-thread-status` owns the pass that finds these and moves them, and it asks before moving anything. Nothing else archives a thread, and nothing un-archives one: a thread that comes back to life is moved back by hand.
+`sweep-threads` owns the pass that finds these and moves them, and it asks before moving anything. Nothing else archives a thread, and nothing un-archives one: a thread that comes back to life is moved back by hand.
 
 ## Stamping `updated:`
 

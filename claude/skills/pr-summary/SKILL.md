@@ -279,7 +279,7 @@ Points that matter:
 Once `az` reports the PR created, move the thread to `review` per the lifecycle in `obsidian`: set
 `status:` to `review` if it is `planned` or `coding`, and leave `paused`, `dropped` or a status
 already at `review` or `done` alone. If the user declines or the PR is raised by hand, leave the
-status too; `sweep-thread-status` picks it up.
+status too; `sweep-threads` picks it up.
 
 If `az` is missing, not logged in, or the extension is absent, say so plainly and fall back to the
 copy-paste flow rather than trying to work around it.

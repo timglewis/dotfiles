@@ -1,22 +1,23 @@
 ---
-name: sweep-thread-status
+name: sweep-threads
 description: >
-  Sweep every ticketed thread in the Obsidian vault and bring its `status:` into line with where the
+  Sweep every thread in the Obsidian vault in one pass and bring the vault's view of them up to
+  date: statuses, tags and archiving. Status brings a ticketed thread into line with where the
   ticket really is: `planned` (no branch), `coding` (a branch exists), `review` (an active PR) or
-  `done` (the PR has merged). The same pass tags any thread of any kind that still has `tags: []`,
+  `done` (the PR has merged). Tagging fills in any thread of any kind that still has `tags: []`,
   drawing on the parent epic and on `Threads/tags.md`, and proposes a new tag where a group of
-  threads has no row that fits. It also archives: a thread that reached `done` or `dropped` and has
-  sat untouched for 30 days moves out of `Threads/` and into `Archive/`. Use this skill whenever
-  the user says "sweep the threads", "update the thread statuses", "sync thread status", "which of
-  my threads are done", "tidy up the thread statuses", "refresh the status of my tickets", "tag the
+  threads has no row that fits. Archiving moves a thread that reached `done` or `dropped` and has
+  sat untouched for 30 days out of `Threads/` and into `Archive/`. Use this skill whenever the user
+  says "sweep the threads", "update the thread statuses", "sync thread status", "which of my
+  threads are done", "tidy up the thread statuses", "refresh the status of my tickets", "tag the
   untagged threads", "archive the finished threads", "tidy up the vault", or any similar phrase
-  asking for the vault's view of ticket progress to be brought up to date. Evidence comes from the
+  asking for the vault's record of its threads to be brought up to date. Evidence comes from the
   branches in every worktree repo under the code root and the project's pull requests on Azure
   DevOps. Forward moves are written straight away; a move backwards, a move away from a status the
   user set by hand, every tag and every archive move are asked about first.
 ---
 
-# Sweep Thread Status Skill
+# Sweep Threads Skill
 
 Brings the `status:` of every ticketed thread up to date in one pass, tags the threads that were
 never tagged, and archives the ones that finished long enough ago to be out of the way.
@@ -67,12 +68,12 @@ because nesting is folder nesting and archiving a child on its own would break i
 ## The script
 
 `scripts/sweep.py` does the gathering. It lives in this skill's own folder, which is wherever the
-skill was installed (`~/.claude/skills/sweep-thread-status/` for Claude Code,
-`~/.copilot/skills/sweep-thread-status/` for Copilot CLI), so resolve it once and reuse it as
+skill was installed (`~/.claude/skills/sweep-threads/` for Claude Code,
+`~/.copilot/skills/sweep-threads/` for Copilot CLI), so resolve it once and reuse it as
 `$SKILL_DIR`:
 
 ```bash
-SKILL_DIR=$(ls -d ~/.claude/skills/sweep-thread-status ~/.copilot/skills/sweep-thread-status 2>/dev/null | head -1)
+SKILL_DIR=$(ls -d ~/.claude/skills/sweep-threads ~/.copilot/skills/sweep-threads 2>/dev/null | head -1)
 ```
 
 It reads the vault root, the code root and the Azure DevOps org and project from the environment,
