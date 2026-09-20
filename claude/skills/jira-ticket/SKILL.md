@@ -80,13 +80,32 @@ component where the work has to land. If the "how" is a solution the implementer
 arrive at themselves, leave it out. The ticket describes the requirement, not the implementation.
 
 Write it so it stands alone for whoever picks it up. They will not have the investigation notes,
-the vault, or this conversation. Link to supporting material, but never let the link carry the
-substance.
+the vault, or this conversation.
 
 Write it as Markdown either way. On the MCP, pass it straight through with
 `contentFormat="markdown"`. On the CLI path, `acli` will not take Markdown, so convert it to ADF
 using the node-by-node table in `references/acli.md`: that is the one situation where ADF gets
 built by hand, and the table exists so it is mechanical rather than invented.
+
+### Nothing personal goes in a ticket
+
+A ticket is the team's, not the user's. Everything in it has to be something a teammate can open.
+The vault is a personal Obsidian store on one machine, so **nothing in a ticket may point at it**:
+
+- No vault paths, `file://` links, `obsidian://` URIs or `[[wikilinks]]`
+- No "see the investigation note", "per my notes", or a Notes section carrying a link to either
+- No absolute paths out of the user's home directory: cite a file the way the repo does, relative
+  to the repo root, e.g. `src/Orders/OrderService.cs`
+- No thread folder names, session labels or other vault vocabulary
+
+Material that lives only in the vault is a **source**, not a reference. Where the investigation
+found something the ticket genuinely needs, write that finding into the description in the user's
+own words and let the ticket carry it. Where the ticket does not need it, leave it out. A link
+that the reader cannot follow is worse than no link, because it reads as though the substance is
+somewhere else.
+
+Links that everyone on the team can open are fine and encouraged: other TACO tickets, the repo,
+a PR, a Confluence page, a public document.
 
 ### Per type
 
@@ -344,6 +363,8 @@ and stop. Don't step the ticket through other statuses to reach it.
 - Don't write a description that explains how to implement something the requirement doesn't constrain
 - Don't pad the description or the acceptance criteria to make the ticket look substantial
 - Don't write a description that only makes sense with the investigation notes open alongside it
+- Don't reference the user's vault in a ticket: no vault paths, `obsidian://` URIs, `[[wikilinks]]`
+  or absolute paths under their home directory, in the description or in a comment
 - Don't guess an epic: ask, defaulting to the saved one; don't silently raise a ticket with no parent
 - Don't execute `~/.jira/default_epic.ps1` to read it, and don't rewrite it when no epic was chosen
 - Don't trust a stale epic cache when the user says the epic they want is missing: re-fetch

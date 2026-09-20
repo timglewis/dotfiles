@@ -134,16 +134,22 @@ What is specific to a breakdown:
 - Create them **one at a time, in dependency order**, capturing each returned key as you go, because
   later items reference earlier keys in their "Depends on" notes
 - If one fails, stop and report. Don't carry on and leave a half-raised set without saying so
-- Each description should name what it depends on and link back to the investigation:
+- Each description should name what it depends on, by key:
 
 ```markdown
 ## Notes
 
 - Depends on TACO-XXXX
-- Investigation: <vault path or Obsidian link>
 ```
 
-Descriptions still have to stand alone: the link is context, not the substance.
+**Don't link the ticket back to the investigation.** The investigation lives in the user's
+personal vault, which no teammate can open, so a ticket that points at it reads as though the
+substance is somewhere they cannot reach. `jira-ticket` owns this rule: the investigation is the
+source the descriptions are written from, not a reference they cite. Anything from it that a
+ticket genuinely needs gets written into that ticket's own description.
+
+The traceability runs the other way instead: `work-breakdown.md` records the keys, so the vault
+knows about the tickets while the tickets stay self-contained.
 
 ### 7. Write work-breakdown.md
 
@@ -211,6 +217,8 @@ the session log pointing at the live conversation.
 - Don't raise a duplicate set when `work-breakdown.md` already carries keys
 - Don't restate the `jira-ticket` rules here or diverge from them: types, descriptions and fields
   are owned by that skill
+- Don't point a ticket at the vault: no investigation link, vault path or `[[wikilink]]` in a
+  description, since the team cannot open any of them
 - Don't restate the vault conventions here either: folder naming, frontmatter and note style are
   owned by `obsidian`
 - Don't hard-wrap prose in the document, and don't leave the index note's `updated:` stale
