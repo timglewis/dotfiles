@@ -3,9 +3,11 @@
 
 Reads each thread's frontmatter, the branches of every worktree repo under the code root, and the
 project's pull requests on Azure DevOps, then prints one row per ticketed thread as JSON, alongside
-every thread of any kind whose tags: is empty. With --apply it writes the derived status for the
-keys named; with --tag it writes tags on threads that have none. Both stamp updated:, and neither
-touches anything else.
+every thread of any kind whose tags: is empty, and every finished thread that has gone quiet long
+enough to archive. With --apply it writes the derived status for the keys named; with --tag it
+writes tags on threads that have none; with --archive it moves a finished thread's folder out of
+Threads/ and into Archive/. --apply and --tag stamp updated:, --archive changes no file at all, and
+none of them touch anything else.
 
 The lifecycle and the frontmatter schema are defined in the obsidian skill; this script implements
 them. The tag list itself lives in Threads/tags.md, which --tag validates against.
@@ -17,6 +19,7 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 
@@ -26,11 +29,16 @@ VAULT = pathlib.Path(os.environ.get("KEYFRAME_VAULT", pathlib.Path.home() / "Obs
 CODE_ROOT = pathlib.Path(os.environ.get("KEYFRAME_CODE_ROOT", pathlib.Path.home() / "code"))
 ORG = os.environ.get("KEYFRAME_AZDO_ORG", "https://dev.azure.com/keyframe-ai")
 PROJECT = os.environ.get("KEYFRAME_AZDO_PROJECT", "KeyframeAI")
+ARCHIVE = VAULT.parent / "Archive"
 TAGS_INDEX = VAULT / "tags.md"
 PR_LIMIT = 1000
 
 ORDER = ["planned", "coding", "review", "done"]
 HELD = {"paused", "dropped"}
+
+# A thread is archived once it has reached a terminal status and stayed quiet for this long.
+ARCHIVE_DAYS = int(os.environ.get("KEYFRAME_ARCHIVE_DAYS", 30))
+ARCHIVE_STATUSES = {"done", "dropped"}
 
 
 def frontmatter(path):
@@ -188,10 +196,13 @@ def sweep():
         })
 
     untagged, in_use = tag_survey()
+    archivable, archive_blocked = archive_survey()
 
     # A thread older than the oldest PR fetched may have PRs the query did not reach.
     truncated = len(prs) >= PR_LIMIT and any(row["created"] and row["created"] < oldest_pr for row in rows)
-    return {"rows": rows, "untagged": untagged, "tags_in_use": in_use, "branch_errors": errors,
+    return {"rows": rows, "untagged": untagged, "tags_in_use": in_use,
+            "archivable": archivable, "archive_blocked": archive_blocked,
+            "archive_after_days": ARCHIVE_DAYS, "branch_errors": errors,
             "prs_fetched": len(prs), "oldest_pr": oldest_pr,
             "pr_history_may_be_truncated": truncated}
 
@@ -217,6 +228,99 @@ def tag_survey():
             })
 
     return untagged, dict(sorted(in_use.items(), key=lambda pair: (-pair[1], pair[0])))
+
+
+def parse_date(value):
+    try:
+        return datetime.date.fromisoformat(str(value).strip().strip("\"'"))
+    except (TypeError, ValueError):
+        return None
+
+
+def last_touched(folder, fields):
+    """The day the thread last saw activity: its updated: stamp, or a newer file, whichever wins.
+
+    The stamp is the vault's own record, but a write that forgot to stamp it is still activity, so
+    a thread is never archived out from under work somebody did by hand.
+    """
+    stamps = [datetime.date.fromtimestamp(path.stat().st_mtime)
+              for path in folder.rglob("*") if path.is_file()]
+    stamps.append(parse_date(fields.get("updated")))
+    return max(stamp for stamp in stamps if stamp)
+
+
+def archive_survey():
+    """Top-level thread folders that are finished and have gone quiet.
+
+    Only a top-level folder moves, because nesting is expressed by the folder tree and archiving a
+    child on its own would break it. A parent holding a thread that is still live stays put, and
+    comes back as blocked so the sweep can say why.
+    """
+    today = datetime.date.today()
+    ready, blocked = [], []
+    for folder in sorted(path for path in VAULT.iterdir() if path.is_dir()):
+        index = folder / "index.md"
+        if not index.exists():
+            continue
+
+        fields = frontmatter(index)
+        if not fields.get("kind") or fields.get("status") not in ARCHIVE_STATUSES:
+            continue
+
+        touched = last_touched(folder, fields)
+        if (today - touched).days < ARCHIVE_DAYS:
+            continue
+
+        nested = [(path, frontmatter(path)) for path in sorted(folder.rglob("index.md"))
+                  if path != index]
+        live = [f"{ref(path, nest)}: {nest.get('status')}" for path, nest in nested
+                if nest.get("kind") and nest.get("status") not in ARCHIVE_STATUSES]
+
+        row = {
+            "ref": ref(index, fields),
+            "kind": fields["kind"],
+            "title": str(fields.get("title", "")).strip("\"'"),
+            "status": fields.get("status"),
+            "folder": folder.name,
+            "last_touched": touched.isoformat(),
+            "days": (today - touched).days,
+            "nested": [ref(path, nest) for path, nest in nested if nest.get("kind")],
+            "path": str(index),
+        }
+        if live:
+            blocked.append(row | {"blocked_by": live})
+        else:
+            ready.append(row)
+
+    return ready, blocked
+
+
+def archive(names):
+    """Move the named thread folders into Archive/, re-checking that each one still qualifies."""
+    ready, _ = archive_survey()
+    rows = {row["ref"]: row for row in ready}
+    rows.update({row["folder"]: row for row in ready})
+
+    failed = 0
+    for name in names:
+        row = rows.get(name)
+        if row is None:
+            print(f"{name}: not ready to archive. Re-run the sweep and use a row from archivable.",
+                  file=sys.stderr)
+            failed = 1
+            continue
+
+        destination = ARCHIVE / row["folder"]
+        if destination.exists():
+            print(f"{row['ref']}: {destination} already exists, left alone", file=sys.stderr)
+            failed = 1
+            continue
+
+        ARCHIVE.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(VAULT / row["folder"]), str(destination))
+        print(f"{row['ref']}: archived, quiet since {row['last_touched']} ({row['days']} days)")
+
+    return failed
 
 
 def apply(keys, statuses):
@@ -308,6 +412,10 @@ def main():
                         help="tag these threads, e.g. TACO-1234=autodesk,spatial-index. REF is the "
                              "ticket key, or the folder name for a thread without one, as the "
                              "untagged rows give it")
+    parser.add_argument("--archive", nargs="+", metavar="REF",
+                        help="move these finished threads into Archive/, e.g. TACO-1234. REF is "
+                             "the ref or the folder name from an archivable row, and a thread that "
+                             "no longer qualifies is refused")
     args = parser.parse_args()
 
     if args.apply:
@@ -328,7 +436,12 @@ def main():
         if failed:
             sys.exit(failed)
 
-    if args.apply or args.tag:
+    if args.archive:
+        failed = archive(args.archive)
+        if failed:
+            sys.exit(failed)
+
+    if args.apply or args.tag or args.archive:
         return
 
     json.dump(sweep(), sys.stdout, indent=2)

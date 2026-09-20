@@ -32,6 +32,7 @@ Expand `~` to the absolute `/home/<user>/...` form before passing the path to a 
 | Path | What's in it |
 | --- | --- |
 | `Threads/` | One folder per thread. The only place thread-scoped files go. |
+| `Archive/` | Finished threads, moved out of `Threads/` once they have gone quiet. See "Archiving". |
 | `Threads/tags.md` | The canonical tag list. |
 | `Threads/threads.base` | The Bases views over all threads. |
 | `Templates/` | Templater templates, one per thread kind. |
@@ -67,7 +68,9 @@ git branch --show-current
 
 **Unkeyed.** There is no key to glob and often no git repo at all. Match on distinctive words from the title (`Threads/*<distinctive words>*/`), or search `Threads/*/index.md` frontmatter for a matching `title:` or `aliases:`. A session working inside a thread folder can take the thread from the working directory. **If more than one folder plausibly fits, ask rather than guess.**
 
-If no thread folder exists, say so and point at `start-thread`. Never invent a folder to write into, and never create a second folder for a key that already has one.
+**Check `Archive/` when `Threads/` has no match.** An archived thread keeps its folder name, so the same glob finds it one directory across. It is still a thread and still readable; it has simply finished. Work resuming on one means moving the folder back to `Threads/` first, so the skills and the Bases views see it again.
+
+If no thread folder exists in either place, say so and point at `start-thread`. Never invent a folder to write into, and never create a second folder for a key that already has one.
 
 ## Frontmatter schema
 
@@ -138,6 +141,27 @@ Each stage has an owner that moves it forward, so the value stays current withou
 
 **Only move a ticketed thread forward** along `planned`, `coding`, `review`, `done` when a skill sets its status in passing. Leave `paused` and `dropped` alone, and leave a thread already past the stage being set alone too: `start-work` on a thread at `review` is reworking it, not starting it.
 
+## Archiving
+
+A finished thread moves out of `Threads/` and into `Archive/`, keeping its folder name exactly as it was:
+
+```
+~/Obsidian/keyframe/Archive/2026-01-15 - (TACO-1234) Send confirmation email on order completion/
+```
+
+The folder is the unit, so everything inside travels with it and nothing inside changes: no status move, no `updated:` stamp, no edit of any kind. The thread is finished, and archiving records where it is kept rather than anything that happened to it.
+
+A thread is ready when both hold:
+
+- **`status:` is `done` or `dropped`.** Both are terminal. `paused` is not (it means the work is coming back), and a quiet spell is exactly what a paused thread looks like, so one is never archived.
+- **Nothing in the folder has been touched for 30 days**, measured as the later of the `updated:` stamp and the newest file mtime in the folder. The stamp is the vault's own record, but a write that forgot to stamp it is still activity.
+
+Nested threads move as a tree or not at all, since nesting is folder nesting. A finished parent still holding a live child stays where it is until the child finishes too.
+
+`threads.base` filters on `file.inFolder("Threads")`, so an archived thread leaves every view without the base needing to change. It stays fully searchable, and `[[TACO-1234]]` keeps resolving, because `aliases:` works across the whole vault rather than per folder.
+
+`sweep-thread-status` owns the pass that finds these and moves them, and it asks before moving anything. Nothing else archives a thread, and nothing un-archives one: a thread that comes back to life is moved back by hand.
+
 ## Stamping `updated:`
 
 **Stamp `updated:` in the thread's `index.md` whenever you write anywhere in the thread**, not just when you edit the index note itself. Writing `investigation.md`, appending to `sessions.md` or adding a `commit-breakdown.md` all count. The Recent threads view sorts on it, so a stale stamp hides live work.
@@ -172,6 +196,7 @@ Mark a file that doesn't exist yet: `[NewService.cs](file:///...) *(new file)*`.
 
 - Don't put thread-scoped files anywhere but inside the thread folder.
 - Don't create or overwrite a thread folder. That is `start-thread`, and it never overwrites either.
+- Don't create a second folder for a thread that is already in `Archive/`, and don't edit a thread's frontmatter as part of archiving it.
 - Don't add frontmatter to anything but `index.md`.
 - Don't hard-wrap prose, and don't leave `updated:` stale after writing.
 - Don't add emojis.
