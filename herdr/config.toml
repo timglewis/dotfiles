@@ -1,5 +1,11 @@
 onboarding = false
 
+[ui]
+# Sidebar width auto-scales to fit workspace names, so the ceiling is raised
+# alongside the default; otherwise the default is clamped back to 36.
+sidebar_width = 36
+sidebar_max_width = 48
+
 [keys]
 prefix = "ctrl+s"
 
