@@ -8,9 +8,11 @@ description: >
   and summary", or any similar phrasing asking for a pull-request write-up, even if they don't
   name the ticket. The skill derives the changes from the branch's commits and diff against the
   default branch, produces a title in the project's `[TACO-XXXX] <short title>` format, and a
-  concise high-level summary that starts with a Jira Reference line followed by a `## Summary`
-  section of bullet points. It writes the result into the ticket note, echoes it in chat, and then
-  offers to create the pull request on Azure DevOps with those fields already populated. Pushes
+  concise high-level description built from four sections: `## Context`, `## Risk`,
+  `## Jira Reference` and a `## Summary` of bullet points. It writes the result into the ticket
+  note, echoes it in chat, and then offers to create the pull request on Azure DevOps with those
+  fields already populated, set to auto-complete where the change is low risk and has nothing
+  blocking its merge. Pushes
   any commits not yet on origin first, since the PR cannot be raised without them. Offers a
   `/code-review` pass and a `semgrep-review` security scan over the branch first, since being asked
   for a PR write-up is the signal that the ticket's work is finished.
@@ -92,7 +94,7 @@ git rev-list --count @{u}..HEAD 2>/dev/null       # commits not on origin
 - **Branch has diverged from origin** (commits rewritten by a rebase or amend): that needs a
   force-push, so show the `--force-with-lease` command and ask once. If declined, carry on to step
   3 and don't ask again. The summary is still worth writing; just don't offer to create the PR at
-  step 8, since the branch on origin would not match it.
+  step 9, since the branch on origin would not match it.
 - **Uncommitted changes in the working tree**: point them out rather than pushing over the top of
   them. They are either part of the ticket (they need a commit first, per `git-workflow`) or they
   are not (they stay out of the PR).
@@ -102,7 +104,7 @@ git rev-list --count @{u}..HEAD 2>/dev/null       # commits not on origin
 Derive `TACO-XXXX` from the user's message or the branch name, then find
 `<thread-folder>/index.md`.
 
-Read its frontmatter: you need the `jira:` URL for the Jira Reference line. If the note has no
+Read its frontmatter: you need the `jira:` URL for the `## Jira Reference` section. If the note has no
 `jira:` field, fall back to `https://keyframeai.atlassian.net/browse/TACO-XXXX`. If no note folder
 exists, tell the user and ask whether to proceed (writing only to chat) or stop.
 
@@ -147,12 +149,71 @@ Format:
 
 The title is **separate** from the summary: it is not repeated inside the description body.
 
-### 6. Compose the PR description
+### 6. Assess the context line and the risk level
+
+Two sections sit above the summary bullets, and both are there for the reviewer rather than for the
+record: a context reminder that says what area of the product this PR belongs to before they read a
+single bullet, and a risk level that tells them how much care the review deserves. Each is a heading
+with a single line under it, never a paragraph.
+
+Both are derived from the diff resolved in step 4, not from the ticket's intent. A ticket described
+as a tidy-up that turns out to touch a shared write path is assessed on what the diff does.
+
+**Context**, the body of the `## Context` section. A few words naming the area the change belongs
+to, not a restatement of the title. Think of it as the label a reviewer would file the PR under:
+`Order confirmation emails`, `Spatial pipeline ingestion`, `Build and CI`,
+`Internal developer tooling`. Three to six words, no verb, no trailing full stop.
+
+**Risk**, the body of the `## Risk` section. One of four levels, followed by a short clause
+justifying it.
+
+| Level | What it means |
+| --- | --- |
+| `Zero` | No customer-visible surface at all: internal tooling, developer scripts, documentation, CI config, test-only changes, dead code removal. If it breaks, only the team notices. |
+| `Low` | Customer-facing but narrowly scoped and trivially reversible: one endpoint, screen or job, additive behaviour, no shared code path and no change to stored data. A failure is contained and obvious. |
+| `Medium` | Changes behaviour on a path customers actually use, or touches shared code with several callers. Covers additive schema changes, config changes to running services, and dependency upgrades with real API surface. A failure degrades a feature, not the platform. |
+| `High` | Large blast radius: authentication, payments, data migrations that aren't trivially reversible, shared infrastructure, hot paths, or anything that could corrupt data or take a service down across many customers. A failure significantly impairs the platform or the customer experience, and rollback is slow or coordinated. |
+
+Weigh the diff on five dimensions, then **take the highest level any single dimension reaches rather
+than averaging them**. One migration in an otherwise cosmetic PR is still Medium.
+
+- **Blast radius**: how many customers, surfaces or callers see this if it's wrong. A shared helper
+  with twenty call sites is wider than one endpoint.
+- **Reversibility**: does a revert and a redeploy undo it, or does undoing it need a backfill, a data
+  fix or a coordinated release?
+- **Data**: does it write, migrate, delete or reshape anything at rest? Changing stored data is
+  Medium at least, and a migration that can't be replayed backwards is High.
+- **Detectability**: would a failure surface immediately in errors and alerts, or sit quietly
+  producing wrong results until a customer reports it? Silent failure raises the level.
+- **Confidence**: is the change small, covered by tests and in familiar code, or a large edit to code
+  nobody has touched in a year?
+
+Round up when it's a close call. The level is a signal about how hard to look, and overstating it
+costs a reviewer a few minutes where understating it costs an incident. Don't discount a level
+because the change has been tested or sits behind a flag: note that in the justification instead.
+
+The level leads the line and the justification follows it after a hyphen: one short clause, roughly
+8 to 15 words, naming the reason rather than restating the level.
+
+- ✅ `Zero - repo-local tooling, nothing in this change ships to a customer`
+- ✅ `Low - additive send on one handler, no schema or shared-path change`
+- ✅ `Medium - shared notification method now parameterised, so SMS shares the email path`
+- ✅ `High - backfills the orders table in place, and a bad run needs a restore`
+- ❌ `Low - low risk change`: restates the level and tells the reviewer nothing.
+
+### 7. Compose the PR description
 
 The description body is what gets pasted into Azure DevOps. ALWAYS use this exact structure:
 
 ```
-Jira Reference: <jira-url>
+## Context
+<a few words>
+
+## Risk
+**<Zero|Low|Medium|High>** - <short justification>
+
+## Jira Reference
+<jira-url>
 
 ## Summary
 - <high-level change>
@@ -160,13 +221,17 @@ Jira Reference: <jira-url>
 - <high-level change>
 ```
 
-- First line is literally `Jira Reference: ` followed by the URL, then a blank line.
-- Then a `## Summary` header, then bullet points.
-- Bullets cover the changes made, high-level. Aim for roughly 3–6. Lead with the most significant
-  change.
-- Do **not** include testing notes, "how to test", screenshots, risk sections, rollout/flag notes,
-  or file-by-file detail. If a change is only a supporting detail of a larger one, fold it in rather
-  than giving it its own bullet.
+- **Four `##` sections, always in this order**: `## Context`, `## Risk`, `## Jira Reference`,
+  `## Summary`. A blank line between each section and the next. Context comes first because it is
+  what orients a reviewer who opens the PR cold.
+- `## Context` and `## Risk` carry the values worked out in step 6, **one line of body each**. They
+  are a signal at a glance, and a paragraph under either heading defeats the point.
+- `## Jira Reference` holds the bare URL on its own line, nothing else: no label, no link text.
+- `## Summary` is the only section with bullets. They cover the changes made, high-level. Aim for
+  roughly 3–6, and lead with the most significant change.
+- Do **not** add sections beyond these four: no testing notes, "how to test", screenshots,
+  rollout/flag notes, or file-by-file detail. If a change is only a supporting detail of a larger
+  one, fold it into that bullet rather than giving it its own.
 
 **Default detail level.** Each bullet names what changed _plus a short clause of mechanism or why_:
 roughly 15–25 words. The aim is enough for a reviewer to understand the change without opening the
@@ -198,11 +263,11 @@ describe the change itself, not narrate the actions the author took.
 
 Each bullet should stand on its own without depending on a previous bullet for a pronoun like "it".
 
-### 7. Write to the ticket note and echo in chat
+### 8. Write to the ticket note and echo in chat
 
 Append a new `## Pull Request` section to the **end** of `index.md`. Put the title and the
-description in fenced code blocks so they copy cleanly and the inner `## Summary` doesn't fragment
-the note's own heading outline:
+description in fenced code blocks so they copy cleanly and the description's own `##` headings don't
+fragment the note's heading outline:
 
 ````markdown
 ## Pull Request
@@ -216,10 +281,16 @@ feat: [TACO-1234] - Send confirmation email on order completion
 **Description**
 
 ```markdown
-Jira Reference: https://keyframeai.atlassian.net/browse/TACO-1234
+## Context
+Order confirmation emails
+
+## Risk
+Low - additive send on one handler, no schema change and no shared write path
+
+## Jira Reference
+https://keyframeai.atlassian.net/browse/TACO-1234
 
 ## Summary
-
 - Adds `SendOrderConfirmationAsync` to the Notifications client, which posts the order summary to the notification service's email endpoint
 - Updates the order-completion handler to send a confirmation when an order settles, alongside the existing receipt write
 - Parameterises the shared notification method by channel so email and SMS run through one implementation instead of duplicated methods
@@ -235,18 +306,57 @@ without opening the note.
 
 Stamp `updated:` to today, per `obsidian`. Leave the rest of the frontmatter alone, `prs:` and
 `status:` included: the PR doesn't exist yet, the URL is the user's to add, and the status moves
-only once the PR is raised (step 8).
+only once the PR is raised (step 9).
 
-### 8. Offer to create the PR on Azure DevOps
+### 9. Offer to create the PR on Azure DevOps
 
-Having written the summary, offer to raise the PR with those fields already filled in. Ask once:
+Having written the summary, offer to raise the PR with those fields already filled in. Work out the
+auto-complete decision below **before** asking, so the question names what will actually happen and
+one answer covers the whole thing:
 
-> "Want me to create the PR on Azure DevOps with this title and description?"
+> "Want me to create the PR on Azure DevOps with this title and description, set to auto-complete?"
+
+> "Want me to create the PR on Azure DevOps with this title and description? Leaving auto-complete
+> off, since <the impediment>."
 
 If they decline, stop: the summary in the note and in chat is the deliverable.
 
 Creating a PR is outward-facing and visible to the team, so **always show the resolved command and
 wait for approval before running it**. Never create one unasked.
+
+#### Auto-complete
+
+Azure DevOps can hold the PR and merge it the moment its branch policies pass. **Default to turning
+it on when the change can merge on its own and the risk line from step 6 is `Zero` or `Low`.** A
+small, reversible change that has nothing standing in its way shouldn't wait on someone noticing it
+in a queue.
+
+Auto-complete doesn't bypass anything: branch policies, required reviewers and build gates all still
+have to pass, and the PR simply sits there until they do. That is what makes it a safe default on
+the low end of the risk scale rather than a shortcut.
+
+Leave it **off** when any of these hold, and say which one in the same line that offers the PR:
+
+- **The risk is `Medium` or `High`.** These want a human deciding the moment of merge.
+- **The PR is a draft**, which includes every branch cut from an unmerged base. Azure DevOps won't
+  auto-complete a draft, so the two flags don't go together.
+- **The branch doesn't merge cleanly into master.** Check rather than assume:
+  ```bash
+  git fetch origin master --quiet
+  git merge-tree --write-tree origin/master HEAD >/dev/null 2>&1 \
+    && echo "merges cleanly" || echo "conflicts with master"
+  ```
+- **Review findings from step 1 were consciously left unfixed**, or the diff is waiting on anything
+  else: a coordinated deploy, a config change landing first, a decision the ticket's notes record as
+  still open.
+- **The user has said they want eyes on it** before it merges. Their call beats the default, and it
+  holds for the rest of the session without being asked again.
+
+When it is off for a reason that will clear (a conflict to rebase away, a base branch still to
+merge), say so in a line rather than silently dropping it. Turning auto-complete on afterwards is a
+click in the PR, and the user can decide when.
+
+#### The command
 
 `az` with the `azure-devops` extension does the work. Derive the org, project and repository from the
 `origin` remote rather than hardcoding them, and the source branch from the current branch:
@@ -260,7 +370,7 @@ az repos pr create \
   --target-branch master \
   --title "[TACO-XXXX] <title>" \
   --description "<the description body>" \
-  --draft \
+  --auto-complete true \
   --open
 ```
 
@@ -270,11 +380,17 @@ Points that matter:
   branch the work was cut from. See `git-workflow`.
 - **The branch must already be on origin** (step 2). `az` fails on a source branch the remote
   doesn't have.
-- **`--draft`** whenever the work is not ready to merge, which includes every branch still waiting on
-  an unmerged base. Add the fork note to the description in that case:
+- **`--auto-complete true`** per the decision above. Drop the flag entirely when it is off rather
+  than passing `false`.
+- **`--draft`** replaces `--auto-complete true` whenever the work is not ready to merge, which
+  includes every branch still waiting on an unmerged base. The two are mutually exclusive. Add the
+  fork note to the description in that case:
   `Branched from TACO-1200. Will require a rebase once that has merged.`
+- **Don't add `--squash` or `--delete-source-branch`** unless the user asks. The repository's policy
+  owns the merge strategy, and auto-complete follows it.
 - **`--open`** opens the created PR in the browser, which is usually what the user wants next.
-- Report the PR id and URL back, and leave `prs:` in the note for the user to fill in.
+- Report the PR id and URL back, say whether auto-complete is set, and leave `prs:` in the note for
+  the user to fill in.
 
 Once `az` reports the PR created, move the thread to `review` per the lifecycle in `obsidian`: set
 `status:` to `review` if it is `planned` or `coding`, and leave `paused`, `dropped` or a status
@@ -300,7 +416,12 @@ to this run, and clearing partway through loses the skill's own place in the wor
 
 - Don't pad the summary with testing notes, rollout steps, or file-by-file detail. It's a
   high-level overview of changes only.
-- Don't repeat the title inside the description.
+- Don't drop the `## Context` or `## Risk` section, reorder the four sections, or grow either of
+  those two into a paragraph. One line of body each, above the summary.
+- Don't soften the risk level because the author (or you) wrote the change. It is assessed from what
+  the diff can break, not from how confident anyone feels about it.
+- Don't repeat the title inside the description, and don't let the context line become a second
+  copy of it.
 - Don't assume the diff base is `master`. Resolve it, honouring `forkedFrom` on a stacked branch.
 - Don't invent changes that aren't in the diff, or omit a significant one because it wasn't in a
   commit message. The diff is the source of truth.
@@ -311,5 +432,8 @@ to this run, and clearing partway through loses the skill's own place in the wor
 - Don't force-push without asking, and don't offer to create the PR on a branch that isn't on
   origin: it will fail.
 - Don't create the PR without asking, and never without showing the resolved command first.
+- Don't set auto-complete on a `Medium` or `High` risk change, on a draft, or on a branch that hasn't
+  been checked for a clean merge. Equally, don't leave it off on a `Zero` or `Low` change with
+  nothing in its way: that is the default, not an upgrade to ask for.
 - Don't hard-wrap prose in the note.
 - Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`.
