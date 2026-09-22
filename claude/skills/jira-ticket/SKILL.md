@@ -107,6 +107,18 @@ somewhere else.
 Links that everyone on the team can open are fine and encouraged: other TACO tickets, the repo,
 a PR, a Confluence page, a public document.
 
+### Other tickets are named, not narrated
+
+When a description refers to work in another ticket, state the relationship and nothing about
+where that ticket currently sits. Its status will have moved on long before anyone reads this one,
+and Jira already shows it live beside the key.
+
+- "Depends on TACO-1234", not "Depends on TACO-1234, which is currently in Code Review"
+- "Builds on the PaymentStatus value added in TACO-1234", not "...added in TACO-1234 (merged last week)"
+
+The same goes for assignees, sprints and progress: say what the other ticket delivers, not who has
+it or how far along it is.
+
 ### Per type
 
 **User Story**: what the user will be able to do, and why that matters to them.
@@ -363,6 +375,8 @@ and stop. Don't step the ticket through other statuses to reach it.
 - Don't write a description that explains how to implement something the requirement doesn't constrain
 - Don't pad the description or the acceptance criteria to make the ticket look substantial
 - Don't write a description that only makes sense with the investigation notes open alongside it
+- Don't mention another ticket's status, assignee, sprint or progress when referencing it: state the
+  dependency or relationship only
 - Don't reference the user's vault in a ticket: no vault paths, `obsidian://` URIs, `[[wikilinks]]`
   or absolute paths under their home directory, in the description or in a comment
 - Don't guess an epic: ask, defaulting to the saved one; don't silently raise a ticket with no parent
