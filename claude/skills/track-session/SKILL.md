@@ -125,8 +125,3 @@ Notes are for the state a resumer would otherwise have to rediscover: uncommitte
 - **Several worktrees on one thread**: expected. Each session records its own `cwd`, so entries for different repos sit side by side under the same thread.
 - **Session already recorded**: update in place, and say which entry changed.
 - **Entries still in `index.md`**: an older note may carry a `## Sessions` section. Move it to `sessions.md`, demoting each `###` entry to `##`, and leave the link behind.
-
-## What not to do
-
-- Don't write session entries into `index.md`, or edit anything in it but `updated:` and the `[[sessions]]` link.
-- Don't write a guessed session UUID.

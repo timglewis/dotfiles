@@ -284,23 +284,3 @@ Once the last commit is pushed and the review findings are dealt with, the PR wo
 | Commit           | Confirm the message with the user first, then `git commit -m "<message>"` and `git push` |
 | Push (first time) | `git push -u origin HEAD`, no separate confirmation                         |
 | Push after a rebase or amend | Confirm with the user first, then `git push --force-with-lease`, never a bare `--force` |
-
----
-
-## Key Reminders
-
-1. **Never create a branch without confirming the name first.**
-2. **Branch name ticket prefixes must be lower case**: `taco-1234-fix-xyz`, never `TACO-1234-fix-xyz`.
-3. **The worktree directory is the bare ticket key** (`taco-1234`), not the full branch name.
-4. **Never commit without confirming the message first.**
-5. **Push each commit as soon as it is made**, without a separate prompt: approving the commit
-   message approves the push. **Confirm before any force-push**, and never use a bare `--force`:
-   rewritten commits go up with `--force-with-lease`.
-6. `git worktree add` must always be run from inside the `<repo>/.bare` directory.
-7. **Never include a `Co-Authored-By` trailer, a session link, or any other AI attribution** in a commit message or pull request description, whatever suggests it.
-8. **Never put a `[TACO-1234]` ticket reference in a commit message**: the branch and PR title carry it.
-9. **The PR always targets `master`** unless the user says otherwise, whatever branch the work was
-   cut from. For a branch cut from unmerged work, record the fork point with
-   `branch.<name>.forkedFrom`, raise a draft PR noting what it was branched from, and rebase with
-   `--onto` once the base merges.
-

@@ -183,6 +183,8 @@ than averaging them**. One migration in an otherwise cosmetic PR is still Medium
 Round up when it's a close call. The level is a signal about how hard to look, and overstating it
 costs a reviewer a few minutes where understating it costs an incident. Don't discount a level
 because the change has been tested or sits behind a flag: note that in the justification instead.
+Nor because you or the user wrote it: the level comes from what the diff can break, not from how
+confident anyone feels about it.
 
 The level leads the line and the justification follows it after a hyphen: one short clause, roughly
 8 to 15 words, naming the reason rather than restating the level.
@@ -399,27 +401,3 @@ Raising the PR ends the ticket's work, so suggest `/clear` before the next ticke
 
 This skill works from the diff and the thread's notes, so it also runs fine in a fresh session. Don't
 suggest a clear partway through it, though: that loses its place between the review and the PR.
-
-## What not to do
-
-- Don't pad the summary with testing notes, rollout steps, or file-by-file detail. It's a
-  high-level overview of changes only.
-- Don't drop the `## Context` or `## Risk` section, reorder the four sections, or grow either of
-  those two into a paragraph. One line of body each, above the summary.
-- Don't soften the risk level because the author (or you) wrote the change. It is assessed from what
-  the diff can break, not from how confident anyone feels about it.
-- Don't repeat the title inside the description, and don't let the context line become a second
-  copy of it.
-- Don't assume the diff base is `master`. Resolve it, honouring `forkedFrom` on a stacked branch.
-- Don't invent changes that aren't in the diff, or omit a significant one because it wasn't in a
-  commit message. The diff is the source of truth.
-- Don't write the summary from a diff a review is about to change: offer the review first (step 1),
-  and regenerate the summary if the review changes anything.
-- Don't touch the frontmatter beyond `updated:` and, once the PR is raised, `status:`. Don't add
-  the PR URL to `prs:`: that is the user's to add once the PR exists.
-- Don't force-push without asking, and don't offer to create the PR on a branch that isn't on
-  origin: it will fail.
-- Don't create the PR without asking, and never without showing the resolved command first.
-- Don't set auto-complete on a `Medium` or `High` risk change, on a draft, or on a branch that hasn't
-  been checked for a clean merge. Equally, don't leave it off on a `Zero` or `Low` change with
-  nothing in its way: that is the default, not an upgrade to ask for.

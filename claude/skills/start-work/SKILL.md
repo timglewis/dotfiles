@@ -123,6 +123,10 @@ Use the repo's actual default branch if it is not `master`.
 `git worktree add` fails rather than clobbering if the directory or branch already exists. Treat
 that as the collision case, not as something to force.
 
+Don't use `herdr worktree create` instead. It makes a workspace linked to the worktree, which brings
+group-close semantics the existing `taco-*` workspaces do not have, so git and Herdr stay separate
+steps.
+
 ### 3. Move the thread to `coding`
 
 The branch now exists, which is what `coding` means in the lifecycle `obsidian` defines. If the key
@@ -221,17 +225,4 @@ and what to do first is theirs to decide.
 
 Partial success is normal and worth reporting precisely. A worktree with two working tabs is a
 better outcome than an unwound setup, so never tear down what already succeeded because a later
-step failed.
-
-## What NOT to do
-
-- Don't run `git worktree add` from anywhere but the repo's `.bare` directory.
-- Don't name the directory after the full branch. The descriptive suffix belongs to the branch only.
-- Don't use `TACO-3372` upper case in a directory, branch or label. Lower case throughout.
-- Don't create the worktree with `herdr worktree create`. It makes a workspace linked to the
-  worktree, which brings group-close semantics the existing `taco-*` workspaces do not have.
-  Keep git and Herdr as separate steps.
-- Don't focus anything before step 6.
-- Don't close or reuse a workspace you did not create in this run.
-- Don't scaffold vault notes here. That is `start-thread`. Moving an existing thread to `coding`
-  is the only vault write this skill makes.
+step failed. Never close a workspace this run did not create.

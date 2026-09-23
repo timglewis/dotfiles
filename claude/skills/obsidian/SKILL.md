@@ -191,12 +191,3 @@ Mark a file that doesn't exist yet: `[NewService.cs](file:///...) *(new file)*`.
 **Inline code references in prose go in backticks**, with a line number where it helps: `` `<code-root>/<repo>/master/src/Services/PaymentService.cs:142` ``.
 
 **Azure DevOps links** target `https://dev.azure.com/keyframe-ai/KeyframeAI/_git/<repo>` unless the thread's index note says otherwise.
-
-## What not to do
-
-- Don't put thread-scoped files anywhere but inside the thread folder.
-- Don't create or overwrite a thread folder. That is `start-thread`, and it never overwrites either.
-- Don't create a second folder for a thread that is already in `Archive/`, and don't edit a thread's frontmatter as part of archiving it.
-- Don't add frontmatter to anything but `index.md`.
-- Don't hard-wrap prose, and don't leave `updated:` stale after writing.
-- Don't add emojis.

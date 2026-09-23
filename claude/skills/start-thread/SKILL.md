@@ -65,7 +65,7 @@ If the thread has no key and the user decides it needs a ticket, use the `jira-t
 
 ### 3. Build the folder name
 
-Per the naming format in `obsidian`, with today as the date.
+Per the naming format in `obsidian`, with today as the date. The folder goes at the top level of `Threads/`; nest it under another thread only when the user asks.
 
 Check for a collision before creating anything. If a folder for this key already exists (glob `Threads/*(KEY)*/`), do not create a second one and do not overwrite. Say so and stop.
 
@@ -127,8 +127,3 @@ If the user wants notes only, stop here. A thread without a worktree is a normal
 - **Jira fetch fails or the ticket doesn't exist**: say so, then offer to scaffold from a user-supplied title instead, or abort.
 - **Atlassian auth errors**: follow `interface.md`.
 - **Folder collision**: never delete or rename an existing thread folder.
-
-## What NOT to do
-
-- Don't nest a new thread under another unless the user asks. Nesting is the exception.
-- Don't run git commands directly. Delegate branch and worktree work to `start-work`, which defers to `git-workflow` for naming.

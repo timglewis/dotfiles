@@ -199,7 +199,8 @@ and functions where you can.
 
 ## Relevant Files
 
-A navigable index of files material to this ticket. Group by purpose if it helps.
+A navigable index of files material to this ticket, not every file you read. Group by purpose if
+it helps.
 
 | File                                                    | Purpose                       |
 | ------------------------------------------------------- | ----------------------------- |
@@ -232,17 +233,3 @@ what was decided and why (briefly), so future-you can reconstruct the reasoning.
 
 Stamp `updated:` in the index note on every write to `investigation.md`, per `obsidian`. The only
 other change to that note is `status: dropped`, when the user agrees there is nothing to deliver.
-
----
-
-## What not to do
-
-- Don't write the document all at once at the end: write early, update often
-- Don't make design decisions silently: surface trade-offs and ask
-- Don't pad sections with "this section will be updated" filler: leave sections out if empty
-- Don't use relative paths or shortened paths in the Relevant Files table
-- Don't move on past an ambiguity that matters: ask first
-- Don't include every file you read, only the ones genuinely relevant to the ticket
-- Don't wander into a second repo without asking
-- Don't cancel a Jira ticket, or drop its thread, without the user agreeing to it
-- Don't write "What Needs to Change" without invoking `coding-style` first, and don't infer the user's style preferences from the surrounding code

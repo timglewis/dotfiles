@@ -81,8 +81,9 @@ python3 "$SKILL_DIR"/scripts/sweep.py
 
 It is read-only, and it reads only `Threads/`: an archived thread is out of the sweep altogether,
 which is the point of archiving it. It reads every thread's frontmatter, lists local and origin
-branches for every `<code-root>/<repo>/.bare`, fetches the project's last 1000 PRs across all repos with
-`az repos pr list` (a few seconds), and prints JSON:
+branches for every `<code-root>/<repo>/.bare` (origin through `git ls-remote`, so never run
+`git fetch` in the user's repos for the sweep), fetches the project's last 1000 PRs across all
+repos with `az repos pr list` (a few seconds), and prints JSON:
 
 | Field | Meaning |
 | --- | --- |
@@ -310,26 +311,3 @@ If any thread has PRs the sweep found but `prs:` doesn't list them, mention it i
 | Jira unreachable for the epics | Tag from the note alone, and say in the report which threads were tagged without their epic. |
 | `--tag` refuses a tag | The tag has no row in `tags.md`. Add the row the user agreed to, then run it again. Never work around it by editing the note by hand. |
 | A thread with no `tags:` line at all | The script leaves it and says so. Name it in the report; repairing frontmatter is the user's call, not the sweep's. |
-
-## What NOT to do
-
-- Don't touch threads outside the scope above, or any frontmatter beyond `status:`, `tags:` and
-  `updated:`.
-- Don't archive anything the user hasn't agreed to, one row at a time. It moves folders, and the
-  vault isn't in git.
-- Don't edit a thread while archiving it: no status move, no `updated:` stamp. It finished a month
-  ago and nothing about it has changed.
-- Don't archive a nested child on its own, or a parent still holding a live one.
-- Don't move a folder into `Archive/` by hand, or rename one on the way in. `--archive` re-checks
-  the thread still qualifies, which a `mv` doesn't.
-- Don't derive statuses by hand when the script fails. Fix the cause or stop.
-- Don't apply a `backward` or `held` move without the user confirming it.
-- Don't write any tag without the user confirming it, and don't add a row to `tags.md` before they
-  have agreed to the wording.
-- Don't touch a thread that already has tags, even to add one that obviously applies. Say it in the
-  report and let the user decide.
-- Don't coin a tag for a single thread, and don't coin one out of an epic name without checking the
-  list for a row that already covers it.
-- Don't stamp `updated:` on a thread whose status or tags didn't change.
-- Don't run `git fetch` in the user's repos for this. `ls-remote` reads origin without changing
-  anything local.

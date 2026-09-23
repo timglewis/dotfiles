@@ -195,13 +195,3 @@ Stamp `updated:` in the index note, per `obsidian`, and change nothing else in i
 
 Then suggest `/clear` (not a compaction) before `commit-breakdown` runs on the first ticket, and a
 re-run of `track-session` afterwards. `work-breakdown.md` and `investigation.md` are the handoff.
-
-## What not to do
-
-- Don't slice into items that can't ship independently: that's a commit plan, not a work breakdown
-- Don't pad the breakdown to make it look substantial, or collapse distinct deployables to shorten it
-- Don't raise a duplicate set when `work-breakdown.md` already carries keys
-- Don't restate the `jira-ticket` rules here or diverge from them: types, descriptions and fields
-  are owned by that skill
-- Don't point a ticket at the vault: no investigation link, vault path or `[[wikilink]]` in a
-  description, since the team cannot open any of them

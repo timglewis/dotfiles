@@ -169,21 +169,3 @@ Stamp `updated:` in the index note, per `obsidian`, and change nothing else in i
 Then suggest `/clear` (not a compaction) before the first commit, and a re-run of `track-session`
 afterwards. Coding starts from the plan on disk, and compacting would reduce the `git-workflow` and
 `coding-style` rules loaded in step 3 to a summary of themselves.
-
----
-
-## What not to do
-
-- Don't start writing before thinking through the full sequence, because getting the order wrong means
-  rewriting the whole document
-- Don't invent commits to pad the list; don't collapse distinct concerns into one commit to shorten it
-- Don't leave tests to a single final commit: keep the branch green
-- Don't write vague "what needs to happen" sections: if it's not specific enough to act on, it's
-  not done
-- Don't use relative paths or short filenames in the Files list
-- Don't leave the push line out of the header: without it the commits pile up locally until the
-  whole plan is done
-- Don't turn the review step into a numbered commit, and don't leave the footer off: a plan that
-  stops at the last commit reads as though the branch is ready to raise
-- Don't write commit messages without invoking `git-workflow` first (step 3), and don't reconstruct its format from memory or from the repo's existing commit history
-- Don't describe the code a commit should produce without invoking `coding-style` first (step 3), and don't infer the user's style preferences from the surrounding code

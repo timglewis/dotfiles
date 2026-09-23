@@ -181,7 +181,8 @@ line** rather than three separate questions:
 > "Epic TACO-3143 (Autodesk Platform Services Integration), 2026 Sprint 97 (active), assigned to
 > you. Change any of these, or go ahead?"
 
-When raising several tickets at once, ask once and apply the answer to the whole set.
+When raising several tickets at once, ask once and apply the answer to the whole set. Set nothing
+beyond these three unless told: in particular, don't guess a priority.
 
 ### Parent epic
 
@@ -361,31 +362,3 @@ mcp__claude_ai_Atlassian_Rovo__addCommentToJiraIssue(cloudId=..., issueIdOrKey="
 
 If no `Cancelled` transition is offered from the ticket's current status, report what is offered
 and stop. Don't step the ticket through other statuses to reach it.
-
-## What not to do
-
-- Don't create anything in Jira before the user has explicitly approved it
-- Don't use any item type outside User Story, Technical Story and Bug
-- Don't write a description that explains how to implement something the requirement doesn't constrain
-- Don't pad the description or the acceptance criteria to make the ticket look substantial
-- Don't write a description that only makes sense with the investigation notes open alongside it
-- Don't mention another ticket's status, assignee, sprint or progress when referencing it: state the
-  dependency or relationship only
-- Don't reference the user's vault in a ticket: no vault paths, `obsidian://` URIs, `[[wikilinks]]`
-  or absolute paths under their home directory, in the description or in a comment
-- Don't guess an epic: ask, defaulting to the saved one; don't silently raise a ticket with no parent
-- Don't execute `~/.jira/default_epic.ps1` to read it, and don't rewrite it when no epic was chosen
-- Don't trust a stale epic cache when the user says the epic they want is missing: re-fetch
-- Don't trust a sprint cache that survived a sprint rollover: check the active sprint's endDate
-- Don't read or echo `$JIRA_API_TOKEN` when pulling `$JIRA_EMAIL` out of `~/.jira/profile.ps1`
-- Don't run `acli jira auth login` for the user, or put an API token on a command line: it is
-  interactive, so ask them to run it
-- Don't pass Markdown to `acli`: `--description` and `--description-file` take plain text or ADF,
-  and Markdown arrives as literal `##` and `**` in the ticket
-- Don't reach for `acli jira workitem edit` to change a sprint or any other custom field: it
-  cannot, so use the MCP and say that you did
-- Don't retry a failed `acli` create on the MCP without checking whether the ticket was already
-  created: a duplicate is worse than a missing field
-- Don't pass the sprint as a name or an object: `customfield_10020` takes the numeric id
-- Don't guess a priority, or assign to anyone other than the user, unless told
-- Don't cancel a ticket without a comment giving the reason, or without the user's go-ahead
