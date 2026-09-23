@@ -30,7 +30,17 @@ Code should explain itself through naming and structure. The reader should be ab
 
 - Never lower code quality, or drop one of these preferences, to match nearby code. Bad existing code is not a precedent
 - If tempted to match a local pattern that conflicts with these preferences, ASK first: name the conflict and which preference it breaks. Don't resolve it silently in either direction
-- Leaving pre-existing bad code untouched is normal scope discipline, not a compromise, but offer it as a follow-up rather than assuming it should stay
+
+### Tidying as we go
+
+The Boy Scout Rule, applied to style: leave a file tidier than you found it, but ask first.
+
+- While editing a file, watch the whole file for non-functional changes that would bring it into line with these preferences: member ordering, a comment that earns nothing, nesting a guard clause would flatten, a single-use indirection worth inlining
+- ALWAYS ask before making one. List the tidy-ups together, once per file, and wait for an answer. Never apply one silently, and never fold one into the edit that found it
+- A declined tidy-up stays declined for the rest of the session. Don't raise it again on the next edit to that file
+- Scope is the file being edited. A file only read, or one a search turned up, is out of scope: raise it as a follow-up at the end of the task if it matters, rather than interrupting the work
+- An approved tidy-up is its own commit, separate from the behaviour change, so the functional diff stays reviewable on its own
+- Leaving pre-existing bad code untouched is still normal scope discipline, not a compromise. A tidy-up is offered, never insisted on
 
 ## Structure and indirection
 
