@@ -130,9 +130,9 @@ When investigation is complete and open questions are resolved (or consciously d
   ticket is already the deployable unit and implementation starts now
 - If the investigation turned up a single thing worth raising on its own (a defect found along the
   way, one follow-up), that's `jira-ticket`, which owns how a ticket is written and raised
-- Suggest `/clear` (not a compaction) before that next step, and a re-run of `track-session`
-  afterwards. The document is the handoff, so first check that Decisions carries the user's answers,
-  the reasoning behind them and any dead ends worth recording: those are all a clear loses
+- Give a verdict on clearing before that next step, per "Clearing at a handoff" in `obsidian`. The
+  document is the handoff, so first check that Decisions carries the user's answers, the reasoning
+  behind them and any dead ends worth recording: those are all a clear loses
 
 ### When there is nothing to deliver
 

@@ -164,6 +164,20 @@ Nested threads move as a tree or not at all, since nesting is folder nesting. A 
 
 This and a status move made by the skill that owns it (see "Status") are the only edits to make to an index note you weren't asked to change. Leave its body and the rest of its frontmatter alone.
 
+## Clearing at a handoff
+
+Several skills end at a handoff, where the thread's notes carry everything the next step needs. There, give the user a verdict on `/clear`, not a blanket suggestion: one line saying whether to clear and why, grounded in what this session actually did. Recommend `/clear` rather than a compaction whenever you do recommend one, and a re-run of `track-session` afterwards.
+
+A clear costs a re-read of one or two notes and the next skill's instructions, usually a few thousand tokens. It drops everything else: file reads, search output, back-and-forth that has since been settled. So weigh how much the session gathered that the next step won't need:
+
+- **Clear** after broad exploration, long debugging or many file reads, when the next step works from the notes rather than from what is already in context
+- **Stay** when the session was short, or when the next step would straight away re-read the files it has just read
+- **Write it down first** if something agreed in the conversation isn't in the notes yet. That is a gap in the handoff, not a reason to stay
+
+You can't see context usage, so the verdict is an estimate from the work done. When it's a close call, say so and point the user at the `ctx` figure in their statusline: under about 30%, staying costs little.
+
+Example verdicts: "Clear recommended: this session read about 30 files tracing the retry path, and `commit-breakdown` only needs `investigation.md`." or "No need to clear: the session was short and the next step would re-read the same three files."
+
 ## Writing prose in a note
 
 **Never hard-wrap prose.** Write each paragraph as a single unwrapped line, with no wrapping at 80 or 100 characters. Hard wraps render as line breaks mid-sentence when reading and editing in Obsidian. Tables, list items, code blocks and frontmatter keep their normal line structure.

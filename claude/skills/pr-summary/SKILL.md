@@ -396,8 +396,9 @@ copy-paste flow rather than trying to work around it.
 
 ## Finishing up
 
-Raising the PR ends the ticket's work, so suggest `/clear` before the next ticket, and a re-run of
-`track-session` afterwards. Everything this skill produced is in the note.
+Raising the PR ends the ticket's work, so give a verdict on clearing before the next ticket, per
+"Clearing at a handoff" in `obsidian`. Everything this skill produced is in the note, and the next
+ticket rarely needs what this one read, so a clear usually wins here.
 
 This skill works from the diff and the thread's notes, so it also runs fine in a fresh session. Don't
 suggest a clear partway through it, though: that loses its place between the review and the PR.

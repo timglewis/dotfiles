@@ -163,6 +163,7 @@ pointer, not a commit, so don't number it or give it a commit message.
 
 Stamp `updated:` in the index note, per `obsidian`, and change nothing else in it.
 
-Then suggest `/clear` (not a compaction) before the first commit, and a re-run of `track-session`
-afterwards. Coding starts from the plan on disk, and compacting would reduce the `git-workflow` and
-`coding-style` rules loaded in step 3 to a summary of themselves.
+Then give a verdict on clearing before the first commit, per "Clearing at a handoff" in `obsidian`.
+Lean towards clearing here even after a short session: coding starts from the plan on disk, and a
+fresh session reloads the `git-workflow` and `coding-style` rules loaded in step 3 in full, where a
+long one carries them a long way back or reduces them to a summary if it compacts.

@@ -193,5 +193,5 @@ and point out that `commit-breakdown` is the next step once they pick one up.
 
 Stamp `updated:` in the index note, per `obsidian`, and change nothing else in it.
 
-Then suggest `/clear` (not a compaction) before `commit-breakdown` runs on the first ticket, and a
-re-run of `track-session` afterwards. `work-breakdown.md` and `investigation.md` are the handoff.
+Then give a verdict on clearing before `commit-breakdown` runs on the first ticket, per "Clearing at
+a handoff" in `obsidian`. `work-breakdown.md` and `investigation.md` are the handoff.
