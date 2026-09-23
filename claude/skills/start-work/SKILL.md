@@ -235,5 +235,3 @@ step failed.
 - Don't close or reuse a workspace you did not create in this run.
 - Don't scaffold vault notes here. That is `start-thread`. Moving an existing thread to `coding`
   is the only vault write this skill makes.
-- Don't restate branch-naming or commit rules. That is `git-workflow`.
-- Don't add emojis.

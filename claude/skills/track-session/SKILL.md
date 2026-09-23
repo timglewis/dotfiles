@@ -130,5 +130,3 @@ Notes are for the state a resumer would otherwise have to rediscover: uncommitte
 
 - Don't write session entries into `index.md`, or edit anything in it but `updated:` and the `[[sessions]]` link.
 - Don't write a guessed session UUID.
-- Don't restate the vault conventions here or diverge from them: folder naming, frontmatter and link style are owned by `obsidian`.
-- Don't add emojis.

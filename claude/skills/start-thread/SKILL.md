@@ -41,20 +41,13 @@ Infer it: a request phrased as "look into" / "investigate" / "work out why" poin
 
 ### 2. Fetch the Jira issue (keyed threads only)
 
-**Pick the interface first**, per `~/.claude/skills/jira-ticket/references/interface.md`: `acli`
-where it is installed and authenticated, the Atlassian MCP only where it is not. Don't reach
-for the MCP because it is the tool in front of you; run the check, cache it for the session, and
-take the read command from whichever path it lands on.
-
-On the CLI path, the command and the field notes are under "Reading one ticket" in
-`~/.claude/skills/jira-ticket/references/acli.md`:
+Use the interface `~/.claude/skills/jira-ticket/references/interface.md` selects. On `acli`:
 
 ```bash
 acli jira workitem view TACO-XXXX --fields "summary,description,labels,parent" --json
 ```
 
-On the MCP fallback, the cloudId is in `interface.md`; there is no need to spend a
-`getAccessibleAtlassianResources` round-trip on it.
+On the MCP, with the cloudId from `interface.md`:
 
 ```
 mcp__claude_ai_Atlassian_Rovo__getJiraIssue(
@@ -134,13 +127,10 @@ If the user wants notes only, stop here. A thread without a worktree is a normal
 ## Defaults and error handling
 
 - **Jira fetch fails or the ticket doesn't exist**: say so, then offer to scaffold from a user-supplied title instead, or abort.
-- **Atlassian auth errors**: handled in `interface.md`. In short, an unauthorised `acli` is fixed by the user running `acli jira auth login --web`; a failing MCP means reconnecting Atlassian at https://claude.ai/settings/connectors and restarting Claude Code. Don't treat one being unavailable as a reason to skip the other.
+- **Atlassian auth errors**: follow `interface.md`.
 - **Folder collision**: never delete or rename an existing thread folder.
 
 ## What NOT to do
 
-- Don't restate the vault conventions here or diverge from them: the folder format, the frontmatter schema and note style are owned by `obsidian`.
 - Don't nest a new thread under another unless the user asks. Nesting is the exception.
 - Don't run git commands directly. Delegate branch and worktree work to `start-work`, which defers to `git-workflow` for naming.
-- Don't reach for the Atlassian MCP without running the `acli` check first: the preference is `jira-ticket`'s, recorded in `references/interface.md`, and it applies to reading a ticket as much as to raising one.
-- Don't add emojis.

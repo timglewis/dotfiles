@@ -21,10 +21,8 @@ Site `https://keyframeai.atlassian.net`, project `TACO`, cloudId
 
 ## Which interface
 
-**Prefer `acli`**, Atlassian's command line tool, and fall back to the Atlassian MCP only when it
-is not installed or not authenticated. The check, its three outcomes and the caching rule are in
-`references/interface.md`, the gate shared with `start-thread` and `investigate` so that the
-preference is stated once. Run it before the first call of the session.
+Run the check in `references/interface.md` before the first Jira call of the session. It prefers
+`acli`, Atlassian's command line tool, and falls back to the Atlassian MCP.
 
 On the CLI path, work from `references/acli.md`: it owns the commands, the `--from-json` shape,
 the ADF descriptions and the query recipes. On the MCP path, use the calls given below.
@@ -391,4 +389,3 @@ and stop. Don't step the ticket through other statuses to reach it.
 - Don't pass the sprint as a name or an object: `customfield_10020` takes the numeric id
 - Don't guess a priority, or assign to anyone other than the user, unless told
 - Don't cancel a ticket without a comment giving the reason, or without the user's go-ahead
-- Don't add emojis

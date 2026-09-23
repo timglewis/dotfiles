@@ -394,15 +394,11 @@ copy-paste flow rather than trying to work around it.
 
 ## Finishing up
 
-Raising the PR ends the ticket's work, so this is the natural place to suggest a `/clear` before the
-next one starts. Nothing needs carrying forward: everything this skill produced is in the note, and
-everything the next ticket needs is in its own thread folder. Re-running `track-session` after the
-clear keeps the session log pointing at the live conversation.
+Raising the PR ends the ticket's work, so suggest `/clear` before the next ticket, and a re-run of
+`track-session` afterwards. Everything this skill produced is in the note.
 
-The same holds on the way in. This skill derives the summary from the branch diff and the thread's
-notes, not from the conversation, so it runs perfectly well in a context that knows nothing about
-how the code got written. Don't ask the user to clear mid-skill though: the review at step 1 belongs
-to this run, and clearing partway through loses the skill's own place in the workflow.
+This skill works from the diff and the thread's notes, so it also runs fine in a fresh session. Don't
+suggest a clear partway through it, though: that loses its place between the review and the PR.
 
 ## What not to do
 
@@ -427,5 +423,3 @@ to this run, and clearing partway through loses the skill's own place in the wor
 - Don't set auto-complete on a `Medium` or `High` risk change, on a draft, or on a branch that hasn't
   been checked for a clean merge. Equally, don't leave it off on a `Zero` or `Low` change with
   nothing in its way: that is the default, not an upgrade to ask for.
-- Don't hard-wrap prose in the note.
-- Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`.

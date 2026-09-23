@@ -343,6 +343,3 @@ If any thread has PRs the sweep found but `prs:` doesn't list them, mention it i
 - Don't stamp `updated:` on a thread whose status or tags didn't change.
 - Don't run `git fetch` in the user's repos for this. `ls-remote` reads origin without changing
   anything local.
-- Don't restate the lifecycle here; it lives in `obsidian`. Same for the tag conventions, which
-  live in `Threads/tags.md`.
-- Don't add emojis.

@@ -120,8 +120,7 @@ leaving it looking like an oversight.
 
 **The `jira-ticket` skill owns ticket creation**: which interface to use, how to write the summary
 and description, which fields to pass, and the exact call on each path. Follow it for each item;
-nothing about the mechanics is repeated here. In particular, don't assume the MCP: `jira-ticket`
-prefers `acli`, and the check is in its `references/interface.md`.
+nothing about the mechanics is repeated here.
 
 What is specific to a breakdown:
 
@@ -192,17 +191,10 @@ and point out that `commit-breakdown` is the next step once they pick one up.
 
 ## Finishing the write
 
-Writing `work-breakdown.md` is a write into the thread, so stamp `updated:` in the thread's
-`index.md` per `obsidian`. Change nothing else in that note.
+Stamp `updated:` in the index note, per `obsidian`, and change nothing else in it.
 
-Absolute paths, `file://` links and backticked code references all follow `obsidian`.
-
-Each ticket is picked up in its own right, so suggest `/clear` before `commit-breakdown` runs on the
-first of them rather than a compaction. `work-breakdown.md` and `investigation.md` are the handoff,
-and a context still carrying the slicing debate for five tickets is mostly noise to a plan concerned
-with one. A compacted context is worse than noise, because it turns the skill rules the next step
-must load verbatim into a summary of themselves. Re-running `track-session` after the clear keeps
-the session log pointing at the live conversation.
+Then suggest `/clear` (not a compaction) before `commit-breakdown` runs on the first ticket, and a
+re-run of `track-session` afterwards. `work-breakdown.md` and `investigation.md` are the handoff.
 
 ## What not to do
 
@@ -213,7 +205,3 @@ the session log pointing at the live conversation.
   are owned by that skill
 - Don't point a ticket at the vault: no investigation link, vault path or `[[wikilink]]` in a
   description, since the team cannot open any of them
-- Don't restate the vault conventions here either: folder naming, frontmatter and note style are
-  owned by `obsidian`
-- Don't hard-wrap prose in the document, and don't leave the index note's `updated:` stale
-- Don't add emojis

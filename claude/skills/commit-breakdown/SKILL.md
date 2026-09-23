@@ -176,19 +176,11 @@ and not a description of the ticket as a whole repeated across every commit.
 
 ## Finishing the write
 
-Writing `commit-breakdown.md` is a write into the thread, so stamp `updated:` in the thread's
-`index.md` per `obsidian`. Change nothing else in that note.
+Stamp `updated:` in the index note, per `obsidian`, and change nothing else in it.
 
-Absolute paths, `file://` links and the `*(new file)*` marker all follow `obsidian`, which is also
-what the investigation document was written against.
-
-Coding starts from the document, not from this conversation, so tell the user to `/clear` before the
-first commit rather than compacting. The plan, the investigation and the skill rules all reload
-cleanly from disk, while a compacted context replaces the verbatim `git-workflow` and `coding-style`
-rules with a summary of them, which is the one thing step 3 exists to prevent. A plan that doesn't
-survive the clear is a plan that wasn't specific enough, and that is worth finding now rather than
-three commits in. Suggest a re-run of `track-session` after the clear so the session log points at
-the live conversation.
+Then suggest `/clear` (not a compaction) before the first commit, and a re-run of `track-session`
+afterwards. Coding starts from the plan on disk, and compacting would reduce the `git-workflow` and
+`coding-style` rules loaded in step 3 to a summary of themselves.
 
 ---
 
@@ -201,12 +193,9 @@ the live conversation.
 - Don't write vague "what needs to happen" sections: if it's not specific enough to act on, it's
   not done
 - Don't use relative paths or short filenames in the Files list
-- Don't hard-wrap prose in the document, and don't leave the index note's `updated:` stale
-- Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`
 - Don't leave the push line out of the header: without it the commits pile up locally until the
   whole plan is done
 - Don't turn the review step into a numbered commit, and don't leave the footer off: a plan that
   stops at the last commit reads as though the branch is ready to raise
-- Don't add emojis
 - Don't write commit messages without invoking `git-workflow` first (step 3), and don't reconstruct its format from memory or from the repo's existing commit history
 - Don't describe the code a commit should produce without invoking `coding-style` first (step 3), and don't infer the user's style preferences from the surrounding code

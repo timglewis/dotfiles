@@ -49,19 +49,14 @@ than a single-repo one they can extend.
 
 Run these together at the start:
 
-- **Fetch the Jira ticket.** **Keyed threads only; skip this bullet entirely when there is no
-  key**. Pick the interface first, per `~/.claude/skills/jira-ticket/references/interface.md`:
-  `acli` where it is installed and authenticated, the Atlassian MCP only where it is not. Run
-  that check rather than reaching for the MCP because it is the tool in front of you. Extract:
-  summary, description, acceptance criteria, labels, linked issues, subtasks, comments.
-  - On the CLI path, the command and its field notes are under "Reading one ticket" in
-    `~/.claude/skills/jira-ticket/references/acli.md`. Bodies come back as ADF, so either read
-    the text out of the nested nodes or, where the prose matters more than the round-trip, make
-    this one call on the MCP for its Markdown and say that you did.
-  - On the MCP fallback, `mcp__claude_ai_Atlassian_Rovo__getJiraIssue` with the cloudId from
-    `interface.md` (no `getAccessibleAtlassianResources` round-trip needed). Comments are **not**
-    in the default field set, so pass `fields` explicitly including `"comment"` (they arrive at
-    `fields.comment.comments`), and `responseContentFormat="markdown"` to avoid raw ADF.
+- **Fetch the Jira ticket** (keyed threads only), through the interface
+  `~/.claude/skills/jira-ticket/references/interface.md` selects. Extract: summary, description,
+  acceptance criteria, labels, linked issues, subtasks, comments.
+  - On `acli`, bodies come back as ADF. Read the text out of the nested nodes or, where the prose
+    matters more than the round-trip, make this one call on the MCP for its Markdown and say so.
+  - On the MCP, comments are **not** in the default field set, so pass `fields` explicitly
+    including `"comment"` (they arrive at `fields.comment.comments`), and
+    `responseContentFormat="markdown"` to avoid raw ADF.
 - **Read the vault index note**: `<thread-folder>/index.md`
 - **Read any existing files** already in the thread folder, since the user may have left scratch notes,
   previous research, or design docs that should inform the investigation.
@@ -138,12 +133,9 @@ When investigation is complete and open questions are resolved (or consciously d
   ticket is already the deployable unit and implementation starts now
 - If the investigation turned up a single thing worth raising on its own (a defect found along the
   way, one follow-up), that's `jira-ticket`, which owns how a ticket is written and raised
-- Suggest `/clear` before that next step rather than a compaction. The document is the handoff, so
-  nothing the next step needs lives only in this conversation, and a compacted context quietly
-  turns the skill rules it must load verbatim into a summary of themselves. Before clearing, check
-  the Decisions section really does carry the answers the user gave and the reasoning behind them:
-  that, and the dead ends worth recording, are the only things a clear costs. Re-running
-  `track-session` afterwards keeps the session log pointing at the live conversation
+- Suggest `/clear` (not a compaction) before that next step, and a re-run of `track-session`
+  afterwards. The document is the handoff, so first check that Decisions carries the user's answers,
+  the reasoning behind them and any dead ends worth recording: those are all a clear loses
 
 ### When there is nothing to deliver
 
@@ -242,12 +234,8 @@ what was decided and why (briefly), so future-you can reconstruct the reasoning.
 
 ## Finishing a write
 
-Every write to `investigation.md` is a write into the thread, so stamp `updated:` in the thread's
-`index.md` per `obsidian`. Change nothing else in that note, apart from setting `status:` to
-`dropped` when the user agrees there is nothing to deliver.
-
-Absolute paths, `file://` links, backticked code references and Azure DevOps URLs all follow
-`obsidian`.
+Stamp `updated:` in the index note on every write to `investigation.md`, per `obsidian`. The only
+other change to that note is `status: dropped`, when the user agrees there is nothing to deliver.
 
 ---
 
@@ -257,11 +245,8 @@ Absolute paths, `file://` links, backticked code references and Azure DevOps URL
 - Don't make design decisions silently: surface trade-offs and ask
 - Don't pad sections with "this section will be updated" filler: leave sections out if empty
 - Don't use relative paths or shortened paths in the Relevant Files table
-- Don't hard-wrap prose in the document, and don't leave the index note's `updated:` stale
-- Don't restate the vault conventions here or diverge from them: they are owned by `obsidian`
 - Don't move on past an ambiguity that matters: ask first
 - Don't include every file you read, only the ones genuinely relevant to the ticket
 - Don't wander into a second repo without asking
 - Don't cancel a Jira ticket, or drop its thread, without the user agreeing to it
 - Don't write "What Needs to Change" without invoking `coding-style` first, and don't infer the user's style preferences from the surrounding code
-- Don't add emojis
