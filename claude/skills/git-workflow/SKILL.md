@@ -37,7 +37,8 @@ git clone-worktree https://keyframe-ai@dev.azure.com/keyframe-ai/KeyframeAI/_git
 ```
 
 > The alias is not built into git. If `git clone-worktree` reports "is not a git command", the
-> alias is missing from this machine's git config: say so and stop rather than improvising a clone.
+> alias is missing from this machine's git config: say so, point the user at its definition in
+> `claude/README.md` in the dotfiles repo, and stop rather than improvising a clone.
 
 ---
 

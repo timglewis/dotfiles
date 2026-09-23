@@ -47,6 +47,42 @@ strip out:
   (Worktree)" and use ordinary clones with `git checkout -b`. The branch-naming, commit-message
   and confirmation rules are the part that matters.
 
+## The `git clone-worktree` alias
+
+`git-workflow` clones every repo with `git clone-worktree`, which is not built into git.
+`~/.gitconfig` is not in this repo, so add the alias there by hand on each machine:
+
+```gitconfig
+[alias]
+	# Clone <url> as <name>/.bare with a worktree per branch beside it, starting with the default branch.
+	clone-worktree = "!f() { \
+		url=\"$1\"; name=\"${2:-$(basename \"${url%.git}\")}\"; \
+		cd \"${GIT_PREFIX:-.}\" && mkdir \"$name\" && cd \"$name\" && \
+		git clone --bare \"$url\" .bare && \
+		echo 'gitdir: ./.bare' > .git && \
+		git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' && \
+		git fetch origin && \
+		default=$(git symbolic-ref --short HEAD) && \
+		git for-each-ref --format='%(refname:short)' refs/heads | grep -vx \"$default\" | xargs -r git branch -D && \
+		git worktree add \"$default\" \"$default\" && \
+		git -C \"$default\" branch --set-upstream-to=\"origin/$default\"; \
+	}; f"
+```
+
+`git clone-worktree <url> [name]`, run from `~/code`, produces:
+
+```
+<name>/
+├── .bare/     the bare clone, fetching every branch into origin/*
+├── .git       a file reading "gitdir: ./.bare", so git works from <name>/ itself
+└── master/    a worktree on the default branch, tracking origin/master
+```
+
+`<name>` defaults to the last segment of the URL, less any `.git`. The alias refuses to run when
+that directory already exists. A bare clone copies every remote branch in as a local one, so the
+alias deletes all but the default branch: a local branch then means one that was actually worked
+on, which is what `sweep-threads` reads it as.
+
 ## Third-party skills
 
 Install them with the vercel-labs CLI, which writes into `~/.claude/skills` directly:
