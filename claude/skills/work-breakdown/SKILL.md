@@ -60,7 +60,7 @@ and how notes are written. Don't reconstruct any of it from memory.
 
 ### 1. Read the investigation
 
-Read `investigation.md` in full, plus `index.md` for context. The **Required Changes**, **Risks &
+Read `investigation.md` in full, plus `index.md` for context. The **What Needs to Change**, **Risks &
 Concerns** and **Open Questions** sections carry most of what you need.
 
 If `investigation.md` does not exist, or is visibly incomplete (placeholder sections, or open

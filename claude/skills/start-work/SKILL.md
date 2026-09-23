@@ -40,13 +40,13 @@ truth for both; this skill proposes a name under those rules and asks it to be c
 
 ## Preconditions
 
-Check both before doing anything. Neither is recoverable from inside this skill.
+Check both before doing anything. Without them only the worktree half can be built.
 
 ```bash
 test "${HERDR_ENV:-}" = 1 && command -v herdr
 ```
 
-If `HERDR_ENV` is not `1`, say the environment cannot be built because this session is not running
+If `HERDR_ENV` is not `1`, say the workspace cannot be built because this session is not running
 inside Herdr, and offer to create the worktree alone. If `herdr` is not on `PATH`, check
 `~/.local/bin`.
 
@@ -67,22 +67,15 @@ directory and workspace label become a short slug of the title instead.
 
 ## Naming
 
-Three names come out of one ticket, and they are deliberately not all the same.
+Four names come out of one ticket. The worktree directory and the branch follow `git-workflow`;
+the two Herdr names reuse the directory.
 
-| Name | Form | Example |
-| --- | --- | --- |
-| Worktree directory | `taco-xxxx`, lower case, no suffix | `taco-3372` |
-| Branch | `taco-xxxx-short-description`, lower case | `taco-3372-autodesk-model-derivative-importer` |
-| Workspace label | Same as the directory | `taco-3372` |
-| Herdr agent name | Same as the directory | `taco-3372` |
-
-The short directory keeps paths workable, which matters because every `cd`, every recorded session
-path and every pane title carries it. The descriptive branch is what reviewers see, so it keeps the
-words.
-
-Derive the branch suffix from the Jira summary: lower case, spaces to hyphens, punctuation dropped,
-stop-words trimmed, about three to five words. `Autodesk Model Derivative importer` gives
-`autodesk-model-derivative-importer`.
+| Name | Example |
+| --- | --- |
+| Worktree directory | `taco-3372` |
+| Branch | `taco-3372-autodesk-model-derivative-importer` |
+| Workspace label | `taco-3372` |
+| Herdr agent name | `taco-3372` |
 
 The agent name must match `[a-z][a-z0-9_-]{0,31}` and be unique among live agents, which
 `taco-xxxx` satisfies. If an agent of that name is already live, the environment probably already

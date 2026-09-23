@@ -24,10 +24,10 @@ Records this session against a thread in the vault so a future session can be re
 
 ### 1. Establish the session ID
 
-A `SessionStart` hook may have already supplied it, in which case use that and skip ahead. Otherwise the scratchpad directory named in the environment ends in the session UUID:
+A `SessionStart` hook may have already supplied it, in which case use that and skip ahead. Otherwise take it from the scratchpad directory named in the environment, whose path ends in the session UUID followed by `scratchpad`:
 
 ```
-/private/tmp/claude-<uid>/<project-slug>/<session-uuid>/scratchpad
+.../<project-slug>/<session-uuid>/scratchpad
 ```
 
 Confirm it against the transcript before writing it down:

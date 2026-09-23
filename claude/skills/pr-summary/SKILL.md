@@ -63,7 +63,7 @@ question rather than two, so the user answers once:
 - **Both**: run the code review first. It is the one more likely to change the diff, and the scan
   should see the code that is actually going into the PR.
 
-Once the findings are dealt with (fixed, or consciously left), pick up from step 3. The summary
+Once the findings are dealt with (fixed, or consciously left), pick up from step 2. The summary
 must describe the final diff, not the one that existed before the review.
 
 Skip the question entirely when both have already run on this branch in the session, or when the
@@ -195,11 +195,11 @@ because the change has been tested or sits behind a flag: note that in the justi
 The level leads the line and the justification follows it after a hyphen: one short clause, roughly
 8 to 15 words, naming the reason rather than restating the level.
 
-- ✅ `Zero - repo-local tooling, nothing in this change ships to a customer`
-- ✅ `Low - additive send on one handler, no schema or shared-path change`
-- ✅ `Medium - shared notification method now parameterised, so SMS shares the email path`
-- ✅ `High - backfills the orders table in place, and a bad run needs a restore`
-- ❌ `Low - low risk change`: restates the level and tells the reviewer nothing.
+- Good: `Zero - repo-local tooling, nothing in this change ships to a customer`
+- Good: `Low - additive send on one handler, no schema or shared-path change`
+- Good: `Medium - shared notification method now parameterised, so SMS shares the email path`
+- Good: `High - backfills the orders table in place, and a bad run needs a restore`
+- Bad: `Low - low risk change`, which restates the level and tells the reviewer nothing.
 
 ### 7. Compose the PR description
 
@@ -238,9 +238,9 @@ roughly 15–25 words. The aim is enough for a reviewer to understand the change
 diff, but no more. Avoid bare one-liners that just name a method or file, and equally avoid
 sprawling bullets that drift into implementation play-by-play.
 
-- ✅ `Adds SendOrderConfirmationAsync to the Notifications client, which posts the order summary to the notification service's email endpoint`
-- ⚠️ Too thin: `Adds a new client method`, which names the change but gives the reviewer nothing to go on.
-- ⚠️ Too much: a bullet that walks through the method body, parameters, and HTTP headers line by line.
+- Good: `Adds SendOrderConfirmationAsync to the Notifications client, which posts the order summary to the notification service's email endpoint`
+- Too thin: `Adds a new client method`, which names the change but gives the reviewer nothing to go on.
+- Too much: a bullet that walks through the method body, parameters, and HTTP headers line by line.
 
 **Detail nudge.** Treat the level above as the default, but adjust when the user signals one. If they
 say things like "keep it tight", "more concise", "shorter", "TL;DR", drop to terse one-line bullets
@@ -254,12 +254,12 @@ codebase_, using present-tense third-person verbs: **Adds, Updates, Introduces, 
 Moves, Removes, Renames, Replaces**. The reader is reviewing the change, so the bullets should
 describe the change itself, not narrate the actions the author took.
 
-- ✅ `Adds an order-confirmation method to the Notifications client`
-- ✅ `Updates order status to Completed when payment settles, alongside the existing receipt write`
-- ✅ `Parameterises the shared notification method by channel (email and SMS)`
-- ❌ `Added ...` / `Called it from ...` / `Wired up ...`: past-tense narration reads like a personal
+- Good: `Adds an order-confirmation method to the Notifications client`
+- Good: `Updates order status to Completed when payment settles, alongside the existing receipt write`
+- Good: `Parameterises the shared notification method by channel (email and SMS)`
+- Bad: `Added ...` / `Called it from ...` / `Wired up ...`: past-tense narration reads like a personal
   changelog of what _you_ did, and "it" referring back to a previous bullet is informal and unclear.
-- ❌ `I added ...` / `We updated ...`: never first person.
+- Bad: `I added ...` / `We updated ...`: never first person.
 
 Each bullet should stand on its own without depending on a previous bullet for a pronoun like "it".
 
@@ -275,7 +275,7 @@ fragment the note's heading outline:
 **Title**
 
 ```
-feat: [TACO-1234] - Send confirmation email on order completion
+[TACO-1234] Send confirmation email on order completion
 ```
 
 **Description**
@@ -285,7 +285,7 @@ feat: [TACO-1234] - Send confirmation email on order completion
 Order confirmation emails
 
 ## Risk
-Low - additive send on one handler, no schema change and no shared write path
+**Low** - additive send on one handler, no schema change and no shared write path
 
 ## Jira Reference
 https://keyframeai.atlassian.net/browse/TACO-1234
