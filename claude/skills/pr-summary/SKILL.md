@@ -86,7 +86,7 @@ git rev-list --count @{u}..HEAD 2>/dev/null       # commits not on origin
 - **Branch has diverged from origin** (commits rewritten by a rebase or amend): that needs a
   force-push, so show the `--force-with-lease` command and ask once. If declined, carry on to step
   3 and don't ask again. The summary is still worth writing; just don't offer to create the PR at
-  step 9, since the branch on origin would not match it.
+  step 10, since the branch on origin would not match it.
 - **Uncommitted changes in the working tree**: point them out rather than pushing over the top of
   them. They are either part of the ticket (they need a commit first, per `git-workflow`) or they
   are not (they stay out of the PR).
@@ -123,7 +123,35 @@ Synthesise _what changed at a feature level_, not file-by-file. Group related co
 bullet where it reads better (e.g. three test commits → one "Added test coverage" bullet). You're
 describing the change to a reviewer, not transcribing git history.
 
-### 5. Compose the PR title
+### 5. Recommend labels
+
+Azure DevOps PRs carry labels, which are separate objects on the PR rather than anything parsed
+from the title. Set them on the PR only: they do not go in the title. Some teammates also write
+the label in brackets after the ticket key (`[TACO-3497] [UI/UX] ...`); don't copy that.
+
+Labels are a young convention and the vocabulary grows as people add to it, so read it from the
+repository rather than from a list in this skill:
+
+```bash
+az repos pr list --org https://dev.azure.com/keyframe-ai --project KeyframeAI \
+  --repository <repo> --status all --top 200 \
+  --query "[].labels[].name" -o tsv | sort | uniq -c | sort -rn
+```
+
+Match the diff from step 4 against that vocabulary. A label fits when it describes most of the
+change, not a corner of it: a backend ticket that also tweaks one string in a component is not
+`UI/UX`. Most PRs will fit none, and none is a fine answer.
+
+Then ask with `AskUserQuestion`, multi-select, every existing label as an option and the recommended
+ones first with "(Recommended)" on the label and the reason in the description. When nothing fits,
+say so in the question and list the labels anyway, so the user can still pick one or type a new
+name through "Other". Don't invent a new label unprompted: a label only helps if others use it
+too, so adding to the vocabulary is the user's call. If `az` is unavailable, skip the lookup and ask
+in one line whether the PR wants a label.
+
+Carry the chosen labels into the note (step 9) and the command (step 10).
+
+### 6. Compose the PR title
 
 Format:
 
@@ -141,7 +169,7 @@ Format:
 
 The title is **separate** from the summary: it is not repeated inside the description body.
 
-### 6. Assess the context line and the risk level
+### 7. Assess the context line and the risk level
 
 Two sections sit above the summary bullets, and both are there for the reviewer rather than for the
 record: a context reminder that says what area of the product this PR belongs to before they read a
@@ -195,7 +223,7 @@ The level leads the line and the justification follows it after a hyphen: one sh
 - Good: `High - backfills the orders table in place, and a bad run needs a restore`
 - Bad: `Low - low risk change`, which restates the level and tells the reviewer nothing.
 
-### 7. Compose the PR description
+### 8. Compose the PR description
 
 The description body is what gets pasted into Azure DevOps. ALWAYS use this exact structure:
 
@@ -218,7 +246,7 @@ The description body is what gets pasted into Azure DevOps. ALWAYS use this exac
 - **Four `##` sections, always in this order**: `## Context`, `## Risk`, `## Jira Reference`,
   `## Summary`. A blank line between each section and the next. Context comes first because it is
   what orients a reviewer who opens the PR cold.
-- `## Context` and `## Risk` carry the values worked out in step 6, **one line of body each**. They
+- `## Context` and `## Risk` carry the values worked out in step 7, **one line of body each**. They
   are a signal at a glance, and a paragraph under either heading defeats the point.
 - `## Jira Reference` holds the bare URL on its own line, nothing else: no label, no link text.
 - `## Summary` is the only section with bullets. They cover the changes made, high-level. Aim for
@@ -257,7 +285,7 @@ describe the change itself, not narrate the actions the author took.
 
 Each bullet should stand on its own without depending on a previous bullet for a pronoun like "it".
 
-### 8. Write to the ticket note and echo in chat
+### 9. Write to the ticket note and echo in chat
 
 Append a new `## Pull Request` section to the **end** of `index.md`. Put the title and the
 description in fenced code blocks so they copy cleanly and the description's own `##` headings don't
@@ -292,17 +320,21 @@ https://keyframeai.atlassian.net/browse/TACO-1234
 ```
 ````
 
+When step 5 chose labels, add a `**Labels**` line between the title and the description block,
+naming them in backticks (``**Labels**: `UI/UX` ``), so a PR raised by hand gets them too. With no
+labels, leave the line out.
+
 If a `## Pull Request` section already exists in the note, replace it rather than adding a second
 one, and the latest summary supersedes the old one.
 
-Then echo the same title and description in the chat reply so the user can copy-paste immediately
+Then echo the same title, labels and description in the chat reply so the user can copy-paste immediately
 without opening the note.
 
 Stamp `updated:` to today, per `obsidian`. Leave the rest of the frontmatter alone, `prs:` and
 `status:` included: the PR doesn't exist yet, the URL is the user's to add, and the status moves
-only once the PR is raised (step 9).
+only once the PR is raised (step 10).
 
-### 9. Offer to create the PR on Azure DevOps
+### 10. Offer to create the PR on Azure DevOps
 
 Having written the summary, offer to raise the PR with those fields already filled in. Work out the
 auto-complete decision below **before** asking, so the question names what will actually happen and
@@ -321,7 +353,7 @@ wait for approval before running it**. Never create one unasked.
 #### Auto-complete
 
 Azure DevOps can hold the PR and merge it the moment its branch policies pass. **Default to turning
-it on when the change can merge on its own and the risk line from step 6 is `Zero` or `Low`.** A
+it on when the change can merge on its own and the risk line from step 7 is `Zero` or `Low`.** A
 small, reversible change that has nothing standing in its way shouldn't wait on someone noticing it
 in a queue.
 
@@ -364,12 +396,16 @@ az repos pr create \
   --target-branch master \
   --title "[TACO-XXXX] <title>" \
   --description "<the description body>" \
+  --labels "UI/UX" \
   --auto-complete true \
   --open
 ```
 
 Points that matter:
 
+- **`--labels`** carries the labels from step 5, each as its own quoted argument
+  (`--labels "UI/UX" "Performance"`), since `az` splits the list on spaces. Drop the flag when
+  there are none.
 - **`--target-branch master` always**, unless the user has explicitly said otherwise. It is never the
   branch the work was cut from. See `git-workflow`.
 - **The branch must already be on origin** (step 2). `az` fails on a source branch the remote
