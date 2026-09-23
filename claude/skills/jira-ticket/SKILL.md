@@ -275,7 +275,7 @@ if the user asks to refresh.
 
 ### Assignee
 
-Default to the user, since `taco_ticket.ps1` self-assigns unconditionally (`:417-430`), with no prompt.
+Default to the user, since `taco_ticket.ps1` self-assigns unconditionally, with no prompt.
 Offer "leave unassigned" as the alternative; don't offer to assign to anyone else unless asked.
 
 On the CLI path the create JSON takes the email, so only the cached `email` is needed and the
@@ -329,7 +329,7 @@ mcp__claude_ai_Atlassian_Rovo__createJiraIssue(
 
 The same two custom fields carry over to the `acli` JSON, under its `additionalAttributes` key.
 They are the ones `taco_ticket.ps1` sets on this classic company-managed project:
-`customfield_10014` is the Epic Link (`:433-435`) and `customfield_10020` is Sprint (`:438-441`),
+`customfield_10014` is the Epic Link and `customfield_10020` is Sprint,
 which takes a **bare numeric sprint id**, not an object, not a name. Omit either key entirely
 when the user chose no parent or Backlog. Do not use the MCP `parent` parameter for the epic; that
 one is for sub-tasks.

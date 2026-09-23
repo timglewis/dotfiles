@@ -66,8 +66,11 @@ Three well-chosen commits is better than eight micro-commits or one giant one.
 ### 3. Load the commit message and code style rules
 
 **Invoke the `git-workflow` skill** (`Skill(skill="git-workflow")`) and read its "Commit Messages"
-section. It is the single source of truth for how a commit message is written, and this skill
-deliberately does not restate the format.
+section. It is the single source of truth for how a commit message is written, so don't
+reconstruct the format from memory or from the repo's history, which predates the current rules.
+The one thing this skill adds: each message is specific to *this* commit's slice of the work, "Add
+PaymentStatus enum to domain model" rather than "Payment status changes" or the ticket's summary
+repeated across every commit.
 
 **Invoke the `coding-style` skill** (`Skill(skill="coding-style")`) as well. The breakdown describes
 code that is about to be written, so the "what needs to happen" sections should describe it in the
@@ -156,21 +159,6 @@ run there is nothing to repeat.
 
 Write that section verbatim: it is a fixed footer, not something to reword per ticket. It is a
 pointer, not a commit, so don't number it or give it a commit message.
-
----
-
-## Commit message format
-
-The format comes from the `git-workflow` skill, invoked in step 3. It is not restated here, and that
-duplication is how the two skills drifted apart last time, and a copy that looks authoritative is
-worse than no copy at all.
-
-If step 3 was skipped, go back and do it. Don't reconstruct the format from memory or from commits
-already in the repo's history, which predate the current rules.
-
-One thing this skill adds on top: the description should be imperative and specific to *this*
-commit's slice of the work: "Add PaymentStatus enum to domain model", not "Payment status changes",
-and not a description of the ticket as a whole repeated across every commit.
 
 ---
 

@@ -35,6 +35,18 @@ touch this repo:
 leave a broken one behind. It only ever touches links into this repo, so anything installed by
 another tool is left alone.
 
+## Adapting the skills to another setup
+
+The skills assume Jira, Azure DevOps and a bare-repo worktree layout. Two of those are easy to
+strip out:
+
+* **No Jira.** Delete step 2 of `start-thread` and the ticket-fetch bullet in step 1 of
+  `investigate`. Both then work from the title and description the user gives, and nothing
+  downstream depends on the fetch.
+* **No worktrees.** In `git-workflow`, delete "Cloning a New Repo" and "Creating a New Branch
+  (Worktree)" and use ordinary clones with `git checkout -b`. The branch-naming, commit-message
+  and confirmation rules are the part that matters.
+
 ## Third-party skills
 
 Install them with the vercel-labs CLI, which writes into `~/.claude/skills` directly:

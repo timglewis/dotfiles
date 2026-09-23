@@ -61,9 +61,6 @@ Run these together at the start:
 - **Read any existing files** already in the thread folder, since the user may have left scratch notes,
   previous research, or design docs that should inform the investigation.
 
-> **Not using Jira?** Delete the fetch bullet. Work from the ticket description the user gives you and
-> from the vault index note; everything after step 1 is unchanged.
-
 ### 2. Understand the codebase
 
 Explore the current repo with intent:
@@ -165,10 +162,12 @@ answered its question is `done`, not `dropped`: there's nothing to offer here.
 Use this template. Add or remove sub-sections as the ticket warrants. Not every section will have
 content for every ticket, and that's fine. Don't pad.
 
+On an unkeyed thread, drop the key from the heading (`# Investigation: <title>`), and replace
+`## Requirements` with `## Question`: there are no acceptance criteria, so state the question the
+investigation is answering instead.
+
 ```markdown
 # Investigation: TACO-XXXX - <title>
-
-Drop the key from the heading when the thread is unkeyed: `# Investigation: <title>`.
 
 ## Summary
 
@@ -179,9 +178,6 @@ the Jira ticket. Plain terms, no padding.
 
 A structured breakdown of what needs to be delivered. Use the Jira acceptance criteria if present;
 synthesise from the description if not. Be specific. Numbered list or sub-sections work well here.
-
-For an unkeyed thread there are no acceptance criteria to work from, so state the question the
-investigation is answering instead, and retitle the section `## Question`.
 
 ## Current State
 

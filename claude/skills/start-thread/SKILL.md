@@ -63,8 +63,6 @@ Take `summary` as the title, and scan `description` and `labels` for tag hints.
 
 If the thread has no key and the user decides it needs a ticket, use the `jira-ticket` skill, which owns the item types, the description style and the fields set on creation.
 
-> **Not using Jira?** Delete this step. Take the title from what the user tells you and carry straight on to step 3. Nothing downstream depends on the fetch succeeding.
-
 ### 3. Build the folder name
 
 Per the naming format in `obsidian`, with today as the date.

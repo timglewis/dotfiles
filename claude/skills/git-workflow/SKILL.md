@@ -36,8 +36,8 @@ Example:
 git clone-worktree https://keyframe-ai@dev.azure.com/keyframe-ai/KeyframeAI/_git/example-service
 ```
 
-> The alias is not built into git: it has to be added to your git config once. The definition is
-> in the skills README. If `git clone-worktree` reports "is not a git command", that's why.
+> The alias is not built into git. If `git clone-worktree` reports "is not a git command", the
+> alias is missing from this machine's git config: say so and stop rather than improvising a clone.
 
 ---
 
@@ -304,12 +304,3 @@ Once the last commit is pushed and the review findings are dealt with, the PR wo
    `branch.<name>.forkedFrom`, raise a draft PR noting what it was branched from, and rebase with
    `--onto` once the base merges.
 
----
-
-## Not using worktrees?
-
-The worktree layout above is a preference, not a requirement: it keeps every branch of a repo
-checked out side by side under `~/code/<repo>/`. If you'd rather use ordinary clones and
-`git checkout -b`, delete the "Cloning a New Repo" and "Creating a New Branch (Worktree)" sections
-and keep everything else. The branch-naming, commit-message and confirmation rules are the part that
-matters.

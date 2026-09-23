@@ -15,20 +15,10 @@ description: >
 Brings the `status:` of every ticketed thread up to date in one pass, tags the threads that were
 never tagged, and archives the ones that finished long enough ago to be out of the way.
 
-Other skills move a thread forward as they go (see the lifecycle table in `obsidian`), but two
-transitions happen where no skill is watching: a PR merging on Azure DevOps, and branches or PRs
-made by hand. This sweep catches both, and repairs any thread that has fallen behind for any other
-reason.
-
-Tags drift the same way. `start-thread` infers them when a thread is scaffolded, but a thread
-started before a tag existed, or one whose shape only became clear later, keeps `tags: []` forever
-because nothing downstream revisits it. The sweep is the moment to look at them together, which is
-also the only moment a theme running across several threads is visible.
-
-Archiving needs the same moment for a different reason. A merged ticket stays in `Threads/` and in
-every Bases view forever, and no single thread is ever obviously the one to move, so the folder
-just grows. The sweep already knows which threads are finished and when each last saw activity, so
-it is the one pass that can answer the question for all of them at once.
+Each pass covers something no other skill sees. The status pass catches PRs merged on Azure DevOps
+and branches or PRs made by hand. The tag pass revisits threads left at `tags: []`, and looking at
+them together is the only way to spot a theme running across several. The archive pass decides for
+every finished thread at once, since no single one ever looks like the one to move.
 
 ## Conventions
 
