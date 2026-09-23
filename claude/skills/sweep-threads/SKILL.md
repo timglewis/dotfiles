@@ -1,20 +1,13 @@
 ---
 name: sweep-threads
 description: >
-  Sweep every thread in the Obsidian vault in one pass and bring the vault's view of them up to
-  date: statuses, tags and archiving. Status brings a ticketed thread into line with where the
-  ticket really is: `planned` (no branch), `coding` (a branch exists), `review` (an active PR) or
-  `done` (the PR has merged). Tagging fills in any thread of any kind that still has `tags: []`,
-  drawing on the parent epic and on `Threads/tags.md`, and proposes a new tag where a group of
-  threads has no row that fits. Archiving moves a thread that reached `done` or `dropped` and has
-  sat untouched for 30 days out of `Threads/` and into `Archive/`. Use this skill whenever the user
-  says "sweep the threads", "update the thread statuses", "sync thread status", "which of my
-  threads are done", "tidy up the thread statuses", "refresh the status of my tickets", "tag the
-  untagged threads", "archive the finished threads", "tidy up the vault", or any similar phrase
-  asking for the vault's record of its threads to be brought up to date. Evidence comes from the
-  branches in every worktree repo under the code root and the project's pull requests on Azure
-  DevOps. Forward moves are written straight away; a move backwards, a move away from a status the
-  user set by hand, every tag and every archive move are asked about first.
+  Bring every thread in the Obsidian vault up to date in one pass: sync each ticketed thread's
+  `status:` with its branches and Azure DevOps PRs, fill in empty `tags:`, and archive threads
+  that finished and have sat untouched for 30 days. Use whenever the user says "sweep the
+  threads", "update the thread statuses", "sync thread status", "which of my threads are done",
+  "tidy up the thread statuses", "refresh the status of my tickets", "tag the untagged threads",
+  "archive the finished threads", "tidy up the vault", or anything similar asking for the vault's
+  record of its threads to be brought up to date.
 ---
 
 # Sweep Threads Skill

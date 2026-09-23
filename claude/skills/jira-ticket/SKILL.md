@@ -1,17 +1,13 @@
 ---
 name: jira-ticket
 description: >
-  The rules for writing and raising a Jira ticket in the TACO project: the three item types in
-  use (User Story, Technical Story, Bug), how to write a summary and description, and which
-  fields to set on creation (parent epic, sprint, assignee). Use this skill whenever a ticket is
-  about to be created or reworded: "raise a ticket for this", "create a Jira ticket", "log a bug
-  for this", "write up this story", "add a ticket to the backlog", or any similar phrase, and
-  when one is to be cancelled ("cancel TACO-XXXX", "we're not doing this ticket"). Also consult
-  it whenever another skill needs to create or cancel tickets (`work-breakdown` raises a set of
-  them from an investigation, `investigate` cancels one it finds isn't needed), so that ticket conventions live in one place rather than being
-  restated. Covers the cached defaults in ~/.jira that make the epic, sprint and assignee
-  prompts cost no server call, and drives Jira through the `acli` command line tool where it is
-  available, falling back to the Atlassian MCP where it is not.
+  The rules for writing, raising and cancelling Jira tickets in the TACO project: the item types
+  (User Story, Technical Story, Bug), how the summary and description are written, and the fields
+  set on creation (parent epic, sprint, assignee). Use whenever a ticket is about to be created,
+  reworded or cancelled: "raise a ticket for this", "create a Jira ticket", "log a bug for this",
+  "write up this story", "add a ticket to the backlog", "cancel TACO-XXXX", "we're not doing this
+  ticket", or anything similar. Also consult it whenever another skill creates or cancels tickets
+  (`work-breakdown`, `investigate`).
 ---
 
 # Jira Ticket Skill

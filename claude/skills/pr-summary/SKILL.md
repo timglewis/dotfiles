@@ -1,21 +1,13 @@
 ---
 name: pr-summary
 description: >
-  Write a pull-request title and description for a Jira ticket and append it as a new section
-  to the thread's index note in the Obsidian vault. Use this skill whenever the user says
-  "write a PR summary", "PR summary for TACO-XXXX", "draft the PR description",
-  "write up this PR", "summarise this PR", "PR description for this branch", "generate a PR title
-  and summary", or any similar phrasing asking for a pull-request write-up, even if they don't
-  name the ticket. The skill derives the changes from the branch's commits and diff against the
-  default branch, produces a title in the project's `[TACO-XXXX] <short title>` format, and a
-  concise high-level description built from four sections: `## Context`, `## Risk`,
-  `## Jira Reference` and a `## Summary` of bullet points. It writes the result into the ticket
-  note, echoes it in chat, and then offers to create the pull request on Azure DevOps with those
-  fields already populated, set to auto-complete where the change is low risk and has nothing
-  blocking its merge. Pushes
-  any commits not yet on origin first, since the PR cannot be raised without them. Offers a
-  `/code-review` pass and a `semgrep-review` security scan over the branch first, since being asked
-  for a PR write-up is the signal that the ticket's work is finished.
+  Write a pull-request title and description for the current branch, save it to the thread's
+  index note in the Obsidian vault, and offer to raise the PR on Azure DevOps. Use whenever the
+  user says "write a PR summary", "PR summary for TACO-XXXX", "draft the PR description", "write
+  up this PR", "summarise this PR", "PR description for this branch", "generate a PR title and
+  summary", or anything similar, even without naming the ticket. Being asked for one means the
+  ticket's work is finished, so it first offers `/code-review` and `semgrep-review` over the
+  branch.
 ---
 
 # PR Summary Skill

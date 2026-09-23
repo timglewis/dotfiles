@@ -3,8 +3,8 @@ name: git-workflow
 description: >
   Defines the standard git workflow for this user's development environment. Use this skill
   whenever the user mentions git, branches, commits, cloning repos, worktrees, or anything
-  related to version control in their projects. Also trigger when the user mentions Jira tickets
-  (e.g. TACO-1234), asks to start new work, switch branches, or make/push commits.
+  related to version control in their projects. Also trigger when the user asks to switch
+  branches or make/push commits.
   This skill must be consulted before running any git command, creating any branch, or composing
   any commit message, even if the task seems straightforward.
 ---

@@ -1,20 +1,13 @@
 ---
 name: investigate
 description: >
-  Investigate a piece of work by digging into the codebase and writing a thorough investigation.md
-  in its thread folder in the Obsidian vault. Works on any thread, keyed or not: a Jira ticket is
-  investigated to work out the approach to delivering it, an unkeyed thread (a spike, an alert, a
-  piece of research) to work out whether there is anything to deliver at all. Use this skill
-  whenever the user says "investigate TACO-XXXX", "investigate this ticket", "investigate this
-  spike", "dig into this", "run investigation on TACO-XXXX", "look into why X", "research X",
-  "analyse this ticket", or any similar phrase asking for a deep dive before work starts. This
-  skill is the natural next step after start-thread: it reads the ticket where there is one,
-  through `acli` where available and the Atlassian MCP where not, along with
-  existing vault notes and the current repo's codebase, to produce a living investigation document
-  covering the current state of the code, exactly what changes are needed, high-risk areas, and
-  well-linked file paths. It pauses to ask clarifying questions as ambiguities surface, never
-  ploughing ahead on assumptions, and rewrites the document in-place to stay current as decisions
-  are made. Always produces a file named investigation.md inside the thread folder.
+  Dig into the current repo and write a living investigation.md in the thread's folder in the
+  Obsidian vault, asking clarifying questions as they come up rather than assuming. A ticketed
+  thread is investigated to work out how to deliver it; an unkeyed one (a spike, an alert,
+  research) to work out whether there is anything to deliver at all. Use whenever the user says
+  "investigate TACO-XXXX", "investigate this ticket", "investigate this spike", "dig into this",
+  "run investigation on TACO-XXXX", "look into why X", "research X", "analyse this ticket", or
+  anything similar asking for a deep dive before work starts. Usually follows start-thread.
 ---
 
 # Investigation Skill

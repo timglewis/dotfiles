@@ -1,18 +1,12 @@
 ---
 name: work-breakdown
 description: >
-  Break a completed investigation into separately deployable items and raise a Jira ticket for
-  each. Use this skill whenever the user says "work breakdown for TACO-XXXX", "break this
-  investigation into tickets", "raise the tickets for this work", "what tickets do we need",
-  "split this into deployable items", "create the Jira items for this", or any similar phrase
-  asking for the work to be carved up into ticketed units. This skill is the natural next step
-  after investigate: it reads investigation.md, proposes a set of items typed as User
-  Story, Technical Story or Bug, gets explicit sign-off, creates them in Jira through whichever
-  interface `jira-ticket` selects (`acli` where available, the Atlassian MCP where not), and
-  writes work-breakdown.md into the same thread folder with the resulting keys. It
-  sits one level above commit-breakdown: this skill decides what the tickets are, commit-
-  breakdown plans the commits inside one of them. Ticket conventions themselves (the item types,
-  description style and the fields set on creation) come from the jira-ticket skill.
+  Split a finished investigation into separately deployable items, raise a Jira ticket for each,
+  and record the keys in work-breakdown.md in the thread folder. Use whenever the user says "work
+  breakdown for TACO-XXXX", "break this investigation into tickets", "raise the tickets for this
+  work", "what tickets do we need", "split this into deployable items", "create the Jira items for
+  this", or anything similar asking for the work to be carved up into tickets. Follows
+  investigate. It decides what the tickets are; commit-breakdown plans the commits inside one.
 ---
 
 # Work Breakdown Skill
