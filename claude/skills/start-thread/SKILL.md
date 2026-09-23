@@ -1,17 +1,12 @@
 ---
 name: start-thread
 description: >
-  Start a new thread in the Obsidian vault, the generic unit of work for notes on a piece of
-  work. Use whenever the user says "start ticket TACO-XXXX", "begin work on
-  TACO-XXXX", "kick off TACO-XXXX", "set up TACO-XXXX",
-  "start a thread on X", "start a topic for X", "make me a thread for this investigation", or
-  otherwise asks for a place to keep notes on a new piece of work. Handles all four thread kinds:
-  code (ticketed or not), investigation, work (non-code proposals, team process, goals) and
-  incident. When given a Jira key it fetches ticket details through `acli`, falling back to the
-  Atlassian MCP where the CLI is unavailable. Creates the
-  `Threads/YYYY-MM-DD - (KEY) <title>/` folder, scaffolds `index.md`, infers tags, records the
-  session via track-session, and offers to hand off to start-work for the worktree and Herdr
-  workspace.
+  Start a new thread in the Obsidian vault: a folder and index note for a piece of work, whether
+  code (ticketed or not), an investigation, non-code work or an incident. Use whenever the user
+  says "start ticket TACO-XXXX", "begin work on TACO-XXXX", "kick off TACO-XXXX", "set up
+  TACO-XXXX", "start a thread on X", "start a topic for X", "make me a thread for this
+  investigation", or otherwise asks for a place to keep notes on new work. Offers to hand off to
+  start-work for the worktree and Herdr workspace.
 ---
 
 # Start Thread Skill

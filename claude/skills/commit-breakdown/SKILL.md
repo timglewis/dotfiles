@@ -1,15 +1,12 @@
 ---
 name: commit-breakdown
 description: >
-  Plan the commit sequence for a Jira ticket by reading the investigation notes and breaking
-  the work into small, logical, committable chunks. Use this skill whenever the user says
-  "commit breakdown for TACO-XXXX", "break down the commits", "plan the commits for
-  this ticket", "work out the commit order", "commit plan for TACO-XXXX", "how should
-  I break up the work", "chunk up the work", or any similar phrase asking for a commit-by-commit
-  plan. This skill is the natural next step after investigate: it reads investigation.md
-  and produces commit-breakdown.md in the same thread folder. Each commit entry describes the
-  files touched, what needs to happen, how it fits into the sequence, and a ready-to-use commit
-  message in the project's standard format.
+  Plan the commit sequence for one ticket from its investigation.md, writing commit-breakdown.md
+  in the same thread folder with the files, the work and the commit message for each commit. Use
+  whenever the user says "commit breakdown for TACO-XXXX", "break down the commits", "plan the
+  commits for this ticket", "work out the commit order", "commit plan for TACO-XXXX", "how should
+  I break up the work", "chunk up the work", or anything similar asking for a commit-by-commit
+  plan. Follows investigate, or work-breakdown when the work spans several tickets.
 ---
 
 # Commit Breakdown Skill

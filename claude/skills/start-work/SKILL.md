@@ -1,14 +1,11 @@
 ---
 name: start-work
 description: >
-  Set up the development environment for a piece of work: a git worktree plus a Herdr workspace
-  with Prompt, Claude and Editor tabs. Use whenever the user says "set up the environment for
-  TACO-XXXX", "create a worktree for TACO-XXXX", "make me a workspace for TACO-XXXX", "set me up
-  for this ticket", "get me an environment for TACO-XXXX", or otherwise asks for somewhere to do
-  the work rather than somewhere to keep notes. This skill is the natural next step after
-  start-thread, which hands off to it at step 7 once the vault notes exist. It owns the worktree
-  and the Herdr workspace only: branch naming and commit rules stay with git-workflow, and vault
-  notes stay with start-thread. Requires HERDR_ENV=1.
+  Set up somewhere to do the work: a git worktree plus a Herdr workspace with Prompt, Claude and
+  Editor tabs. Use whenever the user says "set up the environment for TACO-XXXX", "create a
+  worktree for TACO-XXXX", "make me a workspace for TACO-XXXX", "set me up for this ticket", "get
+  me an environment for TACO-XXXX", or otherwise asks for somewhere to do the work rather than
+  somewhere to keep notes. Usually follows start-thread. Requires HERDR_ENV=1.
 ---
 
 # Start Work Skill

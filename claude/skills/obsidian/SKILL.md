@@ -2,15 +2,11 @@
 name: obsidian
 description: >
   The conventions for reading and writing notes in the user's Obsidian vault: where thread folders
-  live and how to find one, the reserved filenames, the frontmatter schema for each thread kind,
-  and how prose, wikilinks and file paths are written inside a note. Consult this skill before
-  reading or writing anything under the vault, whether the user asked directly ("add this to my
-  notes", "what does the note say about TACO-1234", "find the thread for this branch") or another
-  skill needs to locate a thread folder or write a working file into one. It is the single source
-  of truth for those conventions, including the status lifecycle of a ticketed thread:
-  `start-thread`, `start-work`, `track-session`, `investigate`, `work-breakdown`,
-  `commit-breakdown`, `pr-summary` and `sweep-threads` all defer to it rather than
-  restating them. It owns conventions only, and creates nothing: scaffolding a new thread is `start-thread`.
+  live and how to find one, the reserved filenames, the frontmatter schema and status lifecycle
+  for each thread kind, and how notes are written. Consult it before reading or writing anything
+  under the vault, whether the user asked directly ("add this to my notes", "what does the note
+  say about TACO-1234", "find the thread for this branch") or another skill needs a thread folder.
+  It creates nothing: scaffolding a new thread is `start-thread`.
 ---
 
 # Obsidian Vault Skill

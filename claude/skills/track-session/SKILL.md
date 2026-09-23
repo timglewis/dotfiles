@@ -1,13 +1,11 @@
 ---
 name: track-session
 description: >
-  Record the current Claude Code session against a thread in the Obsidian vault so it can
-  be resumed later. Works for any thread kind: code (ticketed or not), investigation,
-  work or incident. Use when the user says "track this session", "log this session",
-  "add this session to my notes"; when re-running in a session already recorded, to
-  set or sharpen its label and hand-off notes; and when a session begins in a worktree
-  whose branch names a ticket that already has a thread. Appends to
-  `Threads/<thread-folder>/sessions.md`, a sibling of the thread's index note.
+  Record the current Claude Code session in a thread's sessions.md in the Obsidian vault, with the
+  working directory and resume command, so it can be picked up later. Use when the user says
+  "track this session", "log this session", "add this session to my notes"; when re-running in a
+  session already recorded, to sharpen its label and hand-off notes; and when a session begins in
+  a worktree whose branch names a ticket that already has a thread.
 ---
 
 # Track Session Skill
