@@ -99,7 +99,7 @@ Rules that matter:
 
 - **`aliases:` is load-bearing.** It is the only thing keeping `[[TACO-1234]]` and `[[Some Thread Title]]` resolving to a note named `index.md`. Never drop it.
 - **Quote any title containing a colon.** An unquoted colon breaks the line, Obsidian then shows no properties at all, and Bases silently drops the note from every view.
-- **`prs:` is always present on `code`**, as `prs: []` when empty. Never omitted.
+- **`prs:` is always present on `code`**, as `prs: []` when empty. Never omitted. Each entry is the PR's full Azure DevOps URL (`https://dev.azure.com/keyframe-ai/KeyframeAI/_git/<repo>/pullrequest/<id>`), as a block list, in the order the PRs were raised. `pr-summary` adds the PR it raises and `sweep-threads` backfills the rest.
 - Empty lists render inline as `[]`, not as an empty block.
 - **No `type:` field, and no `parent:` or `root:`.** They are deliberately not part of the schema; hierarchy is folder nesting only, because `file.inFolder()` already matches subfolders.
 - Only `index.md` carries frontmatter. `threads.base` filters on `file.hasProperty("kind")`, so a `kind` property on a working file would list it as a thread in its own right.

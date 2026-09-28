@@ -4,10 +4,11 @@
 Reads each thread's frontmatter, the branches of every worktree repo under the code root, and the
 project's pull requests on Azure DevOps, then prints one row per ticketed thread as JSON, alongside
 every thread of any kind whose tags: is empty, and every finished thread that has gone quiet long
-enough to archive. With --apply it writes the derived status for the keys named; with --tag it
-writes tags on threads that have none; with --archive it moves a finished thread's folder out of
-Threads/ and into Archive/. --apply and --tag stamp updated:, --archive changes no file at all, and
-none of them touch anything else.
+enough to archive. With --apply it writes the derived status for the keys named; with --add-prs it
+appends the thread's PRs missing from prs:; with --tag it writes tags on threads that have none;
+with --archive it moves a finished thread's folder out of Threads/ and into Archive/. --apply and
+--tag stamp updated:, --add-prs leaves updated: and the file's mtime as they were, --archive changes
+no file at all, and none of them touch anything else.
 
 The lifecycle and the frontmatter schema are defined in the obsidian skill; this script implements
 them. The tag list itself lives in Threads/tags.md, which --tag validates against.
@@ -22,6 +23,7 @@ import re
 import shutil
 import subprocess
 import sys
+import urllib.parse
 
 # Defaults match the layout the skills assume. Override any of them in the environment
 # rather than editing here, so an update to this file doesn't clobber the setting.
@@ -90,6 +92,24 @@ def threads():
             yield index, fields
 
 
+def duplicate_keys():
+    """Ticket keys carried by more than one thread, with the folders carrying each."""
+    folders = {}
+    for index, fields in threads():
+        folders.setdefault(fields["ticket"].upper(), []).append(index.parent.name)
+    return {key: names for key, names in folders.items() if len(names) > 1}
+
+
+def warn_duplicates(keys):
+    """Say which named keys match several threads. Writes go to the first folder only."""
+    duplicates = duplicate_keys()
+    for key in dict.fromkeys(key.upper() for key in keys):
+        if key in duplicates:
+            first, *rest = duplicates[key]
+            print(f"{key}: carried by {len(duplicates[key])} threads, writing only {first!r} "
+                  f"and leaving {', '.join(repr(name) for name in rest)}", file=sys.stderr)
+
+
 def ref(index, fields):
     """How a thread is named on the command line: its key, or its folder when it has none."""
     ticket = fields.get("ticket")
@@ -146,9 +166,28 @@ def owns(key, name):
     return re.search(rf"(?<![a-z0-9]){re.escape(key.lower())}(?![0-9])", name.lower()) is not None
 
 
-def derive(key, branch_names, prs):
-    mine = [pr for pr in prs
+def ticket_prs(key, prs):
+    return [pr for pr in prs
             if owns(key, pr["title"]) or owns(key, pr["branch"].removeprefix("refs/heads/"))]
+
+
+def pr_url(pr):
+    return f"{ORG}/{PROJECT}/_git/{urllib.parse.quote(pr['repo'])}/pullrequest/{pr['id']}"
+
+
+def missing_prs(fields, prs):
+    """URLs of the ticket's live or merged PRs that prs: doesn't list yet, matched on PR id.
+
+    An abandoned PR is left out: prs: records where the work went, not every attempt at it.
+    """
+    listed = {int(match.group(1)) for item in listing(fields.get("prs"))
+              if (match := re.search(r"/pullrequest/(\d+)", item))}
+    return [pr_url(pr) for pr in sorted(ticket_prs(fields["ticket"], prs), key=lambda pr: pr["id"])
+            if pr["status"] != "abandoned" and pr["id"] not in listed]
+
+
+def derive(key, branch_names, prs):
+    mine = ticket_prs(key, prs)
     active = [pr for pr in mine if pr["status"] == "active"]
     completed = [pr for pr in mine if pr["status"] == "completed"]
     branch = sorted(name for name in branch_names if re.match(rf"{re.escape(key.lower())}(-|$)", name))
@@ -192,6 +231,7 @@ def sweep():
             "derived": derived,
             "move": move(fields.get("status"), derived),
             "evidence": evidence,
+            "prs_missing": missing_prs(fields, prs),
             "path": str(index),
         })
 
@@ -203,6 +243,7 @@ def sweep():
     return {"rows": rows, "untagged": untagged, "tags_in_use": in_use,
             "archivable": archivable, "archive_blocked": archive_blocked,
             "archive_after_days": ARCHIVE_DAYS, "branch_errors": errors,
+            "duplicate_keys": duplicate_keys(),
             "prs_fetched": len(prs), "oldest_pr": oldest_pr,
             "pr_history_may_be_truncated": truncated}
 
@@ -325,6 +366,7 @@ def archive(names):
 
 def apply(keys, statuses):
     today = datetime.date.today().isoformat()
+    warn_duplicates(keys)
     wanted = {key.upper(): status for key, status in zip(keys, statuses)}
     for index, fields in threads():
         status = wanted.pop(fields["ticket"].upper(), None)
@@ -337,6 +379,43 @@ def apply(keys, statuses):
         head = re.sub(r"(?m)^updated:.*$", f"updated: {today}", head, count=1)
         index.write_text(f"{head}\n---\n{body}", encoding="utf-8")
         print(f"{fields['ticket']}: {fields.get('status')} -> {status}")
+
+    for key in wanted:
+        print(f"{key}: no ticketed code thread found", file=sys.stderr)
+
+
+def add_prs(keys):
+    """Append each named thread's missing PRs to prs:.
+
+    This records where finished work went rather than being activity on the thread, so neither
+    updated: nor the file's mtime moves: a backfill shouldn't lift a thread into Recent threads or
+    restart its archive clock.
+    """
+    warn_duplicates(keys)
+    prs = pull_requests()
+    wanted = {key.upper() for key in keys}
+    for index, fields in threads():
+        key = fields["ticket"].upper()
+        if key not in wanted:
+            continue
+
+        wanted.discard(key)
+        missing = missing_prs(fields, prs)
+        if not missing:
+            print(f"{fields['ticket']}: prs: already complete")
+            continue
+
+        text = index.read_text(encoding="utf-8")
+        head, body = text.split("\n---\n", 1)
+        if not re.search(r"(?m)^prs:", head):
+            print(f"{fields['ticket']}: no prs: line in the frontmatter, left alone", file=sys.stderr)
+            continue
+
+        stat = index.stat()
+        head = set_list(head, "prs", listing(fields.get("prs")) + missing)
+        index.write_text(f"{head}\n---\n{body}", encoding="utf-8")
+        os.utime(index, (stat.st_atime, stat.st_mtime))
+        print(f"{fields['ticket']}: prs {', '.join(missing)}")
 
     for key in wanted:
         print(f"{key}: no ticketed code thread found", file=sys.stderr)
@@ -373,7 +452,7 @@ def write_tags(wanted):
             print(f"{ref(index, fields)}: no tags: line in the frontmatter, left alone", file=sys.stderr)
             continue
 
-        head = set_tags(head, tags)
+        head = set_list(head, "tags", tags)
         head = re.sub(r"(?m)^updated:.*$", f"updated: {today}", head, count=1)
         index.write_text(f"{head}\n---\n{body}", encoding="utf-8")
         print(f"{ref(index, fields)}: tags {', '.join(tags)}")
@@ -384,13 +463,13 @@ def write_tags(wanted):
     return 0
 
 
-def set_tags(head, tags):
-    """Replace the tags: line, and any block list under it, with a block list of tags."""
+def set_list(head, field, items):
+    """Replace the field's line, and any block list under it, with a block list of items."""
     lines = head.splitlines()
     out = []
     index = 0
     while index < len(lines):
-        if not re.match(r"^tags:", lines[index]):
+        if not re.match(rf"^{field}:", lines[index]):
             out.append(lines[index])
             index += 1
             continue
@@ -398,8 +477,8 @@ def set_tags(head, tags):
         index += 1
         while index < len(lines) and re.match(r"^\s+-\s", lines[index]):
             index += 1
-        out.append("tags:" if tags else "tags: []")
-        out.extend(f"  - {tag}" for tag in tags)
+        out.append(f"{field}:" if items else f"{field}: []")
+        out.extend(f"  - {item}" for item in items)
 
     return "\n".join(out)
 
@@ -408,6 +487,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--apply", nargs="+", metavar="KEY=STATUS",
                         help="write these statuses, e.g. TACO-1234=done TACO-1300=coding")
+    parser.add_argument("--add-prs", nargs="+", metavar="KEY",
+                        help="append these threads' missing PRs to prs:, e.g. TACO-1234 TACO-1300")
     parser.add_argument("--tag", nargs="+", metavar="REF=TAGS",
                         help="tag these threads, e.g. TACO-1234=autodesk,spatial-index. REF is the "
                              "ticket key, or the folder name for a thread without one, as the "
@@ -425,6 +506,9 @@ def main():
             parser.error(f"expected KEY=STATUS with STATUS one of {', '.join(ORDER)}")
         apply([key for key, _ in pairs], [status for _, status in pairs])
 
+    if args.add_prs:
+        add_prs(args.add_prs)
+
     if args.tag:
         pairs = [pair.split("=", 1) for pair in args.tag]
         bad = [pair for pair in pairs if len(pair) != 2 or not pair[1].strip()]
@@ -441,7 +525,7 @@ def main():
         if failed:
             sys.exit(failed)
 
-    if args.apply or args.tag or args.archive:
+    if args.apply or args.add_prs or args.tag or args.archive:
         return
 
     json.dump(sweep(), sys.stdout, indent=2)

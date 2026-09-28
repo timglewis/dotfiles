@@ -331,8 +331,7 @@ Then echo the same title, labels and description in the chat reply so the user c
 without opening the note.
 
 Stamp `updated:` to today, per `obsidian`. Leave the rest of the frontmatter alone, `prs:` and
-`status:` included: the PR doesn't exist yet, the URL is the user's to add, and the status moves
-only once the PR is raised (step 10).
+`status:` included: the PR doesn't exist yet, so both move only once it is raised (step 10).
 
 ### 10. Offer to create the PR on Azure DevOps
 
@@ -419,13 +418,19 @@ Points that matter:
 - **Don't add `--squash` or `--delete-source-branch`** unless the user asks. The repository's policy
   owns the merge strategy, and auto-complete follows it.
 - **`--open`** opens the created PR in the browser, which is usually what the user wants next.
-- Report the PR id and URL back, say whether auto-complete is set, and leave `prs:` in the note for
-  the user to fill in.
+- Report the PR id and URL back, and say whether auto-complete is set.
 
-Once `az` reports the PR created, move the thread to `review` per the lifecycle in `obsidian`: set
-`status:` to `review` if it is `planned` or `coding`, and leave `paused`, `dropped` or a status
-already at `review` or `done` alone. If the user declines or the PR is raised by hand, leave the
-status too; `sweep-threads` picks it up.
+Once `az` reports the PR created, update the index note's frontmatter:
+
+- **Append the PR to `prs:`** as
+  `https://dev.azure.com/keyframe-ai/KeyframeAI/_git/<repo>/pullrequest/<id>`, built from
+  `pullRequestId` and `repository.name` in the `az` output. Rewrite `prs: []` as a block list, keep
+  any URLs already there, and skip it if this PR is already listed.
+- **Move the thread to `review`** per the lifecycle in `obsidian`: set `status:` to `review` if it
+  is `planned` or `coding`, and leave `paused`, `dropped` or a status already at `review` or `done`
+  alone.
+
+If the user declines or the PR is raised by hand, leave both; `sweep-threads` picks them up.
 
 If `az` is missing, not logged in, or the extension is absent, say so plainly and fall back to the
 copy-paste flow rather than trying to work around it.

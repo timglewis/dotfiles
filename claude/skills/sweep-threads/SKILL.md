@@ -91,6 +91,7 @@ repos with `az repos pr list` (a few seconds), and prints JSON:
 | `rows[].current` / `derived` | The status in the note, and the one the evidence gives |
 | `rows[].move` | `none`, `forward`, `backward`, `migrate` (a value from the non-ticket set, such as `active`) or `held` (`paused` or `dropped`) |
 | `rows[].evidence` | The PRs and branches the derivation used |
+| `rows[].prs_missing` | URLs of the ticket's active or completed PRs that `prs:` doesn't list yet |
 | `untagged[]` | One per thread of any kind with an empty `tags:`, with its `kind`, `ticket` (null when unkeyed), `title` and `folder` |
 | `untagged[].ref` | What names that thread on the command line: its key, or its folder when it has none |
 | `tags_in_use` | Every tag on a thread today and how many threads carry it, commonest first |
@@ -98,6 +99,7 @@ repos with `az repos pr list` (a few seconds), and prints JSON:
 | `archive_blocked[]` | A finished, quiet thread held back by a live nested child, with `blocked_by` naming it |
 | `archive_after_days` | The dormancy threshold the rows were derived against |
 | `branch_errors` | Repos whose origin could not be listed |
+| `duplicate_keys` | Ticket keys carried by more than one thread, with the folders carrying each |
 | `pr_history_may_be_truncated` | A thread predates the oldest PR fetched |
 
 **If the script fails**, stop and report why rather than deriving statuses by hand. The usual causes
@@ -108,6 +110,11 @@ are `az` not being logged in (`az login`, which the user runs as `! az login`) o
 **If `branch_errors` is not empty**, a thread whose only evidence would be a branch in that repo
 can come out as `planned` when it is really `coding`. Treat any `backward` move to `planned` as
 unreliable, and say which repo could not be read.
+
+**If `duplicate_keys` is not empty**, a key has two thread folders, which `obsidian` never allows.
+`--apply` and `--add-prs` write only the first folder for that key and warn about the rest, so the
+rows for the others are unreliable. Put the duplicate to the user in step 5 (usually a thread
+started before the ticket existed) rather than writing around it.
 
 **If `pr_history_may_be_truncated` is true**, raise `PR_LIMIT` in the script for this run rather
 than trusting the old rows.
@@ -124,6 +131,18 @@ python3 "$SKILL_DIR"/scripts/sweep.py --apply TACO-3342=done TACO-3380=coding
 `--apply` sets `status:` and stamps `updated:` on each named thread, per `obsidian`, and touches
 nothing else in the note. Only write threads whose status actually changes: stamping `updated:` on
 an unchanged thread would push it up the Recent threads view for no reason.
+
+Missing PRs are the same kind of fact, so fill them in without asking too. Name every row whose
+`prs_missing` is not empty:
+
+```bash
+python3 "$SKILL_DIR"/scripts/sweep.py --add-prs TACO-3342 TACO-3372
+```
+
+`--add-prs` re-reads the PRs, appends each missing URL to `prs:` as a block list, and touches
+nothing else. It deliberately leaves `updated:` and the file's mtime as they were: recording where
+the work went is not activity on the thread, and stamping it would lift every backfilled thread
+into Recent threads and restart its archive clock. Abandoned PRs are never added.
 
 ### 3. Work out tags for the untagged threads
 
@@ -291,8 +310,8 @@ line each, the finished threads held back by a live child, and any row the user 
 Held back: TACO-3309, whose nested TACO-3428 is still at coding.
 ```
 
-If any thread has PRs the sweep found but `prs:` doesn't list them, mention it in a line. Don't fill
-`prs:` in: that is the user's, per `pr-summary`.
+Then any PRs added to `prs:` in step 2, in one line per thread rather than a table
+(`TACO-3342: PR 2498`).
 
 ## Defaults and error handling
 
@@ -306,6 +325,7 @@ If any thread has PRs the sweep found but `prs:` doesn't list them, mention it i
 | The user wants a different dormancy window | Set `KEYFRAME_ARCHIVE_DAYS` for the run. Don't edit the script, and don't archive a thread the rows didn't offer. |
 | `az` not logged in or missing | Stop before writing anything. Point at `! az login`. |
 | A repo's origin cannot be listed | Carry on with local branches, flag the repo, distrust moves back to `planned`. |
+| A key has two thread folders | Named in `duplicate_keys`, and the writes warn about it. Ask the user which folder is the thread; fix the other by hand only on their answer. |
 | A thread has several PRs | The script already decides: any active PR means `review`, otherwise any completed one means `done`. |
 | Frontmatter the script cannot parse | It is skipped, since it has no `kind`. Name the folder so the user can fix it (a title with an unquoted colon, usually). |
 | Jira unreachable for the epics | Tag from the note alone, and say in the report which threads were tagged without their epic. |
