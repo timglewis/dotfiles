@@ -26,7 +26,7 @@ whose notes already exist.
   start-thread ....... vault notes, index.md          (owns the thread folder)
       |  step 7
       v
-  start-work ......... worktree + Herdr workspace     (this skill)
+  start-work ......... worktree + config + workspace  (this skill)
       |
       +--> git-workflow ..... branch naming rules     (owns the branch name)
       +--> herdr ............ CLI syntax              (owns the commands)
@@ -124,7 +124,53 @@ Don't use `herdr worktree create` instead. It makes a workspace linked to the wo
 group-close semantics the existing `taco-*` workspaces do not have, so git and Herdr stay separate
 steps.
 
-### 3. Move the thread to `coding`
+### 3. Link the shared local config
+
+Generated config such as a filled-in `.env.local` is kept once per repo, outside every worktree, in
+`~/code/<repo>/.env-shared/`. That folder mirrors worktree-relative paths, so the file a worktree
+needs at `Keyframe.UI/apps/keyframe-ui-next/.env.local` lives at
+`~/code/<repo>/.env-shared/Keyframe.UI/apps/keyframe-ui-next/.env.local`. Symlink every file found
+there into the new worktree at the same path:
+
+```bash
+SHARED=~/code/<repo>/.env-shared
+WT=~/code/<repo>/<dir>
+
+test -d "$SHARED" && (cd "$SHARED" && find . -type f) | while read -r file; do
+  target="$WT/${file#./}"
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    echo "skipped $file (already present)"
+  else
+    mkdir -p "$(dirname "$target")"
+    ln -s "$SHARED/${file#./}" "$target"
+    echo "linked $file"
+  fi
+done
+```
+
+Link rather than copy, so re-filling the shared file after a secret rotates reaches every worktree
+at once. Never overwrite something already at the target: a real file there is a deliberate
+per-worktree override (pointing at a different backend, say). Never read or print the contents of
+these files; they hold secrets.
+
+No `.env-shared` folder, or no file in it that a template in the worktree needs, is not an error.
+Say which templates have no shared copy (for the UI app, `.env.local.tpl` in
+`Keyframe.UI/apps/keyframe-ui-next`) and give the one-off command to create it, run from that app
+directory, without running it unasked:
+
+```bash
+mkdir -p ~/code/<repo>/.env-shared/<app-path>
+pwsh <worktree>/secrets-replace.ps1 -InputFile .env.local.tpl \
+  -OutputFile ~/code/<repo>/.env-shared/<app-path>/.env.local
+```
+
+This does not use a git `post-checkout` hook, because the repo sets `core.hooksPath` to the
+committed `.husky` directory, so a hook would land in the team's hooks.
+
+Do this whenever the worktree exists at the end of step 2, including when an existing directory was
+reused, since the skip rule makes it safe to repeat.
+
+### 4. Move the thread to `coding`
 
 The branch now exists, which is what `coding` means in the lifecycle `obsidian` defines. If the key
 has a thread (locate it per `obsidian`) and its `status:` is `planned`, set it to `coding` and stamp
@@ -136,7 +182,7 @@ Leave any other status alone: `review` or `done` means the work is being reopene
 Do this whenever the worktree exists at the end of step 2, including when an existing directory was
 reused.
 
-### 4. Create the workspace and its three tabs
+### 5. Create the workspace and its three tabs
 
 Build the whole layout unfocused, so the user's current pane keeps focus while it is assembled.
 Focus moves once, at the end.
@@ -163,7 +209,7 @@ and are not sequential in any way you can rely on.
 
 Pass `--cwd` on every tab. A tab does not inherit the workspace's directory.
 
-### 5. Fill the Claude and Editor tabs
+### 6. Fill the Claude and Editor tabs
 
 The Claude tab gets a real agent rather than a shell running `claude`, so Herdr tracks its
 lifecycle and it shows up in `herdr agent list`:
@@ -184,7 +230,7 @@ herdr pane run <editor-pane-id> "nvim ."
 Leave the Prompt tab alone. It is a shell sitting at a prompt in the worktree, which is the whole
 point of it.
 
-### 6. Focus the Claude tab
+### 7. Focus the Claude tab
 
 Last, and only now:
 
@@ -193,10 +239,10 @@ herdr workspace focus <ws-id>
 herdr tab focus <claude-tab-id>
 ```
 
-### 7. Report and hand back
+### 8. Report and hand back
 
-Give the user the worktree path, the branch, the workspace ID and label, and the thread's status
-if step 3 moved it.
+Give the user the worktree path, the branch, the workspace ID and label, which shared config files
+step 3 linked or found missing, and the thread's status if step 4 moved it.
 
 Then flag the session problem, because it is easy to miss: the Claude agent in the new tab is a
 **different session** from the one that ran this skill. Whatever `track-session` recorded points at
@@ -212,13 +258,13 @@ and what to do first is theirs to decide.
 | --- | --- |
 | Worktree directory exists, no workspace | Reuse it. Skip step 2, say you are reusing it, build the workspace. |
 | Workspace label exists, no worktree | Almost always a stale workspace. Report it and ask before creating a second. |
-| Both exist | Nothing to build. Run step 3 anyway, focus the existing workspace and say so. |
+| Both exist | Nothing to build. Run steps 3 and 4 anyway, focus the existing workspace and say so. |
 | Agent name already live | The workspace exists somewhere. Find it with `herdr agent list` before creating anything. |
 | `git fetch` fails | Offer to branch from the local default branch instead, saying it may be behind. |
 | `agent start` returns `agent_not_ready` | The pane kept the name. Wait for idle with `herdr agent wait <name>`, do not start a second agent. |
 | `agent start` fails outright | Leave the workspace up. The Prompt and Editor tabs are still useful; say the Claude tab needs starting by hand. |
 | `nvim` not installed | Leave the tab as a shell and say so. Do not substitute another editor. |
-| Not running inside Herdr | Create the worktree, move the thread to `coding`, skip the workspace, say which half was done. |
+| Not running inside Herdr | Create the worktree, link the shared config, move the thread to `coding`, skip the workspace, say which half was done. |
 
 Partial success is normal and worth reporting precisely. A worktree with two working tabs is a
 better outcome than an unwound setup, so never tear down what already succeeded because a later
