@@ -51,7 +51,9 @@ question rather than two, so the user answers once:
   these). Don't pass an effort level unless the user names one, because it reuses the level they
   last typed. `ultra` is user-triggered and billed, so if they want that, they type it themselves.
 - **Security scan**: run it (`Skill(skill="semgrep-review")`). It takes well under a minute on a
-  normal branch, and it offers its own install if semgrep is not yet on the machine.
+  normal branch. It runs as a fork and cannot ask anything itself, so if it comes back saying
+  semgrep is not installed, offer the install it returns and run the skill again on yes. Offer
+  to fix whatever survived its triage.
 - **Both**: run the code review first. It is the one more likely to change the diff, and the scan
   should see the code that is actually going into the PR.
 

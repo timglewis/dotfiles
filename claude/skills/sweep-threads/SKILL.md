@@ -8,6 +8,7 @@ description: >
   "tidy up the thread statuses", "refresh the status of my tickets", "tag the untagged threads",
   "archive the finished threads", "tidy up the vault", or anything similar asking for the vault's
   record of its threads to be brought up to date.
+model: sonnet
 ---
 
 # Sweep Threads Skill

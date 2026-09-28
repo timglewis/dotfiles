@@ -6,6 +6,7 @@ description: >
   worktree for TACO-XXXX", "make me a workspace for TACO-XXXX", "set me up for this ticket", "get
   me an environment for TACO-XXXX", or otherwise asks for somewhere to do the work rather than
   somewhere to keep notes. Usually follows start-thread. Requires HERDR_ENV=1.
+model: sonnet
 ---
 
 # Start Work Skill

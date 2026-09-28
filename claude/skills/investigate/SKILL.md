@@ -75,6 +75,12 @@ Explore the current repo with intent:
 Be thorough but purposeful. You're not cataloguing the whole repo, you're mapping the territory that
 the work will touch.
 
+Hand the broad sweeps to `Explore` subagents with `model: sonnet`: the structural overview, finding
+every caller of a method, locating the tests for an area. Run independent ones in parallel, and ask
+each for conclusions with file paths and line numbers rather than file contents. That keeps the dumps
+out of the context that writes the document. Read the files that the design depends on yourself,
+since "What Needs to Change" rests on what they actually say, not a summary of them.
+
 Once you're ready to describe changes rather than just current behaviour, **invoke the `coding-style`
 skill** (`Skill(skill="coding-style")`). "What Needs to Change" proposes the shape of code that
 doesn't exist yet, and that skill owns what that shape should be. It also settles a question this

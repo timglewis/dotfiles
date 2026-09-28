@@ -7,6 +7,7 @@ description: >
   TACO-XXXX", "start a thread on X", "start a topic for X", "make me a thread for this
   investigation", or otherwise asks for a place to keep notes on new work. Offers to hand off to
   start-work for the worktree and Herdr workspace.
+model: sonnet
 ---
 
 # Start Thread Skill

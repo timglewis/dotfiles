@@ -7,9 +7,12 @@ description: >
   vulnerabilities", "check this branch for security issues", "semgrep review", "is this
   secure", or any similar phrase asking for the work to be checked for security problems
   rather than correctness bugs. It is offered alongside `/code-review` at the end of a
-  ticket, since both want the same moment: the branch complete, nothing raised yet. Installs
-  semgrep into a dedicated venv on first use if it is not already on PATH. Scopes itself to
-  the branch's own diff, so pre-existing findings on the base branch stay out of the way.
+  ticket, since both want the same moment: the branch complete, nothing raised yet. Reports
+  the install command if semgrep is not on PATH, for the calling session to offer. Scopes
+  itself to the branch's own diff, so pre-existing findings on the base branch stay out of the
+  way.
+context: fork
+agent: general-purpose
 ---
 
 # Semgrep Review Skill
@@ -20,6 +23,13 @@ and reports only what stands up.
 The raw tool output is not the deliverable. Semgrep is a pattern matcher with no idea what
 the code is for, and a list of unfiltered hits is how a scanner gets switched off after a
 fortnight. The value this skill adds is the triage pass in step 4.
+
+## Running as a fork
+
+This skill runs in a forked subagent, so the file reads from triage stay out of the calling
+session and only the report comes back. A fork cannot ask the user anything. Every point below
+where the user would decide (installing semgrep, fixing a finding, adding a suppression) ends
+the fork with what to offer, and the calling session asks.
 
 ## Where this sits
 
@@ -51,23 +61,24 @@ SKILL_DIR=$(ls -d ~/.claude/skills/semgrep-review ~/.copilot/skills/semgrep-revi
 command -v semgrep && semgrep --version
 ```
 
-If it is missing, say so and offer the install once:
+If it is missing, stop without scanning and return this for the calling session to offer once:
 
 > "semgrep isn't installed. Want me to set it up? It goes in its own venv under
 > `~/.local/share/semgrep-venv`, symlinked into `~/.local/bin`, no sudo and nothing
 > system-wide."
 
-On yes:
+Include the install command, with `$SKILL_DIR` resolved to a real path:
 
 ```bash
 "$SKILL_DIR"/scripts/install-semgrep.sh
 ```
 
-Ubuntu marks the system Python as externally managed, so `pip install --user semgrep` is
-refused outright. The venv sidesteps that without sudo. Pass `--upgrade` to move an existing
-install forward. To remove it entirely, delete the venv directory and the symlink.
+On yes, the calling session runs it and invokes this skill again. Ubuntu marks the system
+Python as externally managed, so `pip install --user semgrep` is refused outright. The venv
+sidesteps that without sudo. Pass `--upgrade` to move an existing install forward. To remove
+it entirely, delete the venv directory and the symlink.
 
-On no, stop there. Don't offer a container fallback: Docker Desktop's WSL integration is off
+On no, that is the end of it. Don't offer a container fallback: Docker Desktop's WSL integration is off
 on this machine, so there isn't one.
 
 ## Workflow
@@ -155,8 +166,8 @@ Discarded: 5 (3 in test fixtures, 1 unreachable, 1 pre-existing).
 Not covered: AutodeskImportHarness.cs failed to parse; read it by hand, nothing found.
 ```
 
-Then offer to fix what was found. Fixes are committed and pushed like any other change, per
-`git-workflow`.
+Then end the fork. Don't fix anything inside it: the calling session offers to fix what
+survived, and fixes are committed and pushed like any other change, per `git-workflow`.
 
 ## Suppressions
 
@@ -164,7 +175,8 @@ An accepted finding gets a `// nosemgrep: <rule-id>` on the line above, with the
 same comment. The bare `// nosemgrep` with no rule id suppresses everything on that line,
 including a future finding nobody has seen yet, so always name the rule.
 
-Never add a suppression unprompted. Propose it, say what it silences, and let the user decide.
+Never add a suppression unprompted. Propose it in the report, say what it silences, and let
+the user decide through the calling session.
 If the reasoning runs longer than a comment, it belongs in the thread's investigation note.
 
 ## Known limits
