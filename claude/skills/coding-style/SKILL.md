@@ -1,6 +1,6 @@
 ---
 name: coding-style
-description: The user's personal coding style preferences: philosophy, control flow, comments, error handling and structure, plus sections for C# and Terraform. The rules live in rules/ and a PreToolUse hook injects the ones that apply whenever a file is edited, so ordinary coding does not need this skill. Load it when the user asks what their coding style is, when reviewing code without editing it (the hook only fires on edits), and when the user corrects a style choice or says they prefer X over Y, to capture the preference before saving it.
+description: The user's personal coding style preferences: philosophy, control flow, comments, error handling and structure, plus sections for C#, Terraform and front-end code. The rules live in rules/ and a PreToolUse hook injects the ones that apply whenever a file is edited, so ordinary coding does not need this skill. Load it when the user asks what their coding style is, when reviewing code without editing it (the hook only fires on edits), and when the user corrects a style choice or says they prefer X over Y, to capture the preference before saving it.
 ---
 
 # Coding Style
@@ -16,6 +16,7 @@ Code should explain itself through naming and structure. The reader should be ab
 | `rules/core.md` | any language |
 | `rules/csharp.md` | `.cs`, `.csx` |
 | `rules/terraform.md` | `.tf`, `.tfvars` |
+| `rules/frontend.md` | `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.vue`, `.svelte`, `.html`, `.css`, `.scss` |
 
 `hooks/inject-style.sh` puts the fragments that apply into context on `PreToolUse` for
 `Edit`, `Write` and `NotebookEdit`, once per fragment per session. `hooks/README.md` has the

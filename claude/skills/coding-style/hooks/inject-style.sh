@@ -34,6 +34,7 @@ fragments=(core)
 case "$extension" in
   cs|csx) fragments+=(csharp) ;;
   tf|tfvars) fragments+=(terraform) ;;
+  ts|tsx|js|jsx|mjs|cjs|vue|svelte|html|css|scss) fragments+=(frontend) ;;
 esac
 
 if [[ ! -d "$state_dir" ]]; then

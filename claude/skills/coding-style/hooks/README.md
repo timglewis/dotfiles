@@ -18,7 +18,8 @@ version-controlled and needs no copying.
 
 Routing is on the file extension taken from `tool_input.file_path`, so all three editing tools
 share one testable decision. `.cs` and `.csx` add `csharp.md`, `.tf` and `.tfvars` add
-`terraform.md`, and everything else that isn't prose or configuration gets `core.md` alone.
+`terraform.md`, browser-side extensions (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.vue`,
+`.svelte`, `.html`, `.css`, `.scss`) add `frontend.md`, and everything else that isn't prose or configuration gets `core.md` alone.
 The skip list is a denylist rather than an allowlist so that a language nobody thought about
 still gets the any-language rules.
 
