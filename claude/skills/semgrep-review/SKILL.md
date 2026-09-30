@@ -33,10 +33,11 @@ the fork with what to offer, and the calling session asks.
 
 ## Where this sits
 
-Three review passes exist, and they do not overlap:
+Four review passes exist, and they do not overlap:
 
 | Pass | Finds | Driven by |
 | --- | --- | --- |
+| `spec-review` | Style breaches, code smells, gaps against the ticket | The model reading the diff against the rules and the spec |
 | `/code-review` | Correctness bugs, reuse, simplification | The model reading the diff |
 | `semgrep-review` (this) | Known-shape vulnerabilities and leaked credentials | Rule packs, then triaged |
 | `/security-review` | Logic-level security flaws no rule encodes | The model reasoning about the change |

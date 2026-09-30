@@ -6,8 +6,8 @@ description: >
   user says "write a PR summary", "PR summary for TACO-XXXX", "draft the PR description", "write
   up this PR", "summarise this PR", "PR description for this branch", "generate a PR title and
   summary", or anything similar, even without naming the ticket. Being asked for one means the
-  ticket's work is finished, so it first offers `/code-review` and `semgrep-review` over the
-  branch.
+  ticket's work is finished, so it first offers `spec-review`, `/code-review` and
+  `semgrep-review` over the branch.
 ---
 
 # PR Summary Skill
@@ -40,13 +40,16 @@ the last cheap moment for a review: the branch is complete, nothing is in the PR
 can still change without a second round of reviewer comments. Review fixes are committed and
 pushed like any other commit.
 
-Two passes are on offer, and they look for different things: `/code-review` for correctness bugs,
-`semgrep-review` for known-shape vulnerabilities and leaked credentials. Ask for both in one
-question rather than two, so the user answers once:
+Three passes are on offer, and they look for different things: `spec-review` for style breaches
+and for gaps against the ticket, `/code-review` for correctness bugs, `semgrep-review` for
+known-shape vulnerabilities and leaked credentials. Ask about all three in one question, so the
+user answers once:
 
-> "The branch looks complete. Want me to run `/code-review` and a `semgrep-review` security scan
-> over it before I write the summary? Either, both or neither."
+> "The branch looks complete. Want me to run `spec-review`, `/code-review` and a `semgrep-review`
+> security scan over it before I write the summary? Any, all or none."
 
+- **Spec review**: run it (`Skill(skill="spec-review")`). It reports Standards and Spec
+  separately; offer to fix whatever the user picks from either.
 - **Code review**: run it (`Skill(skill="code-review")`, it is a harness skill rather than one of
   these). Don't pass an effort level unless the user names one, because it reuses the level they
   last typed. `ultra` is user-triggered and billed, so if they want that, they type it themselves.
@@ -54,15 +57,16 @@ question rather than two, so the user answers once:
   normal branch. It runs as a fork and cannot ask anything itself, so if it comes back saying
   semgrep is not installed, offer the install it returns and run the skill again on yes. Offer
   to fix whatever survived its triage.
-- **Both**: run the code review first. It is the one more likely to change the diff, and the scan
-  should see the code that is actually going into the PR.
+- **More than one**: run them in the order spec review, code review, security scan. A missing
+  requirement can add a whole commit, so the spec review is the most likely to change the diff,
+  and each later pass should see the code the earlier fixes produced.
 
 Once the findings are dealt with (fixed, or consciously left), pick up from step 2. The summary
 must describe the final diff, not the one that existed before the review.
 
-Skip the question entirely when both have already run on this branch in the session, or when the
-user declined in the same breath as asking for the summary. Ask once, don't push. If only one has
-run, offer just the other.
+Skip the question entirely when all three have already run on this branch in the session, or when
+the user declined in the same breath as asking for the summary. Ask once, don't push. If some have
+run, offer just the rest.
 
 ### 2. Push the branch to origin
 
