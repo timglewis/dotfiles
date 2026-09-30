@@ -206,7 +206,10 @@ than averaging them**. One migration in an otherwise cosmetic PR is still Medium
 - **Blast radius**: how many customers, surfaces or callers see this if it's wrong. A shared helper
   with twenty call sites is wider than one endpoint.
 - **Reversibility**: does a revert and a redeploy undo it, or does undoing it need a backfill, a data
-  fix or a coordinated release?
+  fix or a coordinated release? Count what the change does outside the codebase too: a revert
+  won't unsend an email, unpublish a message or recall a call to a third party. A change behind a
+  flag stays reversible only until it first writes data in a new shape, so judge it as if the flag
+  has already been on for a while.
 - **Data**: does it write, migrate, delete or reshape anything at rest? Changing stored data is
   Medium at least, and a migration that can't be replayed backwards is High.
 - **Detectability**: would a failure surface immediately in errors and alerts, or sit quietly
@@ -247,6 +250,8 @@ The description body is what gets pasted into Azure DevOps. ALWAYS use this exac
 - <high-level change>
 - <high-level change>
 - <high-level change>
+
+<optional: one small visual of the change's shape>
 ```
 
 - **Four `##` sections, always in this order**: `## Context`, `## Risk`, `## Jira Reference`,
@@ -256,10 +261,43 @@ The description body is what gets pasted into Azure DevOps. ALWAYS use this exac
   are a signal at a glance, and a paragraph under either heading defeats the point.
 - `## Jira Reference` holds the bare URL on its own line, nothing else: no label, no link text.
 - `## Summary` is the only section with bullets. They cover the changes made, high-level. Aim for
-  roughly 3–6, and lead with the most significant change.
+  roughly 3–6, and lead with the most significant change. It may end with one visual, below.
 - Do **not** add sections beyond these four: no testing notes, "how to test", screenshots,
   rollout/flag notes, or file-by-file detail. If a change is only a supporting detail of a larger
   one, fold it into that bullet rather than giving it its own.
+
+**The optional visual.** When the change is structural (a call path gains or loses a step, a
+layer is introduced, files are reorganised, a branch of control flow changes), bullets describe it
+less well than a picture of its shape. Add one small plain-text visual in a code fence after the
+bullets, picking the smallest view that makes the point:
+
+- A **shaped diff** when the point is what changes in a shape that already exists. Show only the
+  structure, not the code, and keep a few unchanged lines around the change for orientation:
+  ```diff
+   CompleteOrderHandler.Handle
+     SettlePayment
+     WriteReceipt
+  +  SendOrderConfirmationAsync
+  ```
+- A **call tree** when the point is a new runtime path:
+  ```text
+  CompleteOrderHandler.Handle
+    SettlePayment
+    SendOrderConfirmationAsync
+      NotificationClient.SendAsync(channel: Email)
+  ```
+- A **file tree** when the point is where responsibilities now live, a comment per entry:
+  ```text
+  Notifications/
+  ├── NotificationClient.cs    # one send method, parameterised by channel
+  └── Channels/                # email and SMS formatting
+  ```
+- **Pseudocode** when the point is a piece of logic, such as a new guard or ordering rule.
+
+Most PRs need no visual: a bugfix, a config change or an additive endpoint reads fine as bullets.
+Use one visual at most, keep only the calls, files and branches a reviewer needs to see, and use
+the diff's real names. No Mermaid: it only reads once rendered, and the summary is also read raw in
+the note and the terminal.
 
 **Default detail level.** Each bullet names what changed _plus a short clause of mechanism or why_:
 roughly 15–25 words. The aim is enough for a reviewer to understand the change without opening the
@@ -326,6 +364,9 @@ https://keyframeai.atlassian.net/browse/TACO-1234
 ```
 ````
 
+When the description carries a visual, its own code fence would close the description block early,
+so open and close the description block with four backticks (` ````markdown `) instead of three.
+
 When step 5 chose labels, add a `**Labels**` line between the title and the description block,
 naming them in backticks (``**Labels**: `UI/UX` ``), so a PR raised by hand gets them too. With no
 labels, leave the line out.
@@ -340,6 +381,18 @@ Stamp `updated:` to today, per `obsidian`. Leave the rest of the frontmatter alo
 `status:` included: the PR doesn't exist yet, so both move only once it is raised (step 10).
 
 ### 10. Offer to create the PR on Azure DevOps
+
+First check whether the branch already has an open PR: the summary is often rewritten after review
+changes the diff, and by then the PR exists. Look in the note's `prs:` and ask Azure DevOps too,
+since a PR raised by hand may not be in the note yet:
+
+```bash
+az repos pr list --org https://dev.azure.com/keyframe-ai --project KeyframeAI \
+  --repository <repo> --source-branch "$(git branch --show-current)" --status active \
+  --query "[].{id:pullRequestId, title:title}" -o tsv
+```
+
+If one is open, skip to "Updating an open PR" below instead of offering a new one.
 
 Having written the summary, offer to raise the PR with those fields already filled in. Work out the
 auto-complete decision below **before** asking, so the question names what will actually happen and
@@ -400,7 +453,7 @@ az repos pr create \
   --source-branch "$(git branch --show-current)" \
   --target-branch master \
   --title "[TACO-XXXX] <title>" \
-  --description "<the description body>" \
+  --description "$(cat "$BODY")" \
   --labels "UI/UX" \
   --auto-complete true \
   --open
@@ -408,6 +461,9 @@ az repos pr create \
 
 Points that matter:
 
+- **The description goes through a file.** Write the body to a file in the scratchpad and pass it
+  as `"$(cat "$BODY")"`. Inline in double quotes, the backticks around identifiers and visuals are
+  run by the shell as commands.
 - **`--labels`** carries the labels from step 5, each as its own quoted argument
   (`--labels "UI/UX" "Performance"`), since `az` splits the list on spaces. Drop the flag when
   there are none.
@@ -437,6 +493,31 @@ Once `az` reports the PR created, update the index note's frontmatter:
   alone.
 
 If the user declines or the PR is raised by hand, leave both; `sweep-threads` picks them up.
+
+#### Updating an open PR
+
+When the branch already has an open PR, offer to replace its title and description instead:
+
+> "PR !<id> is already open for this branch. Want me to replace its title and description with this
+> one?"
+
+Show the resolved command and wait for approval, as for creating one:
+
+```bash
+az repos pr update \
+  --org https://dev.azure.com/keyframe-ai \
+  --id <id> \
+  --title "[TACO-XXXX] <title>" \
+  --description "$(cat "$BODY")"
+```
+
+Leave everything else on the PR alone: labels, reviewers, draft state and auto-complete were set
+when it was raised and may have been changed by hand since. If this summary's recommended labels
+differ from the PR's, or its risk has risen to `Medium` or `High` while auto-complete is on, say so
+in a line and let the user change it in the PR.
+
+Then update the frontmatter as for a new PR: append it to `prs:` if it isn't there (a PR raised by
+hand) and move `status:` to `review` by the same rule.
 
 If `az` is missing, not logged in, or the extension is absent, say so plainly and fall back to the
 copy-paste flow rather than trying to work around it.
