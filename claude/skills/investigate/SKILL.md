@@ -122,6 +122,35 @@ Make the file **navigable**. Every code reference should include a full absolute
 function, a config key), include them. Use Markdown file links for local paths, e.g.
 `[example-service](file://<code-root>/example-service/master/)`.
 
+#### Diagrams, only when the complexity earns one
+
+Most investigations need none. Add one when prose alone would make the reader hold too much in
+their head at once, typically when:
+
+- a flow crosses three or more components, services or layers, or goes through something
+  asynchronous (a queue, a background job, a webhook)
+- control flow branches on state in ways the ticket depends on, such as a lifecycle with several
+  statuses and transitions
+- the change moves responsibilities between files or introduces a layer
+
+A change to one handler, a linear call of two or three steps, or a new field threaded through a
+model reads fine as prose, and a diagram there is padding.
+
+When one is warranted, pick the smallest view that makes the point and place it beside the prose it
+supports:
+
+- **In Current State**: a call tree for a runtime path, a Mermaid `sequenceDiagram` for traffic
+  between services, a Mermaid `stateDiagram-v2` for a lifecycle, or a shallow file tree annotated
+  with each entry's responsibility. Obsidian renders Mermaid, so it is fine here.
+- **In What Needs to Change**: a plain-text diff of the same shape shown in Current State (a call
+  tree or file tree with `+` and `-` lines), so the reader sees exactly where the change lands. This
+  is often the single most useful picture in the document.
+- **Pseudocode** for a piece of logic whose ordering or guards matter.
+
+Keep only the calls, files and states the ticket touches, use the code's real names, and one or two
+diagrams per document is plenty. A diagram is part of the living document: when a finding changes
+the flow, redraw it rather than leaving a stale picture beside corrected prose.
+
 ### 5. Finalise
 
 When investigation is complete and open questions are resolved (or consciously deferred):
@@ -197,11 +226,16 @@ How the codebase currently works in the area this ticket touches. Focus on what'
 Include inline code references with full paths, e.g.:
 `<code-root>/example-service/master/src/Handlers/PaymentHandler.cs`
 
+If the flow is complex enough, one diagram of it (see "Diagrams, only when the complexity earns
+one").
+
 ## What Needs to Change
 
 Concrete description of the changes required. Not a task list (that's for the PR), but a clear
 articulation of what the code needs to do differently after this ticket. Reference specific files
 and functions where you can.
+
+If Current State has a diagram, a diff of that same shape showing where the change lands.
 
 ## Relevant Files
 
