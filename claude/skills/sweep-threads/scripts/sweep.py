@@ -27,8 +27,8 @@ import urllib.parse
 
 # Defaults match the layout the skills assume. Override any of them in the environment
 # rather than editing here, so an update to this file doesn't clobber the setting.
-VAULT = pathlib.Path(os.environ.get("KEYFRAME_VAULT", pathlib.Path.home() / "Obsidian" / "keyframe")) / "Threads"
-CODE_ROOT = pathlib.Path(os.environ.get("KEYFRAME_CODE_ROOT", pathlib.Path.home() / "code"))
+VAULT = pathlib.Path(os.environ.get("VAULT_ROOT", pathlib.Path.home() / "Obsidian" / "keyframe")) / "Threads"
+CODE_ROOT = pathlib.Path(os.environ.get("WORKFLOW_CODE_ROOT", pathlib.Path.home() / "code"))
 ORG = os.environ.get("KEYFRAME_AZDO_ORG", "https://dev.azure.com/keyframe-ai")
 PROJECT = os.environ.get("KEYFRAME_AZDO_PROJECT", "KeyframeAI")
 ARCHIVE = VAULT.parent / "Archive"
@@ -39,7 +39,7 @@ ORDER = ["planned", "coding", "review", "done"]
 HELD = {"paused", "dropped"}
 
 # A thread is archived once it has reached a terminal status and stayed quiet for this long.
-ARCHIVE_DAYS = int(os.environ.get("KEYFRAME_ARCHIVE_DAYS", 30))
+ARCHIVE_DAYS = int(os.environ.get("VAULT_ARCHIVE_DAYS", 30))
 ARCHIVE_STATUSES = {"done", "dropped"}
 
 

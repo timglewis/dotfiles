@@ -66,11 +66,11 @@ script:
 
 | Variable | Default |
 | --- | --- |
-| `KEYFRAME_VAULT` | `~/Obsidian/keyframe` |
-| `KEYFRAME_CODE_ROOT` | `~/code` |
+| `VAULT_ROOT` | `~/Obsidian/keyframe` |
+| `WORKFLOW_CODE_ROOT` | `~/code` |
 | `KEYFRAME_AZDO_ORG` | `https://dev.azure.com/keyframe-ai` |
 | `KEYFRAME_AZDO_PROJECT` | `KeyframeAI` |
-| `KEYFRAME_ARCHIVE_DAYS` | `30` |
+| `VAULT_ARCHIVE_DAYS` | `30` |
 
 ## Workflow
 
@@ -323,7 +323,7 @@ Then any PRs added to `prs:` in step 2, in one line per thread rather than a tab
 | Nothing ready to archive | Say so in a line. On a young vault this is the normal answer and needs no comment beyond it. |
 | `--archive` refuses a thread | It no longer qualifies, or `Archive/` already holds that folder. Re-run the sweep and work from the fresh rows; never move the folder by hand to get around it. |
 | The vault was restored or copied about | A copy that didn't preserve mtimes makes every thread look touched today, so nothing archives. That errs the safe way. Say it rather than falling back to `updated:` alone. |
-| The user wants a different dormancy window | Set `KEYFRAME_ARCHIVE_DAYS` for the run. Don't edit the script, and don't archive a thread the rows didn't offer. |
+| The user wants a different dormancy window | Set `VAULT_ARCHIVE_DAYS` for the run. Don't edit the script, and don't archive a thread the rows didn't offer. |
 | `az` not logged in or missing | Stop before writing anything. Point at `! az login`. |
 | A repo's origin cannot be listed | Carry on with local branches, flag the repo, distrust moves back to `planned`. |
 | A key has two thread folders | Named in `duplicate_keys`, and the writes warn about it. Ask the user which folder is the thread; fix the other by hand only on their answer. |
