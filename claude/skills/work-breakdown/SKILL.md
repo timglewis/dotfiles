@@ -21,7 +21,7 @@ themselves in Jira.
 start-thread → investigate → work-breakdown → (jira-ticket)
                                    │
                                    └→ per ticket:
-                                      start-thread → commit-breakdown → pr-summary
+                                      start-thread → commit-breakdown → implement → pr-summary
 ```
 
 `jira-ticket` is the reference this skill leans on: **it owns what a ticket looks like: the three

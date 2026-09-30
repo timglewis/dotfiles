@@ -163,6 +163,9 @@ pointer, not a commit, so don't number it or give it a commit message.
 
 Stamp `updated:` in the index note, per `obsidian`, and change nothing else in it.
 
+The next step is `implement`, which builds the plan one commit at a time and records each finished
+commit in this document as a `**Done:**` line under its message. Point at it.
+
 Then give a verdict on clearing before the first commit, per "Clearing at a handoff" in `obsidian`.
 Lean towards clearing here even after a short session: coding starts from the plan on disk, and a
 fresh session reloads the `git-workflow` and `coding-style` rules loaded in step 3 in full, where a
