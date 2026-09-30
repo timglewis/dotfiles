@@ -6,3 +6,5 @@
 # file is the only record of what a new machine needs.
 #
 #   vercel-labs/agent-skills --skill web-design-guidelines
+
+mattpocock/skills --skill improve-codebase-architecture
