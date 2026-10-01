@@ -18,3 +18,7 @@ These apply on top of the any-language preferences.
 ## Error handling
 
 - Prefer `catch (SpecificException e) when (<filter>)` over a broad catch, so unrelated failures are never intercepted
+
+## Null checks
+
+- Check for null with `is null` and `is not null`, never `== null` or `!= null`. The pattern can't be overloaded, so a type's own `==` operator never changes what the check means
