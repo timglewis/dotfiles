@@ -162,8 +162,9 @@ their call, made after looking at what just landed. When they say to, go back to
 ## After the last commit
 
 When every block has a `**Done:**` line, the build is finished. Say so, and point at `pr-summary`
-as the next step: it offers `spec-review`, `/code-review` and `semgrep-review` over the branch
-before writing the summary, which is where `commit-breakdown`'s closing footer sends the work.
+as the next step: it offers `conformance-review`, `/code-review` and `semgrep-review` over the
+branch before writing the summary, which is where `commit-breakdown`'s closing footer sends the
+work.
 
 Give a verdict on clearing first, per "Clearing at a handoff" in `obsidian`. The reviews work from
 the diff and the thread's notes, so a clear usually wins after a build of more than a commit or

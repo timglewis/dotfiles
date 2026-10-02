@@ -1,33 +1,42 @@
 ---
-name: spec-review
+name: conformance-review
 description: >
-  Review the current branch along two separate axes: Standards (does the diff follow the user's
-  coding-style rules, the repo's own documented conventions and a baseline of code smells?) and
-  Spec (does it deliver what the Jira ticket and the thread's investigation asked for, no more and
-  no less?). Runs each axis in its own subagent and reports them side by side. Use whenever the
-  user says "spec review", "review against the ticket", "does this match the ticket", "check this
-  against the spec", "did I miss anything from the ticket", "standards review", "check this follows
-  my coding style", or anything similar. It does not hunt for correctness bugs: that is the
-  built-in `/code-review`, which this complements rather than replaces.
+  Review the current branch along four separate axes: Standards (does the diff follow the user's
+  coding-style rules, the repo's own documented conventions and a baseline of code smells?), Spec
+  (does it deliver everything the Jira ticket and the thread's investigation asked for, the way
+  they agreed?), Fit (does it follow the undocumented patterns its sibling code shares?) and
+  Readiness (leftover debug code, stray TODOs, docs not updated). Reports the axes side by side.
+  Use whenever the user says "conformance review", "spec review", "review against the ticket",
+  "does this match the ticket", "check this against the spec", "did I miss anything from the
+  ticket", "standards review", "check this follows my coding style", "does this fit the
+  codebase", "is this ready for review", or anything similar. It does not hunt for correctness bugs: that is the built-in
+  `/code-review`, which this complements rather than replaces.
 ---
 
-# Spec Review Skill
+# Conformance Review Skill
 
-A two-axis review of what this branch changed:
+A four-axis review of what this branch changed:
 
 - **Standards**: does the code follow the user's coding style and the repo's documented conventions?
-- **Spec**: does the code deliver what the ticket asked for?
+- **Spec**: does the code deliver what the ticket asked for, the way it was agreed?
+- **Fit**: does the code look like the code around it, where the repo's patterns are undocumented?
+- **Readiness**: is there anything a PR reviewer would bounce before reading the logic?
 
-Each axis runs in its own subagent so neither sees the other's reasoning, and the two reports are
-never merged or ranked against each other.
+Standards, Spec and Fit each run in their own subagent so none sees another's reasoning. Readiness
+is mostly mechanical, so this session runs it directly. The reports are never merged or ranked
+against each other.
 
 ## Where this sits
 
 | Pass | Finds |
 | --- | --- |
 | `/code-review` | Correctness bugs, reuse, simplification |
-| `spec-review` (this) | Style and convention breaches, code smells, missing or unrequested behaviour |
+| `conformance-review` (this) | Convention breaches, code smells, undelivered requirements, departures from sibling patterns, PR loose ends |
 | `semgrep-review` | Known-shape vulnerabilities and leaked credentials |
+
+Spec looks for what is missing or wrong, never for what is extra. Behaviour nothing asked for,
+incidental refactors and tidy-ups are not findings: the user decides scope while doing the work,
+and a pass that second-guesses it is noise.
 
 Run it from a fresh session where possible. The session that wrote the code holds every
 assumption that shaped it, which is exactly what an independent review should not have.
@@ -49,7 +58,7 @@ Fetch first (`git fetch origin`) so the fixed point is current. Capture the diff
 commit list as `git log <fixed-point>..HEAD --oneline`.
 
 Confirm the ref resolves (`git rev-parse <fixed-point>`) and the diff is non-empty before going
-further. A bad ref or an empty diff should fail here, not inside two subagents.
+further. A bad ref or an empty diff should fail here, not inside three subagents.
 
 ### 2. Gather the spec
 
@@ -97,14 +106,14 @@ Each smell is a labelled heuristic ("possible Feature Envy"), never a hard viola
 - **Middle Man**: a class or function that mostly just delegates onward. Cut it and call the real target directly.
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. Drop the inheritance and use composition.
 
-### 4. Spawn both subagents in parallel
+### 4. Spawn the three subagents in parallel
 
-Use two `general-purpose` agents in a single message. Each prompt must be self-contained, since
-neither has access to this skill, and each must end with the guard below. Without it a subagent can
+Use three `general-purpose` agents in a single message. Each prompt must be self-contained, since
+none has access to this skill, and each must end with the guard below. Without it a subagent can
 rediscover a review skill and fan out again, which upstream has seen reach 50 agents:
 
-> Do not invoke `spec-review`, `/code-review` or any other skill, and do not spawn additional
-> agents: perform this review directly.
+> Do not invoke `conformance-review`, `/code-review` or any other skill, and do not spawn
+> additional agents: perform this review directly.
 
 **Standards subagent** gets:
 
@@ -122,22 +131,60 @@ rediscover a review skill and fan out again, which upstream has seen reach 50 ag
 - The diff command and commit list.
 - The ticket's content and the paths of `investigation.md` and `commit-breakdown.md`, or the path
   the user gave.
-- The brief: "Report (a) requirements that are missing or only partly delivered; (b) behaviour in
-  the diff that nothing asked for (scope creep); (c) requirements that look delivered but where the
-  implementation looks wrong. Quote the ticket or note line for each finding. Where the
-  investigation or commit breakdown records a decision that changes the ticket's original ask,
-  judge against the decision. Under 400 words."
+- The brief: "Report (a) requirements that are missing or only partly delivered, including
+  acceptance criteria whose edge cases the diff doesn't handle; and (b) requirements that look
+  delivered but where the implementation looks wrong, or departs from the approach the
+  investigation or commit breakdown agreed. Quote the ticket or note line for each finding. Where
+  the investigation or commit breakdown records a decision that changes the ticket's original ask,
+  judge against the decision. Do not report behaviour, refactors or tidy-ups that nothing asked
+  for: extra work is out of scope for this review. If every requirement is delivered, say so in
+  one line. Under 400 words."
 
-### 5. Aggregate
+**Fit subagent** gets:
 
-Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned.
-Do not merge or rerank the findings.
+- The diff command and commit list.
+- The paths of the repo documentation from step 3, so it knows what Standards already covers.
+- The brief: "For each file the diff adds or substantially changes, find two or three siblings:
+  files in the same folder, implementing the same interface or base class, or sharing the same
+  suffix (`*Handler`, `*Controller`, `*Repository`, `*.tf` module, component). Read them and
+  report where the diff departs from a pattern the siblings share: dependency injection and
+  registration, logging, error handling and result types, validation, configuration access,
+  naming, file and folder placement, and test layout. Report a departure only when at least two
+  siblings agree on the pattern, and quote the sibling (path and line) beside the hunk that
+  departs. Where siblings disagree with each other, there is no pattern and no finding. Skip
+  anything the repo documentation already rules on, and anything tooling enforces. If a new file
+  has no siblings, say so rather than inventing a pattern. Under 400 words."
+
+### 5. Check readiness
+
+While the subagents run, check the diff's added lines (`git diff <fixed-point>...HEAD`, lines
+starting `+`) for the loose ends a PR reviewer bounces before reading the logic:
+
+- **Debug leftovers**: `Console.WriteLine`, `Debug.WriteLine`, `console.log`, `debugger`,
+  `print(`, and the like, outside code whose job is output.
+- **Unticketed markers**: `TODO`, `FIXME`, `HACK` or `XXX` added without a ticket key beside it.
+- **Commented-out code**: blocks of code left commented rather than deleted.
+- **Skipped or focused tests**: `[Fact(Skip`, `[Ignore]`, `.only(`, `.skip(`, `xit(`.
+- **Stale docs**: a changed public API, CLI flag, config key, app setting or environment variable
+  with no matching change to the README, `docs/`, `appsettings*.json` samples or Terraform
+  variables that describe it.
+- **Stray files**: files the diff adds that look accidental (scratch output, local settings,
+  `*.orig`, editor or OS files).
+
+Each finding gives the file and line. Commit messages are not checked: `git-workflow` has the user
+approve each one before it is made.
+
+### 6. Aggregate
+
+Present the reports under `## Standards`, `## Spec`, `## Fit` and `## Readiness` headings,
+verbatim or lightly cleaned. Do not merge or rerank the findings, and drop any Fit finding that
+repeats a Standards one.
 
 End with one line: the number of findings on each axis and the worst issue *within* each. Don't
-pick a single winner across the axes, because a change can pass one and fail the other: code that
+pick a single winner across the axes, because a change can pass one and fail another: code that
 follows every convention while delivering the wrong thing, or code that does exactly what the
-ticket asked while breaking the conventions. A blended verdict lets the passing axis hide the
-failing one.
+ticket asked while looking nothing like its neighbours. A blended verdict lets the passing axes
+hide the failing one.
 
 Offer to fix what the user picks. A fix is committed and pushed like any other commit, per
 `git-workflow`.
@@ -148,5 +195,7 @@ Forked from `skills/engineering/code-review` in
 [mattpocock/skills](https://github.com/mattpocock/skills) at commit `5c89081d`. Renamed so it does
 not shadow the built-in `/code-review`, and adapted to find the spec in Jira and the vault rather
 than GitHub issues, to read `coding-style` as a standards source, to default the fixed point
-instead of asking for one, and to guard the subagents against recursion. To pick up upstream
+instead of asking for one, and to guard the subagents against recursion. The Spec axis no longer
+reports scope creep, and the Fit and Readiness axes are local additions with no upstream
+counterpart. To pick up upstream
 changes, diff that path against `5c89081d` and port what applies by hand.

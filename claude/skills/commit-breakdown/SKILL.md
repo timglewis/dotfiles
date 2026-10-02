@@ -149,9 +149,9 @@ Close the document with the review step, so the plan ends where the work does:
 
 ## After the last commit
 
-Run `spec-review` over the branch, then `/code-review`, then a `semgrep-review` security scan,
-and deal with the findings before the PR is raised. The `pr-summary` skill offers all three too,
-so if they have already run there is nothing to repeat.
+Run `conformance-review` over the branch, then `/code-review`, then a `semgrep-review` security
+scan, and deal with the findings before the PR is raised. The `pr-summary` skill offers all three
+too, so if they have already run there is nothing to repeat.
 ```
 
 Write that section verbatim: it is a fixed footer, not something to reword per ticket. It is a

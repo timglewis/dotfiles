@@ -6,7 +6,7 @@ description: >
   user says "write a PR summary", "PR summary for TACO-XXXX", "draft the PR description", "write
   up this PR", "summarise this PR", "PR description for this branch", "generate a PR title and
   summary", or anything similar, even without naming the ticket. Being asked for one means the
-  ticket's work is finished, so it first offers `spec-review`, `/code-review` and
+  ticket's work is finished, so it first offers `conformance-review`, `/code-review` and
   `semgrep-review` over the branch.
 ---
 
@@ -40,16 +40,16 @@ the last cheap moment for a review: the branch is complete, nothing is in the PR
 can still change without a second round of reviewer comments. Review fixes are committed and
 pushed like any other commit.
 
-Three passes are on offer, and they look for different things: `spec-review` for style breaches
-and for gaps against the ticket, `/code-review` for correctness bugs, `semgrep-review` for
-known-shape vulnerabilities and leaked credentials. Ask about all three in one question, so the
-user answers once:
+Three passes are on offer, and they look for different things: `conformance-review` for style
+breaches, gaps against the ticket, departures from sibling code and PR loose ends, `/code-review`
+for correctness bugs, `semgrep-review` for known-shape vulnerabilities and leaked credentials. Ask
+about all three in one question, so the user answers once:
 
-> "The branch looks complete. Want me to run `spec-review`, `/code-review` and a `semgrep-review`
-> security scan over it before I write the summary? Any, all or none."
+> "The branch looks complete. Want me to run `conformance-review`, `/code-review` and a
+> `semgrep-review` security scan over it before I write the summary? Any, all or none."
 
-- **Spec review**: run it (`Skill(skill="spec-review")`). It reports Standards and Spec
-  separately; offer to fix whatever the user picks from either.
+- **Conformance review**: run it (`Skill(skill="conformance-review")`). It reports Standards,
+  Spec, Fit and Readiness separately; offer to fix whatever the user picks from any of them.
 - **Code review**: run it (`Skill(skill="code-review")`, it is a harness skill rather than one of
   these). Don't pass an effort level unless the user names one, because it reuses the level they
   last typed. `ultra` is user-triggered and billed, so if they want that, they type it themselves.
