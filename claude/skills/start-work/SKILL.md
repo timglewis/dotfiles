@@ -2,7 +2,7 @@
 name: start-work
 description: >
   Set up somewhere to do the work: a git worktree plus a Herdr workspace with Prompt, Claude and
-  Editor tabs. Use whenever the user says "set up the environment for TACO-XXXX", "create a
+  LazyGit tabs. Use whenever the user says "set up the environment for TACO-XXXX", "create a
   worktree for TACO-XXXX", "make me a workspace for TACO-XXXX", "set me up for this ticket", "get
   me an environment for TACO-XXXX", or otherwise asks for somewhere to do the work rather than
   somewhere to keep notes. Usually follows start-thread. Requires HERDR_ENV=1.
@@ -201,7 +201,7 @@ herdr tab rename <root-tab-id> Prompt
 herdr tab create --workspace <ws-id> --cwd "$WT" --label Claude --no-focus
 # -> .result.tab.tab_id, .result.root_pane.pane_id
 
-herdr tab create --workspace <ws-id> --cwd "$WT" --label Editor --no-focus
+herdr tab create --workspace <ws-id> --cwd "$WT" --label LazyGit --no-focus
 # -> .result.tab.tab_id, .result.root_pane.pane_id
 ```
 
@@ -210,7 +210,7 @@ and are not sequential in any way you can rely on.
 
 Pass `--cwd` on every tab. A tab does not inherit the workspace's directory.
 
-### 6. Fill the Claude and Editor tabs
+### 6. Fill the Claude and LazyGit tabs
 
 The Claude tab gets a real agent rather than a shell running `claude`, so Herdr tracks its
 lifecycle and it shows up in `herdr agent list`:
@@ -222,10 +222,10 @@ herdr agent start <dir> --kind claude --pane <claude-pane-id>
 This returns only once Herdr has detected the agent and considers it ready, typically in a few
 seconds against a 30-second default timeout.
 
-The Editor tab is an ordinary command:
+The LazyGit tab is an ordinary command:
 
 ```bash
-herdr pane run <editor-pane-id> "nvim ."
+herdr pane run <lazygit-pane-id> "lazygit"
 ```
 
 Leave the Prompt tab alone. It is a shell sitting at a prompt in the worktree, which is the whole
@@ -263,8 +263,8 @@ and what to do first is theirs to decide.
 | Agent name already live | The workspace exists somewhere. Find it with `herdr agent list` before creating anything. |
 | `git fetch` fails | Offer to branch from the local default branch instead, saying it may be behind. |
 | `agent start` returns `agent_not_ready` | The pane kept the name. Wait for idle with `herdr agent wait <name>`, do not start a second agent. |
-| `agent start` fails outright | Leave the workspace up. The Prompt and Editor tabs are still useful; say the Claude tab needs starting by hand. |
-| `nvim` not installed | Leave the tab as a shell and say so. Do not substitute another editor. |
+| `agent start` fails outright | Leave the workspace up. The Prompt and LazyGit tabs are still useful; say the Claude tab needs starting by hand. |
+| `lazygit` not installed | Leave the tab as a shell and say so. Do not substitute another tool. |
 | Not running inside Herdr | Create the worktree, link the shared config, move the thread to `coding`, skip the workspace, say which half was done. |
 
 Partial success is normal and worth reporting precisely. A worktree with two working tabs is a

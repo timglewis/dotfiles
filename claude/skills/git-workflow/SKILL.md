@@ -90,7 +90,7 @@ this applies when a branch is created without it.
 ### Setting up the whole environment
 
 `git-workflow` owns the naming rules above and nothing more. When the user wants the environment
-built rather than just a branch (a worktree plus a Herdr workspace with Prompt, Claude and Editor
+built rather than just a branch (a worktree plus a Herdr workspace with Prompt, Claude and LazyGit
 tabs), that is the `start-work` skill, which calls back here for the names.
 
 ---
