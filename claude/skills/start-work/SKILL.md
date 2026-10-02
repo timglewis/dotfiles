@@ -245,10 +245,10 @@ herdr tab focus <claude-tab-id>
 Give the user the worktree path, the branch, the workspace ID and label, which shared config files
 step 3 linked or found missing, and the thread's status if step 4 moved it.
 
-Then flag the session problem, because it is easy to miss: the Claude agent in the new tab is a
-**different session** from the one that ran this skill. Whatever `track-session` recorded points at
-the old working directory and will resume in the wrong place. Say so, and suggest running
-`track-session` from the new Claude tab so the thread's session log points at the worktree.
+The Claude agent in the new tab is a **different session** from the one that ran this skill, and
+the `SessionStart` hook has already recorded it in the thread's `sessions.md` against the worktree,
+since the branch names the ticket. Say so in one line, so the user knows which entry to resume the
+work from: the one this session wrote points at the old working directory.
 
 Do not prompt the new agent with the ticket's work unless the user asks. It starts idle and ready,
 and what to do first is theirs to decide.

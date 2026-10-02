@@ -25,6 +25,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/skills/track-session/hooks/record-session.sh\"",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "PreToolUse": [

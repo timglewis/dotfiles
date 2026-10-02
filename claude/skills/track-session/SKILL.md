@@ -2,15 +2,23 @@
 name: track-session
 description: >
   Record the current Claude Code session in a thread's sessions.md in the Obsidian vault, with the
-  working directory and resume command, so it can be picked up later. Use when the user says
-  "track this session", "log this session", "add this session to my notes"; when re-running in a
-  session already recorded, to sharpen its label and hand-off notes; and when a session begins in
-  a worktree whose branch names a ticket that already has a thread.
+  working directory and resume command, so it can be picked up later. A SessionStart hook records
+  keyed threads on its own, so this skill is for what the hook can't do. Use when the user says
+  "track this session", "log this session", "add this session to my notes", "add hand-off notes";
+  before recommending /clear at a handoff, to leave notes for whoever resumes; to sharpen the
+  label of a session already recorded; and when another skill writes into a thread this session
+  isn't recorded in yet.
 ---
 
 # Track Session Skill
 
 Records this session against a thread in the vault so a future session can be resumed with the right working directory. Entries live in their own `sessions.md` file inside the thread folder, so the index note stays a summary and the session log can grow without burying it.
+
+## What the hook already did
+
+`hooks/record-session.sh` runs on every session start, `/clear` and resume. When the branch names a ticket with a thread, or the session is working inside a thread folder, it has already written a bare entry (the thread title as label, no notes), linked `sessions.md` from the index note and stamped `updated:`. Its message in context says which, and carries the session ID.
+
+So this skill mostly **updates an entry that exists**: a sharper label, and notes. It writes a new entry only for the threads the hook can't see, chiefly unkeyed threads worked on from a code repo, or when the hook's message says it couldn't record the session. `hooks/README.md` has the detail.
 
 **Invoke `obsidian` first.** It owns where thread folders live, how to find one, and how notes are written. Don't reconstruct any of that from memory.
 
@@ -22,7 +30,7 @@ Records this session against a thread in the vault so a future session can be re
 
 ### 1. Establish the session ID
 
-A `SessionStart` hook may have already supplied it, in which case use that and skip ahead. Otherwise take it from the scratchpad directory named in the environment, whose path ends in the session UUID followed by `scratchpad`:
+Take it from the hook's message in context when there is one, and skip ahead: the hook reads it from Claude Code itself, so it needs no checking. Otherwise take it from the scratchpad directory named in the environment, whose path ends in the session UUID followed by `scratchpad`:
 
 ```
 .../<project-slug>/<session-uuid>/scratchpad
@@ -46,7 +54,7 @@ Record the absolute path. In a worktree this is the worktree, not the repo root.
 
 ### 3. Find the thread
 
-Follow the routes in `obsidian`. **Keyed threads** (`code` with a `ticket:`, or `incident`) take their key from the current branch. **Unkeyed threads** (`work`, `investigation`, untracked `code`) resolve from what the session has actually been about, which is the one extra clue this skill has: the transcript itself.
+If the hook's message names a `sessions.md`, that is the thread. Otherwise follow the routes in `obsidian`. **Keyed threads** (`code` with a `ticket:`, or `incident`) take their key from the current branch. **Unkeyed threads** (`work`, `investigation`, untracked `code`) resolve from what the session has actually been about, which is the one extra clue this skill has: the transcript itself.
 
 If no thread exists, tell the user to run `start-thread`. Do not scaffold one here.
 
@@ -62,7 +70,7 @@ Give it no frontmatter, per `obsidian`. The H1 uses the key for keyed threads an
 
 Search the file for this session's UUID first:
 
-- **Already there**: update that entry in place. Never append a second entry for one session.
+- **Already there**: update that entry in place. Never append a second entry for one session. This is the usual case, since the hook got there first.
 - **Not there**: append below the existing entries, so they read oldest to newest.
 
 Leave the index note's own content untouched. Its `updated:` stamp is the one exception, covered in step 6.
@@ -109,10 +117,10 @@ Each answers a different question, so keep them apart:
 
 | | answers | written | changes |
 | --- | --- | --- | --- |
-| Label | which session is this | at the start | rarely |
-| Notes | where it left off, what a resumer needs | on a re-run | every re-run |
+| Label | which session is this | by the hook, at the start | rarely |
+| Notes | where it left off, what a resumer needs | by this skill | every run |
 
-A label is a few words naming the piece of work, drawn from the thread title when the session is new: `Return destination refactor`, `PR review fixes`, `E2E flakiness`. Sharpen it on a re-run once the session has turned out to be about something narrower.
+A label is a few words naming the piece of work: `Return destination refactor`, `PR review fixes`, `E2E flakiness`. The hook uses the thread title, which is a fine start but often long and never specific to the session. Sharpen it once the session has turned out to be about something narrower.
 
 Notes are for the state a resumer would otherwise have to rediscover: uncommitted work, a decision taken, the thing that was about to happen next. Write them only when there is something concrete. An entry with no notes is normal and better than an entry padded with a restatement of the label.
 

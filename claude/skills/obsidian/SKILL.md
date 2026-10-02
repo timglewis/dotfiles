@@ -162,11 +162,13 @@ Nested threads move as a tree or not at all, since nesting is folder nesting. A 
 
 **Stamp `updated:` in the thread's `index.md` whenever you write anywhere in the thread**, not just when you edit the index note itself. Writing `investigation.md`, appending to `sessions.md` or adding a `commit-breakdown.md` all count. The Recent threads view sorts on it, so a stale stamp hides live work.
 
+**Make sure the session is in `sessions.md` too.** A `SessionStart` hook records keyed threads on its own, and says so in context. When there is no such message for the thread being written to, which is the usual case for an unkeyed thread worked on from a code repo, run `track-session` as part of the write.
+
 This and a status move made by the skill that owns it (see "Status") are the only edits to make to an index note you weren't asked to change. Leave its body and the rest of its frontmatter alone.
 
 ## Clearing at a handoff
 
-Several skills end at a handoff, where the thread's notes carry everything the next step needs. There, give the user a verdict on `/clear`, not a blanket suggestion: one line saying whether to clear and why, grounded in what this session actually did. Recommend `/clear` rather than a compaction whenever you do recommend one, and a re-run of `track-session` afterwards.
+Several skills end at a handoff, where the thread's notes carry everything the next step needs. There, give the user a verdict on `/clear`, not a blanket suggestion: one line saying whether to clear and why, grounded in what this session actually did. Recommend `/clear` rather than a compaction whenever you do recommend one. Before recommending it, run `track-session` to write hand-off notes for this session if a resumer would need anything the thread's notes don't carry: this session is the only one that knows. There is no need to re-run it after the clear, since the hook records the new session.
 
 A clear costs a re-read of one or two notes and the next skill's instructions, usually a few thousand tokens. It drops everything else: file reads, search output, back-and-forth that has since been settled. So weigh how much the session gathered that the next step won't need:
 
